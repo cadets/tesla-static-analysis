@@ -7,6 +7,9 @@
 # PATH                          should include the LLVM/Clang you want to use
 #                               and (optionally) the 'tesla' script
 #
+# NO_TESLA         [optional]   if set, don't use TESLA, just use its
+#                               external toolchain (Clang/LLVM 3.3)
+#
 # TESLA            [optional]   if the 'tesla' script isn't on the PATH,
 #                               this variable should point to it
 #
@@ -17,27 +20,35 @@
 
 
 # Find the various tools we need.
-XCC=`which clang`
-XCXX=`which clang++`
-XCPP=`which clang-cpp`
-XLLC=`which llc`
-BINUTILS=$(dirname `which ar`)
+: ${XCC:="`which clang`"}
+: ${XCXX:="`which clang++`"}
+: ${XCPP:="`which clang-cpp`"}
+: ${XLLC:="`which llc`"}
+: ${BINUTILS:="$(dirname `which ar`)"}
 
 
-# Find the TESLA driver script (if not already set).
-if [ "$TESLA" == "" ]; then
-	TESLA=`which tesla`
-fi
-
-if [ "$TESLA" == "" ]; then
-	echo "Unable to find 'tesla' script; set PATH or TESLA variable"
-	exit 1
+# Do we want to use TESLA or just the Clang/LLVM 3.3 toolchain?
+if [ "$NO_TESLA" == "" ]
+then
+	TESLA_FLAG="-DWITH_TESLA"
+else
+	# Find the TESLA driver script (if not already set).
+	: ${TESLA:="`which tesla`"}
+	if [ "$TESLA" == "" ]; then
+		echo "Unable to find 'tesla' script!"
+		echo "Set PATH or TESLA variable to point to 'tesla'"
+		exit 1
+	fi
 fi
 
 if [ "$KERNCONF" == "" ]; then
 	echo "KERNCONF not set, defaulting to TESLA_ALL"
 	KERNCONF="TESLA_ALL"
 fi
+
+
+# Set environment variables for C++ with the old toolchain:
+export CXX_INC=$MAKEOBJDIRPREFIX/`make -V .CURDIR`/tmp/usr/include/c++/v1
 
 
 echo "Building with:"
@@ -49,8 +60,22 @@ echo "   XCPP       $XCPP"
 echo "   XLLC       $XLLC"
 
 
-# Run make, setting some variable and passing command-line arguments through.
+#
+# Run make, setting some variable and passing command-line arguments through:
+#
+#  -DWITH_TESLA                 build TESLA parts (if NO_TESLA not set)
+#  -DWITHOUT_FORMAT_EXTENSIONS  don't use printf format extensions
+#                               that clang33 can't understand
+#  NO_WERROR=YES / WERROR=      disable -Werror
+#  XCC, XCXX, XCPP, XLLC        external toolchain
+#  XCXXFLAGS                    C++ flags to build -CURRENT with Clang 3.3
+#  TESLA                        path to TESLA script
+#
 make \
-	KERNCONF=$KERNCONF -DWITH_TESLA -DWITHOUT_FORMAT_EXTENSIONS \
+	KERNCONF=$KERNCONF \
+	NO_WERROR=YES WERROR= \
 	XCC=$XCC XCXX=$XCXX XCPP=$XCPP XLLC=$XLLC TESLA=$TESLA \
+	XCXXFLAGS="-cxx-isystem $CXX_INC -stdlib=libc++" \
+	$TESLA_FLAG \
+	-DWITHOUT_FORMAT_EXTENSIONS \
 	$*
