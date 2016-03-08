@@ -31,7 +31,7 @@
 if [ "$NO_TESLA" == "" ]
 then
 	TESLA_FLAG="-DWITH_TESLA"
-else
+
 	# Find the TESLA driver script (if not already set).
 	: ${TESLA:="`which tesla`"}
 	if [ "$TESLA" == "" ]; then
@@ -39,10 +39,38 @@ else
 		echo "Set PATH or TESLA variable to point to 'tesla'"
 		exit 1
 	fi
+
+	# Check TESLA tools.
+	echo "TESLA enabled, checking toolchain:"
+
+	TMP=`mktemp -d`
+	DIR="`pwd`"
+	cd ${TMP}
+
+	echo > test.c << EOF
+int main() { return 0; }
+EOF
+
+	echo -n "  checking '${TESLA} analyse'... "
+	${TESLA} analyse test.c -o .tesla -- || exit 1
+	echo "done."
+
+	echo -n "  checking '${XCC}'... "
+	${XCC} -S -emit-llvm test.c -o test.ll
+	echo "done."
+
+	echo -n "  checking '${TESLA} instrument'... "
+	${TESLA} instrument -S test.ll > /dev/null || exit 1
+	echo "done."
+
+	cd ${DIR}
+	rm -r ${TMP}
+	echo ""
 fi
 
 if [ "$KERNCONF" == "" ]; then
 	echo "KERNCONF not set, defaulting to TESLA_ALL"
+	echo ""
 	KERNCONF="TESLA_ALL"
 fi
 
@@ -58,6 +86,14 @@ echo "   XCC        $XCC"
 echo "   XCXX       $XCXX"
 echo "   XCPP       $XCPP"
 echo "   XLLC       $XLLC"
+
+if [ "${XCC}" = "" ] || [ "${XCXX}" = "" ] || [ "${XCPP}" = "" ] \
+	|| [ "${XLLC}" = "" ]
+then
+	echo ""
+	echo "Error: cannot proceed without all X___ tools"
+	exit 1
+fi
 
 
 #
