@@ -48,7 +48,7 @@ function(check_dot_output DOT_EXECUTABLE INPUT FILE_TYPE OUTPUT)
       else ()
         # Did we produce anything useful?
         file(READ ${INPUT}.${FILE_TYPE} OUTPUT HEX)
-        if ("${OUTPUT}" STREQUAL "")
+        if (${OUTPUT} STREQUAL "")
           set(ERR "dot -T${FILE_TYPE} produced an empty file")
         endif ()
       endif ()
