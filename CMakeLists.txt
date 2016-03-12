@@ -189,5 +189,5 @@ add_subdirectory(libtesla)
 add_subdirectory(tesla)
 add_subdirectory(scripts)
 
-# A top-level 'test' target to drive all tests of TESLA subdirectories.
-add_custom_target(test DEPENDS libtesla-test tesla-test run-demos)
+# A top-level 'check' target to drive all tests of TESLA subdirectories.
+add_custom_target(check DEPENDS libtesla-test tesla-test run-demos)
