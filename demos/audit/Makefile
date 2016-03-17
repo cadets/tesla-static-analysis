@@ -32,7 +32,7 @@ TESLA_FILES=	\
 	vfs_syscalls.tesla \
 	vfs_vnops.tesla
 
-CLANG_VERSION=`${CLANG} --version | grep version | awk '{ print $$3 }'`
+CLANG_VERSION=`${CC} --version | grep version | awk '{ print $$3 }'`
 RESOURCE_DIR=-resource-dir `${LLVM_CONFIG} --libdir`/clang/${CLANG_VERSION}
 
 
