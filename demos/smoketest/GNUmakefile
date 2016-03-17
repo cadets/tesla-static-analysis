@@ -10,8 +10,8 @@ TESLA_BUILD_DIR?=${TESLA_SOURCE_DIR}/build
 # Normal consumers don't need to do this.
 TRIPLE=		$(shell tesla get-triple)
 
-CC?=		clang
-LLC?=		llc
+CC=		clang
+LLC=		llc
 
 REVISION:=	$(shell ./revision.sh)
 CFLAGS+=	-Wall -D REVISION="${REVISION}" \

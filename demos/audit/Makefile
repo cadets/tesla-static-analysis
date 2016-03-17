@@ -5,7 +5,7 @@
 BASE=audit-demo
 .PRECIOUS: ${BASE}.dot
 
-CC?=clang
+CC=clang
 
 CFLAGS	+= -D _KERNEL -D AUDIT -D MAC -D __BSD_VISIBLE \
 	-Wall -Werror \

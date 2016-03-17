@@ -5,8 +5,8 @@
 BASE=openssl-api
 .PRECIOUS: ${BASE}.dot
 
-CC?=clang
-LLC?=llc
+CC=clang
+LLC=llc
 
 CFLAGS	+= -Wall -I ${TESLA_SOURCE_DIR}/include
 LDFLAGS	+= -L ${TESLA_BUILD_DIR}/libtesla/src -l crypto -l ssl -l tesla
