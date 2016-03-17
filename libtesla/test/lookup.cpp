@@ -89,7 +89,7 @@ main(int argc, char **argv)
 	}
 
 	// Ok, let's go looking for automata instances!
-	struct tesla_key pattern;
+	struct tesla_key pattern = { .tk_freemask = 0 };
 
 	// keys[0] == 42 => {0,2,3,5}
 	pattern.tk_mask = 1 << 0;
