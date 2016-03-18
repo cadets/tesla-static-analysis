@@ -1136,25 +1136,24 @@ bool Parser::ParseArg(ArgFactory NextArg, const ValueDecl *D,
     T = Typedef->desugar();
 
   if (auto *ET = dyn_cast<ElaboratedType>(T)) {
-    auto *StructTy = dyn_cast<RecordType>(ET->getNamedType());
-    assert(StructTy);
+    if (auto *StructTy = dyn_cast<RecordType>(ET->getNamedType())) {
+      /*
+       * TODO(JA): this treatment of pass-by-value structures is highly
+       *           platform-dependent and should be driven by ArgABIInfo.
+       */
 
-    /*
-     * TODO(JA): this treatment of pass-by-value structures is highly
-     *           platform-dependent and should be driven by ArgABIInfo.
-     */
+      // TODO(JA): use range-based iterator when we update Clang
+      RecordDecl *Struct = StructTy->getDecl();
+      for (auto i = Struct->decls_begin(); i != Struct->decls_end(); i++) {
+        auto *Field = dyn_cast<FieldDecl>(*i);
+        assert(Field);
 
-    // TODO(JA): use range-based iterator when we update Clang
-    RecordDecl *Struct = StructTy->getDecl();
-    for (auto i = Struct->decls_begin(); i != Struct->decls_end(); i++) {
-      auto *Field = dyn_cast<FieldDecl>(*i);
-      assert(Field);
+        if (!ParseArg(NextArg, Field, AllowAny, F, DoNotRegister))
+          return false;
+      }
 
-      if (!ParseArg(NextArg, Field, AllowAny, F, DoNotRegister))
-        return false;
+      return true;
     }
-
-    return true;
   }
 
   Argument *Arg = NextArg();
