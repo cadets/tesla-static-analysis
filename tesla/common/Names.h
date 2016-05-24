@@ -57,6 +57,8 @@ const std::string AUTOMATON_MAPPING = AUTOMATON  + "mapping";
 const std::string AUTOMATON_USAGE   = AUTOMATON  + "usage";
 const std::string AUTOMATON_USES    = TESLA_BASE + "struct_uses_automaton";
 
+const std::string STRUCT_AUTOMATON  = TESLA_BASE + "struct_automaton_usage_";
+
 const std::string GLOBAL            = TESLA_BASE + "global";
 const std::string PERTHREAD         = TESLA_BASE + "perthread";
 
