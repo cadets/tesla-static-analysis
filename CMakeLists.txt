@@ -121,10 +121,10 @@ else ()
   set(LIT_OPTIONS "-qv")
 endif ()
 
-set(EXPORT_XUNIT_XML false CACHE BOOL "Export test results as XUnit XML (requires David's lit patches")
+set(EXPORT_XUNIT_XML true CACHE BOOL "Export test results as XUnit XML")
 if (EXPORT_XUNIT_XML)
   message(STATUS "Will export test results XUnit XML")
-  set(LIT_EXTRA --junit-xml-output=tesla.xml)
+  set(LIT_EXTRA "--xunit-xml-output=tesla.xml;${LIT_EXTRA}")
 else ()
   message(STATUS "Will not export test results XUnit XML")
 endif ()
@@ -189,5 +189,5 @@ add_subdirectory(libtesla)
 add_subdirectory(tesla)
 add_subdirectory(scripts)
 
-# A top-level 'test' target to drive all tests of TESLA subdirectories.
-add_custom_target(test DEPENDS libtesla-test tesla-test run-demos)
+# A top-level 'check' target to drive all tests of TESLA subdirectories.
+add_custom_target(check DEPENDS libtesla-test tesla-test run-demos)

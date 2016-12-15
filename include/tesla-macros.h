@@ -91,7 +91,7 @@ __BEGIN_DECLS
 #define	TESLA_STRUCT_AUTOMATON(...)	__tesla_struct_usage(__VA_ARGS__)
 
 #define automaton(name, ...)	__tesla_automaton(name, __VA_ARGS__)
-#define	tesla_done		return (__tesla_automaton_done())
+#define	tesla_done		__tesla_done()
 
 #define	optional(...)		__tesla_optional(TIGNORE, __VA_ARGS__)
 #define	ANY_REP			__TESLA_INFINITE_REPETITIONS

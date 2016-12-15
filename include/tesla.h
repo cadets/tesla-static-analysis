@@ -170,6 +170,8 @@ struct __tesla_automaton_usage;
 /** In an explicit automata description, return this to say "we're done". */
 struct __tesla_automaton_description*	__tesla_automaton_done();
 
+#define	__tesla_done()	return (__tesla_automaton_done())
+
 #ifndef __unused
 #define __unused
 #endif
@@ -199,14 +201,6 @@ __tesla_struct_uses_automaton(__unused const char *automaton,
 	}
 
 
-/**
- * Define an automaton to describe a struct's behaviour.
- *
- * This should take the relevant structure as an argument.
- */
-#define	__tesla_automaton(name, ...) \
-	struct __tesla_automaton_description* name(__VA_ARGS__)
-
 #else	/* !__TESLA_ANALYSER__ */
 
 /*
@@ -222,8 +216,9 @@ __tesla_struct_uses_automaton(__unused const char *automaton,
 
 #define __tesla_sequence(...)		1
 
-#define	__tesla_struct_automaton(...)
-#define	__tesla_automaton(name, ...)
+#define	__tesla_done()			return ((void*) 0)
+#define	__tesla_struct_usage(subject, automaton, loc, start, end) \
+	void __tesla_struct_automaton_usage_##automaton(__unused subject) {}
 
 #define	__tesla_call(...)		0
 #define	__tesla_return(...)		0
@@ -239,6 +234,14 @@ __tesla_struct_uses_automaton(__unused const char *automaton,
 #define	__tesla_repeat(...)	0
 
 #endif	/* __TESLA_ANALYSER__ */
+
+/**
+ * Define an automaton to describe a struct's behaviour.
+ *
+ * This should take the relevant structure as an argument.
+ */
+#define	__tesla_automaton(name, ...) \
+	struct __tesla_automaton_description* name(__VA_ARGS__)
 
 /** @} */
 

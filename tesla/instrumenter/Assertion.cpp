@@ -70,6 +70,30 @@ AssertionSiteInstrumenter::~AssertionSiteInstrumenter() {
 bool AssertionSiteInstrumenter::runOnModule(Module &M) {
   InstrCtx.reset(InstrContext::Create(M, SuppressDebugInstr));
 
+  // Replace all structure automaton "anchors" with automata definitions.
+  for (auto &Fn : M) {
+    StringRef Name = Fn.getName();
+    if (not Name.startswith(STRUCT_AUTOMATON))
+      continue;
+
+    Name = Name.substr(STRUCT_AUTOMATON.length());
+    Identifier ID;
+    ID.set_name(Name.str());
+
+    const Automaton *A = this->M.FindAutomaton(ID);
+    if (not A) {
+      llvm::errs() << "TESLA manifest does not contain " << Name << "\n";
+      panic("missing automaton definition", false);
+    }
+
+    assert(A->Name() == Name);
+
+    if (Function *AutomatonDefinition = M.getFunction(Name))
+      AutomatonDefinition->eraseFromParent();
+
+    InstrCtx->BuildAutomatonDescription(A)->dump();
+  }
+
   // If this module doesn't declare any assertions, just carry on.
   AssertFn = M.getFunction(INLINE_ASSERTION);
   if (!AssertFn)

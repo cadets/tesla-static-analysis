@@ -107,6 +107,7 @@ tesla_sunset(enum tesla_context context, const struct tesla_lifetime *l)
 
 	tesla_key empty_key;
 	empty_key.tk_mask = 0;
+	empty_key.tk_freemask = 0;
 
 	const size_t static_classes =
 		sizeof(ls->tls_classes) / sizeof(ls->tls_classes[0]);
