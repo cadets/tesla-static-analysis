@@ -91,7 +91,7 @@ bool AssertionSiteInstrumenter::runOnModule(Module &M) {
     if (Function *AutomatonDefinition = M.getFunction(Name))
       AutomatonDefinition->eraseFromParent();
 
-    InstrCtx->BuildAutomatonDescription(A)->dump();
+    InstrCtx->BuildAutomatonDescription(A);
   }
 
   // If this module doesn't declare any assertions, just carry on.

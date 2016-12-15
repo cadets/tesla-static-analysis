@@ -182,12 +182,13 @@ configure_file(cmake/config.h.in include/config.h)
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
 
-add_subdirectory(doc)
+# add_subdirectory(doc)
 add_subdirectory(demos)
 add_subdirectory(include)
 add_subdirectory(libtesla)
 add_subdirectory(tesla)
 add_subdirectory(scripts)
+add_subdirectory(experiments)
 
 # A top-level 'check' target to drive all tests of TESLA subdirectories.
 add_custom_target(check DEPENDS libtesla-test tesla-test run-demos)
