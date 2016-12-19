@@ -10,8 +10,19 @@ set(MAIN_C_SOURCES
 
 add_tesla_executable("${MAIN_C_SOURCES}" "${MAIN_EXE_NAME}")
 
-set(BASIC_SRC 
-  basic.c 
-  lock.c
-)
-add_tesla_executable("${BASIC_SRC}" "basic")
+function(example name)
+  set(SRC
+    "${name}.c"
+    lock.c
+    mock.c
+  )
+  add_tesla_executable("${SRC}" ${name})
+endfunction()
+
+example(basic)
+example(no_acq)
+example(mult_acq)
+example(no_rel)
+example(mult_rel)
+example(no_acq_rel)
+example(other)

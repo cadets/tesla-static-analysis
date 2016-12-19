@@ -5,9 +5,6 @@
 #include <tesla-macros.h>
 #include <stdio.h>
 
-void *thread_say(void *args);
-int main(void);
-
 #ifdef __TESLA_ANALYSER__
 
 automaton(lifetime, lock_t *lock) {
