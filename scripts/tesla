@@ -32,7 +32,7 @@ if [ $TESLA_BUILD_DIR ]; then
 	fi
 else
 	TOOL="$(dirname $(which $0))/${TOOL_NAME}"
-	echo $TOOL
+	# echo $TOOL
 	if [ ! -e "${TOOL}" ]; then
 		TOOL=
 	fi

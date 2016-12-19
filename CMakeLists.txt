@@ -11,6 +11,7 @@ set(CMAKE_MODULE_PATH
 #
 include(cmake/Concatenate.cmake)
 include(cmake/CopyFiles.cmake)
+include(cmake/Tesla.cmake)
 
 # Include LLVM configuration:
 find_package(LLVM REQUIRED)
