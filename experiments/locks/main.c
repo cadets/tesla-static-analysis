@@ -4,6 +4,34 @@
 
 #include "lock.h"
 
+/**
+ * Lock function implementations
+ *
+ * In this version, these functions actually perform locking rather than being
+ * mocked out.
+ */
+
+void lock_init(lock_t *lock) {
+  atomic_init(&(lock->locked), false);
+}
+
+bool lock_acquire(lock_t *lock) {
+  bool f = false;
+  return atomic_compare_exchange_strong(&(lock->locked), &f, true);
+}
+
+void lock_release(lock_t *lock) {
+  lock->locked = false;
+}
+
+void lock_free(lock_t *lock) {
+}
+
+/**
+ * Program that demonstrates the lock automata working on a real program with
+ * threads and locking.
+ */
+
 static lock_t lock;
 
 struct thread_args {
