@@ -26,26 +26,34 @@ function(add_tesla_executable C_SOURCES EXE_NAME)
     list(APPEND TESLA_FILES ${prefix}.tesla)
 
     add_custom_command(
-      OUTPUT ${prefix}.ll
+      OUTPUT ${prefix}.bc
       COMMAND ${CMAKE_C_COMPILER}
-      ARGS ${CMAKE_C_FLAGS} -S -emit-llvm ${TESLA_INCLUDE} ${full_source} -o ${prefix}.ll
+      ARGS ${CMAKE_C_FLAGS} -S -emit-llvm ${TESLA_INCLUDE} ${full_source} -o ${prefix}.bc
       DEPENDS ${full_source}
     )
     add_custom_target(${prefix}_ll
-      ALL DEPENDS ${prefix}.ll
+      ALL DEPENDS ${prefix}.bc
     )
-    list(APPEND LL_FILES ${prefix}.ll)
-
-    add_custom_command(
-      OUTPUT ${prefix}.instr.ll
-      COMMAND tesla instrument -tesla-manifest ${EXE_NAME}_tesla.manifest ${prefix}.ll -o ${prefix}.instr.ll
-      DEPENDS ${prefix}.ll ${EXE_NAME}_tesla.manifest
-    )
-    add_custom_target(${prefix}_instr
-      ALL DEPENDS ${prefix}.instr.ll
-    )
-  list(APPEND INSTR_FILES ${prefix}.instr.ll)
+    list(APPEND LL_FILES ${prefix}.bc)
   endforeach()
+
+  add_custom_command(
+    OUTPUT ${EXE_NAME}.bc
+    COMMAND llvm-link33 ${LL_FILES} -o ${EXE_NAME}.bc
+    DEPENDS ${LL_FILES}
+  )
+  add_custom_target(${EXE_NAME}_lto
+    ALL DEPENDS ${EXE_NAME}.bc
+  )
+
+  add_custom_command(
+    OUTPUT ${EXE_NAME}.instr.bc
+    COMMAND tesla instrument -tesla-manifest ${EXE_NAME}_tesla.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.instr.bc
+    DEPENDS ${EXE_NAME}.bc ${EXE_NAME}_tesla.manifest
+  )
+  add_custom_target(${EXE_NAME}_instr
+    ALL DEPENDS ${EXE_NAME}.instr.bc
+  )
 
   add_custom_command(
     OUTPUT ${EXE_NAME}_tesla.manifest
@@ -56,10 +64,11 @@ function(add_tesla_executable C_SOURCES EXE_NAME)
     ALL DEPENDS ${EXE_NAME}_tesla.manifest
   )
 
+  set(INSTR_FILE ${EXE_NAME}.instr.bc)
   add_custom_command(
     OUTPUT ${EXE_NAME}
-    COMMAND clang33 ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILES} -o ${EXE_NAME}
-    DEPENDS ${INSTR_FILES}
+    COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILE} -o ${EXE_NAME}
+    DEPENDS ${INSTR_FILE}
   )
   add_custom_target(${EXE_NAME}-tesla-all
     ALL DEPENDS ${EXE_NAME}
