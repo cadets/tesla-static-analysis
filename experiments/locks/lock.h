@@ -9,7 +9,7 @@
 #include "annotate.h"
 
 typedef struct lock_st {
-  _Atomic(bool) TESLA_FIELD(locked, lock_st);
+  _Atomic(bool) locked;
 } lock_t;
 
 void lock_init(lock_t *lock);
