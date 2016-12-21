@@ -11,7 +11,6 @@ namespace tesla {
 
 class ManifestPass {
   public:
-    ManifestPass();
     virtual void run(const shared_ptr<Manifest> &Ma, const shared_ptr<llvm::Module> &Mo) = 0;
 };
 

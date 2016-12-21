@@ -1,5 +1,7 @@
 #include "Debug.h"
 #include "Manifest.h"
+#include "ManifestPassManager.h"
+#include "AcquireReleasePass.h"
 
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
@@ -38,6 +40,11 @@ int main(int argc, char **argv) {
     Err.print(argv[0], errs());
     return 1;
   }
+
+  tesla::ManifestPassManager PM(Manifest, Mod);
+  PM.addPass(new tesla::AcquireReleasePass);
+
+  PM.runPasses();
 
   return 0;
 }
