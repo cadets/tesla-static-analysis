@@ -56,4 +56,4 @@ add_subdirectory(common)
 add_subdirectory(instrumenter)
 add_subdirectory(test)
 add_subdirectory(tools)
-
+add_subdirectory(static)
