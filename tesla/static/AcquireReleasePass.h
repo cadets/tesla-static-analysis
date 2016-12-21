@@ -6,8 +6,7 @@
 namespace tesla {
 
 class AcquireReleasePass : public ManifestPass {
-  virtual void run(const shared_ptr<Manifest> &Ma, 
-                   const shared_ptr<llvm::Module> &Mo) override;
+  virtual void run(Manifest &Ma, llvm::Module &Mo) override;
 };
 
 }

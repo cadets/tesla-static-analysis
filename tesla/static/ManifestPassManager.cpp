@@ -12,7 +12,7 @@ void ManifestPassManager::addPass(ManifestPass *pass) {
 
 void ManifestPassManager::runPasses() {
   for(auto pass : passes) {
-    pass->run(Manifest, Mod);
+    pass->run(*Manifest, *Mod);
   }
 }
 
