@@ -1,5 +1,6 @@
 #include "ManifestPass.h"
 
+#include <llvm/Support/raw_ostream.h>
 #include <sstream>
 
 using std::string;
@@ -23,6 +24,7 @@ const string ManifestPass::PrefixMessage(string pre, string message) const {
 
 void ManifestPass::copyDefinitions(Manifest &Ma, ManifestFile *file) const {
   for(auto entry : Ma.AllAutomata()) {
+    *file->add_automaton() = *entry.second;
   }
 }
 
