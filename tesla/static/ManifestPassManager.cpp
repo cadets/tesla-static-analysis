@@ -1,5 +1,7 @@
 #include "ManifestPassManager.h"
 
+#include <llvm/Support/raw_ostream.h>
+
 using std::unique_ptr;
 
 namespace tesla {
@@ -18,6 +20,8 @@ unique_ptr<tesla::Manifest> ManifestPassManager::runPasses() {
   for(auto pass : passes) {
     result = pass->run(*result, *Mod);
     if(!result) {
+      llvm::errs() << "Pass failed: "
+                   << pass->PassName() << '\n';
       break;
     }
   }
