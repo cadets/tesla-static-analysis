@@ -3,11 +3,13 @@
 
 #include "ManifestPass.h"
 
+using std::unique_ptr;
+
 namespace tesla {
 
 class AcquireReleasePass : public ManifestPass {
   public:
-    virtual void run(Manifest &Ma, llvm::Module &Mo) override;
+    virtual unique_ptr<Manifest> run(Manifest &Ma, llvm::Module &Mo) override;
   private:
     static bool UsesAcqRel(Manifest &Ma);
     static const std::string AutomatonName();

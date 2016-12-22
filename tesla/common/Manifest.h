@@ -81,6 +81,11 @@ public:
                         Automaton::Type = Automaton::Deterministic,
                         llvm::StringRef Path = defaultLocation());
 
+  //! Construct a @ref tesla::Manifest from an in-memory protobuf representation.
+  static Manifest* construct(llvm::raw_ostream& err,
+                             Automaton::Type type,
+                             std::unique_ptr<ManifestFile> manifest);
+
   /*!
    * The default location to look for a TESLA manifest.
    *
@@ -89,12 +94,12 @@ public:
   static llvm::StringRef defaultLocation();
 
 private:
-  Manifest(llvm::OwningPtr<ManifestFile>& Protobuf,
+  Manifest(std::unique_ptr<ManifestFile>& Protobuf,
            const AutomataMap& Descriptions,
            const std::map<Identifier,const Automaton*>& Automata,
            llvm::ArrayRef<const Usage*> Roots,
            llvm::ArrayRef<Automaton::Lifetime> Lifetimes)
-    : Protobuf(Protobuf.take()), Descriptions(Descriptions), Automata(Automata),
+    : Protobuf(Protobuf.release()), Descriptions(Descriptions), Automata(Automata),
       Roots(Roots), Lifetimes(Lifetimes)
   {
   }

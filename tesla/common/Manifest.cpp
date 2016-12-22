@@ -54,6 +54,7 @@ using namespace llvm;
 using std::map;
 using std::string;
 using std::vector;
+using std::unique_ptr;
 
 namespace tesla {
 
@@ -83,46 +84,11 @@ const Automaton* Manifest::FindAutomaton(const Location& Loc) const {
   return FindAutomaton(ID);
 }
 
-
-Manifest*
-Manifest::load(raw_ostream& ErrorStream, Automaton::Type T, StringRef Path) {
-  llvm::SourceMgr SM;
-  OwningPtr<MemoryBuffer> Buffer;
-
-  error_code Error = MemoryBuffer::getFile(Path, Buffer);
-  if (Error != 0) {
-    ErrorStream
-      << "Failed to open TESLA analysis file '" << Path << "': "
-      << Error.message() << "\n"
-      ;
-
-    return NULL;
-  }
-
-  OwningPtr<ManifestFile> Protobuf(new ManifestFile);
-
-  StringRef buf = Buffer->getBuffer();
-  const bool TextFormat =
-    buf.ltrim().startswith("automaton")
-    or buf.ltrim().startswith("#line 1")       // for preprocessed manifests
-    or buf.ltrim().startswith("# 1")           // GNU cpp version of the above
-    ;
-
-  const bool success =
-    TextFormat
-      ? google::protobuf::TextFormat::ParseFromString(buf, Protobuf.get())
-      : Protobuf->ParseFromArray(buf.data(), buf.size())
-    ;
-
-  if (!success) {
-    ErrorStream
-      << "Error parsing TESLA manifest '" << Path << "' (in "
-      << (TextFormat ? "text" : "binary")
-      << " format)\n"
-      ;
-    return NULL;
-  }
-
+Manifest* 
+Manifest::construct(raw_ostream& ErrorStream, 
+                    Automaton::Type T, 
+                    unique_ptr<ManifestFile> Protobuf) 
+{
   AutomataMap Descriptions;
   map<Identifier,const Automaton*> Automata;
 
@@ -183,6 +149,50 @@ Manifest::load(raw_ostream& ErrorStream, Automaton::Type T, StringRef Path) {
 
   return new Manifest(Protobuf, Descriptions, Automata, Roots, Lifetimes);
 }
+
+Manifest*
+Manifest::load(raw_ostream& ErrorStream, Automaton::Type T, StringRef Path) {
+  llvm::SourceMgr SM;
+  OwningPtr<MemoryBuffer> Buffer;
+
+  error_code Error = MemoryBuffer::getFile(Path, Buffer);
+  if (Error != 0) {
+    ErrorStream
+      << "Failed to open TESLA analysis file '" << Path << "': "
+      << Error.message() << "\n"
+      ;
+
+    return NULL;
+  }
+
+  unique_ptr<ManifestFile> Protobuf(new ManifestFile);
+
+  StringRef buf = Buffer->getBuffer();
+  const bool TextFormat =
+    buf.ltrim().startswith("automaton")
+    or buf.ltrim().startswith("#line 1")       // for preprocessed manifests
+    or buf.ltrim().startswith("# 1")           // GNU cpp version of the above
+    ;
+
+  const bool success =
+    TextFormat
+      ? google::protobuf::TextFormat::ParseFromString(buf, Protobuf.get())
+      : Protobuf->ParseFromArray(buf.data(), buf.size())
+    ;
+
+  if (!success) {
+    ErrorStream
+      << "Error parsing TESLA manifest '" << Path << "' (in "
+      << (TextFormat ? "text" : "binary")
+      << " format)\n"
+      ;
+    return NULL;
+  }
+
+  return construct(ErrorStream, T, std::move(Protobuf));
+}
+
+
 
 StringRef Manifest::defaultLocation() { return ManifestName; }
 

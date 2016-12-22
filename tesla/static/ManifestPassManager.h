@@ -8,18 +8,19 @@
 #include <llvm/IR/Module.h>
 
 using std::vector;
+using std::unique_ptr;
 
 namespace tesla {
 
 class ManifestPassManager {
   public:
-    ManifestPassManager(const shared_ptr<Manifest> &Ma, const shared_ptr<llvm::Module> &Mo);
+    ManifestPassManager(unique_ptr<Manifest> Ma, unique_ptr<llvm::Module> Mo);
     void addPass(ManifestPass *pass);
-    void runPasses();
+    unique_ptr<tesla::Manifest> runPasses();
   private:
     vector<ManifestPass *> passes;
-    shared_ptr<tesla::Manifest> Manifest;
-    shared_ptr<llvm::Module> Mod;
+    unique_ptr<tesla::Manifest> Manifest;
+    unique_ptr<llvm::Module> Mod;
 };
 
 }

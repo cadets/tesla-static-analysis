@@ -29,19 +29,19 @@ int main(int argc, char **argv) {
 
   SMDiagnostic Err;
   
-  std::shared_ptr<tesla::Manifest> Manifest(tesla::Manifest::load(
+  std::unique_ptr<tesla::Manifest> Manifest(tesla::Manifest::load(
     llvm::errs(), tesla::Automaton::Deterministic, ManifestFilename));
   if(!Manifest) {
     tesla::panic("unable to load TESLA manifest");
   }
 
-  std::shared_ptr<Module> Mod(ParseIRFile(BitcodeFilename, Err, Context));
+  std::unique_ptr<Module> Mod(ParseIRFile(BitcodeFilename, Err, Context));
   if(Mod.get() == nullptr) {
     Err.print(argv[0], errs());
     return 1;
   }
 
-  tesla::ManifestPassManager PM(Manifest, Mod);
+  tesla::ManifestPassManager PM(std::move(Manifest), std::move(Mod));
   PM.addPass(new tesla::AcquireReleasePass);
 
   PM.runPasses();

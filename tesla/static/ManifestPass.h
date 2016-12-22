@@ -5,13 +5,13 @@
 
 #include <llvm/IR/Module.h>
 
-using std::shared_ptr;
+using std::unique_ptr;
 
 namespace tesla {
 
 class ManifestPass {
   public:
-    virtual void run(Manifest &Ma, llvm::Module &Mo) = 0;
+    virtual unique_ptr<Manifest> run(Manifest &Ma, llvm::Module &Mo) = 0;
 };
 
 }

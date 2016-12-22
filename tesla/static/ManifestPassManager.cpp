@@ -1,19 +1,28 @@
 #include "ManifestPassManager.h"
 
+using std::unique_ptr;
+
 namespace tesla {
 
-ManifestPassManager::ManifestPassManager(const shared_ptr<tesla::Manifest> &Ma, 
-                                         const shared_ptr<llvm::Module> &Mo) :
-  Manifest(Ma), Mod(Mo) {}
+ManifestPassManager::ManifestPassManager(unique_ptr<tesla::Manifest> Ma, 
+                                         unique_ptr<llvm::Module> Mo) :
+  Manifest(std::move(Ma)), Mod(std::move(Mo)) {}
 
 void ManifestPassManager::addPass(ManifestPass *pass) {
   passes.push_back(pass);
 }
 
-void ManifestPassManager::runPasses() {
+unique_ptr<tesla::Manifest> ManifestPassManager::runPasses() {
+  auto result = std::move(Manifest);
+
   for(auto pass : passes) {
-    pass->run(*Manifest, *Mod);
+    result = pass->run(*result, *Mod);
+    if(!result) {
+      break;
+    }
   }
+
+  return result;
 }
 
 }
