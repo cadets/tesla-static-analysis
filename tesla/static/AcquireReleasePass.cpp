@@ -7,7 +7,13 @@ using std::unique_ptr;
 namespace tesla {
 
 unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
-  return nullptr;
+  auto File = new ManifestFile();
+
+  copyDefinitions(Man, File);
+  auto unique = unique_ptr<ManifestFile>(File);
+
+  return unique_ptr<Manifest>(
+      Manifest::construct(llvm::errs(), Automaton::Deterministic, std::move(unique)));
 }
 
 bool AcquireReleasePass::UsesAcqRel(Manifest &Man) {

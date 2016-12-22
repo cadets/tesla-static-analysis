@@ -15,6 +15,8 @@ class ManifestPass {
     virtual const std::string PassName() const = 0;
     const std::string Error(std::string message) const;
     const std::string Debug(std::string message) const;
+  protected:
+    void copyDefinitions(Manifest &Ma, ManifestFile *file) const;
   private:
     const std::string PrefixMessage(std::string prefix, std::string message) const;
 };

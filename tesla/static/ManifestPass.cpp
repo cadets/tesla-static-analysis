@@ -21,4 +21,9 @@ const string ManifestPass::PrefixMessage(string pre, string message) const {
   return ss.str();
 }
 
+void ManifestPass::copyDefinitions(Manifest &Ma, ManifestFile *file) const {
+  for(auto entry : Ma.AllAutomata()) {
+  }
+}
+
 }
