@@ -1,6 +1,6 @@
 find_package(Threads)
 
-function(add_tesla_executable C_SOURCES EXE_NAME)
+function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
   set(TESLA_LINK "-L/home/test/tesla_install/lib" "-ltesla")
 
   set(TESLA_INCLUDE "-I/home/test/tesla_install/include")
@@ -63,6 +63,17 @@ function(add_tesla_executable C_SOURCES EXE_NAME)
   add_custom_target(${EXE_NAME}-manifest
     ALL DEPENDS ${EXE_NAME}_tesla.manifest
   )
+
+  if(STATIC)
+    add_custom_command(
+      OUTPUT ${EXE_NAME}.static.manifest
+      COMMAND tesla static ${EXE_NAME}.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.static.manifest
+      DEPENDS ${EXE_NAME}.manifest ${EXE_NAME}.bc
+    )
+    add_custom_target(${EXE_NAME}-static-manifest
+      ALL_DEPENDS ${EXE_NAME}.static.manifest
+    )
+  endif()
 
   set(INSTR_FILE ${EXE_NAME}.instr.bc)
   add_custom_command(

@@ -17,6 +17,7 @@ class ManifestPass {
     const std::string Debug(std::string message) const;
   protected:
     void copyDefinitions(Manifest &Ma, ManifestFile *file) const;
+    void copyUsage(const Usage *usage, ManifestFile *file) const;
   private:
     const std::string PrefixMessage(std::string prefix, std::string message) const;
 };
