@@ -14,7 +14,7 @@ void ManifestPassManager::addPass(ManifestPass *pass) {
   passes.push_back(pass);
 }
 
-unique_ptr<tesla::Manifest> ManifestPassManager::runPasses() {
+void ManifestPassManager::runPasses() {
   auto result = std::move(Manifest);
 
   for(auto pass : passes) {
@@ -26,7 +26,7 @@ unique_ptr<tesla::Manifest> ManifestPassManager::runPasses() {
     }
   }
 
-  return result;
+  Manifest = std::move(result);
 }
 
 }

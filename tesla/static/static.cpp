@@ -46,5 +46,7 @@ int main(int argc, char **argv) {
 
   PM.runPasses();
 
+  llvm::errs() << PM.Manifest.get() << '\n';
+
   return 0;
 }

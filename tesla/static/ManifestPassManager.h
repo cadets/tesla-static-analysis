@@ -16,11 +16,10 @@ class ManifestPassManager {
   public:
     ManifestPassManager(unique_ptr<Manifest> Ma, unique_ptr<llvm::Module> Mo);
     void addPass(ManifestPass *pass);
-    unique_ptr<tesla::Manifest> runPasses();
-  private:
-    vector<ManifestPass *> passes;
+    void runPasses();
     unique_ptr<tesla::Manifest> Manifest;
     unique_ptr<llvm::Module> Mod;
+    vector<ManifestPass *> passes;
 };
 
 }
