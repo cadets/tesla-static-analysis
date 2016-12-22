@@ -13,6 +13,7 @@ class AcquireReleasePass : public ManifestPass {
     virtual const std::string PassName() const override;
   private:
     static const std::string AutomatonName();
+    static bool UsesAcqRel(const Usage *usage);
 };
 
 }

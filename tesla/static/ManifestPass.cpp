@@ -22,6 +22,10 @@ const string ManifestPass::PrefixMessage(string pre, string message) const {
   return ss.str();
 }
 
+void ManifestPass::copyUsage(const Usage *usage, ManifestFile *file) const {
+  *file->add_root() = *usage;
+}
+
 void ManifestPass::copyDefinitions(Manifest &Ma, ManifestFile *file) const {
   for(auto entry : Ma.AllAutomata()) {
     *file->add_automaton() = *entry.second;
