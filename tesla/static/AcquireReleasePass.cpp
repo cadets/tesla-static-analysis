@@ -16,16 +16,6 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
       Manifest::construct(llvm::errs(), Automaton::Deterministic, std::move(unique)));
 }
 
-bool AcquireReleasePass::UsesAcqRel(Manifest &Man) {
-  for(auto entry : Man.AllAutomata()) {
-    if(entry.first.name() == AutomatonName()) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 const std::string AcquireReleasePass::PassName() const {
   return "AcquireRelease";
 }
