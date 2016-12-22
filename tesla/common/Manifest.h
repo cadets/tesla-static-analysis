@@ -76,10 +76,19 @@ public:
     return Lifetimes;
   }
 
+  const ManifestFile &getProtobuf() const { 
+    return *Protobuf;
+  }
+
   //! Load a @ref tesla::Manifest from a named file.
   static Manifest* load(llvm::raw_ostream& Err,
                         Automaton::Type = Automaton::Deterministic,
                         llvm::StringRef Path = defaultLocation());
+
+  //! Construct a @ref tesla::Manifest from an in-memory protobuf representation.
+  static Manifest* construct(llvm::raw_ostream& err,
+                             Automaton::Type type,
+                             std::unique_ptr<ManifestFile> manifest);
 
   /*!
    * The default location to look for a TESLA manifest.
@@ -89,12 +98,12 @@ public:
   static llvm::StringRef defaultLocation();
 
 private:
-  Manifest(llvm::OwningPtr<ManifestFile>& Protobuf,
+  Manifest(std::unique_ptr<ManifestFile>& Protobuf,
            const AutomataMap& Descriptions,
            const std::map<Identifier,const Automaton*>& Automata,
            llvm::ArrayRef<const Usage*> Roots,
            llvm::ArrayRef<Automaton::Lifetime> Lifetimes)
-    : Protobuf(Protobuf.take()), Descriptions(Descriptions), Automata(Automata),
+    : Protobuf(std::move(Protobuf)), Descriptions(Descriptions), Automata(Automata),
       Roots(Roots), Lifetimes(Lifetimes)
   {
   }
@@ -104,7 +113,7 @@ private:
   static const std::string SEP;   //!< Delineates automata in a TESLA file.
 
   //! Storage of the protocol buffer.
-  llvm::OwningPtr<ManifestFile> Protobuf;
+  std::unique_ptr<ManifestFile> Protobuf;
 
   //! The abstract descriptions.
   AutomataMap Descriptions;
