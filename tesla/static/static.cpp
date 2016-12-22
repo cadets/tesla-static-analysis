@@ -45,8 +45,9 @@ int main(int argc, char **argv) {
   PM.addPass(new tesla::AcquireReleasePass);
 
   PM.runPasses();
-
-  llvm::errs() << PM.Manifest.get() << '\n';
+  if(!PM.Manifest) {
+    tesla::panic("Error applying manifest passes");
+  }
 
   return 0;
 }
