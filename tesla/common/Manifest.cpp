@@ -192,8 +192,6 @@ Manifest::load(raw_ostream& ErrorStream, Automaton::Type T, StringRef Path) {
   return construct(ErrorStream, T, std::move(Protobuf));
 }
 
-
-
 StringRef Manifest::defaultLocation() { return ManifestName; }
 
 } // namespace tesla
