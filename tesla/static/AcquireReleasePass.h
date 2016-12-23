@@ -4,6 +4,7 @@
 #include "ManifestPass.h"
 
 using std::unique_ptr;
+using std::set;
 
 namespace tesla {
 
@@ -13,7 +14,9 @@ class AcquireReleasePass : public ManifestPass {
     virtual const std::string PassName() const override;
   private:
     static const std::string AutomatonName();
-    static bool UsesAcqRel(const Usage *usage);
+    static bool UsesAcqRel(const Usage *usage, set<const Location> &locs);
+    static bool ReferencesAcqRel(const AutomatonDescription *aut);
+    static set<const Location> ReferenceLocations(Manifest &Man);
 };
 
 }
