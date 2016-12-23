@@ -48,20 +48,20 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
 
   add_custom_command(
     OUTPUT ${EXE_NAME}.instr.bc
-    COMMAND tesla instrument -tesla-manifest ${EXE_NAME}_tesla.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.instr.bc
-    DEPENDS ${EXE_NAME}.bc ${EXE_NAME}_tesla.manifest
+    COMMAND tesla instrument -tesla-manifest ${EXE_NAME}.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.instr.bc
+    DEPENDS ${EXE_NAME}.bc ${EXE_NAME}.manifest
   )
   add_custom_target(${EXE_NAME}_instr
     ALL DEPENDS ${EXE_NAME}.instr.bc
   )
 
   add_custom_command(
-    OUTPUT ${EXE_NAME}_tesla.manifest
-    COMMAND tesla cat ${TESLA_FILES} -o ${EXE_NAME}_tesla.manifest
+    OUTPUT ${EXE_NAME}.manifest
+    COMMAND tesla cat ${TESLA_FILES} -o ${EXE_NAME}.manifest
     DEPENDS ${TESLA_FILES}
   )
   add_custom_target(${EXE_NAME}-manifest
-    ALL DEPENDS ${EXE_NAME}_tesla.manifest
+    ALL DEPENDS ${EXE_NAME}.manifest
   )
 
   if(STATIC)
