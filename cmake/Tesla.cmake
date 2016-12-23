@@ -73,6 +73,25 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
     add_custom_target(${EXE_NAME}-static-manifest
       ALL_DEPENDS ${EXE_NAME}.static.manifest
     )
+    
+    add_custom_command(
+      OUTPUT ${EXE_NAME}.static.instr.bc
+      COMMAND tesla instrument -tesla-manifest ${EXE_NAME}.static.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.static.instr.bc
+      DEPENDS ${EXE_NAME}.bc ${EXE_NAME}.static.manifest
+    )
+    add_custom_target(${EXE_NAME}_static-instr
+      ALL DEPENDS ${EXE_NAME}.static.instr.bc
+    )
+
+    set(INSTR_FILE ${EXE_NAME}.static.instr.bc)
+    add_custom_command(
+      OUTPUT ${EXE_NAME}_static
+      COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILE} -o ${EXE_NAME}_static
+      DEPENDS ${INSTR_FILE}
+    )
+    add_custom_target(${EXE_NAME}-static-tesla-all
+      ALL DEPENDS ${EXE_NAME}_static
+    )
   endif()
 
   set(INSTR_FILE ${EXE_NAME}.instr.bc)
