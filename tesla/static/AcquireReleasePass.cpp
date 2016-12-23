@@ -39,7 +39,15 @@ bool AcquireReleasePass::ReferencesAcqRel(const AutomatonDescription *aut) {
 }
 
 set<const Location> AcquireReleasePass::ReferenceLocations(Manifest &Man) {
-  return set<const Location>();
+  auto ret = set<const Location>();
+
+  for(auto entry : Man.AllAutomata()) {
+    if(ReferencesAcqRel(entry.second)) {
+      ret.insert(entry.first.location());
+    }
+  }
+
+  return ret;
 }
 
 const std::string AcquireReleasePass::PassName() const {
