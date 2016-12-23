@@ -47,6 +47,22 @@ bool AcquireReleasePass::ReferencesAcqRel(const AutomatonDescription *aut) {
     tesla::panic("Expression has type SEQUENCE but no sequence data");
   }
 
+  auto seq = expr.sequence().expression();
+  for(auto it = seq.begin(); it != seq.end(); it++) {
+    if(it->type() == Expression_Type_NULL_EXPR) {
+      continue;
+    }
+
+    if(it->type() == Expression_Type_ASSERTION_SITE) {
+      it++;
+      if(it != seq.end() && it->type() == Expression_Type_SUB_AUTOMATON) {
+        if(it->subautomaton().name() == AutomatonName()) {
+          return true;
+        }
+      }
+    }
+  }
+
   return false;
 }
 
