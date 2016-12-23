@@ -1,5 +1,7 @@
 #include "AcquireReleasePass.h"
 
+#include "Debug.h"
+
 #include <llvm/Support/raw_ostream.h>
 
 using std::unique_ptr;
@@ -35,6 +37,16 @@ bool AcquireReleasePass::UsesAcqRel(const Usage *usage, set<const Location> &loc
 }
 
 bool AcquireReleasePass::ReferencesAcqRel(const AutomatonDescription *aut) {
+  auto expr = aut->expression();
+
+  if(expr.type() != Expression_Type_SEQUENCE) {
+    return false;
+  }
+
+  if(!expr.has_sequence()) {
+    tesla::panic("Expression has type SEQUENCE but no sequence data");
+  }
+
   return false;
 }
 
