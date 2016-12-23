@@ -64,7 +64,7 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
     ALL DEPENDS ${EXE_NAME}.manifest
   )
 
-  if(STATIC)
+  if(STATIC AND CMAKE_USE_STATIC)
     add_custom_command(
       OUTPUT ${EXE_NAME}.static.manifest
       COMMAND tesla static ${EXE_NAME}.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.static.manifest
