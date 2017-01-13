@@ -3,7 +3,7 @@
  * Ensure constant arguments to instrumented functions are properly checked.
  *
  * RUN: tesla analyse %s -o %t.tesla -- %cflags
- * RUN: clang %cflags -emit-llvm -S -o %t.ll %s
+ * RUN: %clang %cflags -emit-llvm -S -o %t.ll %s
  * RUN: tesla instrument -S -tesla-manifest %t.tesla -o %t.instr.ll %t.ll
  * RUN: %filecheck -input-file=%t.instr.ll %s
  */

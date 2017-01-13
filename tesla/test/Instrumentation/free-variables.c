@@ -6,7 +6,7 @@
  * This requires the GCC expression-of-statements extension.
  *
  * RUN: tesla analyse %s -o %t.tesla -- %cflags -D TESLA
- * RUN: clang -S -emit-llvm %cflags %s -o %t.ll
+ * RUN: %clang -S -emit-llvm %cflags %s -o %t.ll
  * RUN: tesla instrument -S -tesla-manifest %t.tesla %t.ll -o %t.instr.ll
  * RUN: %filecheck -input-file %t.instr.ll %s
  */

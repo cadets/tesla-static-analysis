@@ -1,3 +1,4 @@
 build
 doxygen
 .clang_complete
+*.pyc

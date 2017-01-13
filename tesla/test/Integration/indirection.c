@@ -3,9 +3,9 @@
  * Check instrumentation of values passed or returned indirectly, via pointer.
  *
  * RUN: tesla analyse %s -o %t.tesla -- %cflags
- * RUN: clang %cflags -emit-llvm -S -o %t.ll %s
+ * RUN: %clang %cflags -emit-llvm -S -o %t.ll %s
  * RUN: tesla instrument -S -tesla-manifest %t.tesla -o %t.instr.ll %t.ll
- * RUN: clang %ldflags %t.instr.ll -o %t
+ * RUN: %clang %ldflags %t.instr.ll -o %t
  * RUN: %t | tee %t.out
  * RUN: %filecheck -input-file=%t.out %s
  */

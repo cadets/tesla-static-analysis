@@ -29,11 +29,11 @@
  * SUCH DAMAGE.
  *
  * Commands for llvm-lit:
- * RUN: clang %cflags -c -S -emit-llvm %s -o %t.ll
+ * RUN: %clang %cflags -c -S -emit-llvm %s -o %t.ll
  * RUN: tesla analyse %s -o %t.tesla -- %cflags
  * RUN: tesla instrument -S -tesla-manifest %t.tesla %t.ll -o %t.instr.ll
  * RUN: %filecheck -input-file=%t.instr.ll %s
- * RUN: clang -g %ldflags %t.instr.ll -o %t
+ * RUN: %clang -g %ldflags %t.instr.ll -o %t
  * RUN: %t
  */
 
