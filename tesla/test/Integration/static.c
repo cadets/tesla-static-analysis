@@ -2,9 +2,9 @@
 /*
  * Commands for llvm-lit:
  * RUN: tesla analyse %s -o %t.tesla -- %cflags
- * RUN: clang -S -emit-llvm %cflags %s -o %t.ll
+ * RUN: %clang -S -emit-llvm %cflags %s -o %t.ll
  * RUN: tesla instrument -S -tesla-manifest %t.tesla %t.ll -o %t.instr.ll
- * RUN: clang %ldflags %t.instr.ll -o %t
+ * RUN: %clang %ldflags %t.instr.ll -o %t
  * RUN: %t | tee %t.out
  * RUN: %filecheck -input-file %t.out %s
  */
