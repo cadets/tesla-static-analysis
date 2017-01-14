@@ -141,9 +141,11 @@ private:
    * passed by value into their constituent fields.
    */
   bool ParseArg(ArgFactory, const clang::Expr*,
-                Parser::Flags, bool DoNotRegister = false);
+                Parser::Flags, bool DoNotRegister = false,
+                bool justField = false);
   bool ParseArg(ArgFactory, const clang::ValueDecl*, bool AllowAny,
-                Parser::Flags, bool DoNotRegister = false);
+                Parser::Flags, bool DoNotRegister = false,
+                bool justField = false);
 
   bool ParseStructField(StructField*, const clang::MemberExpr*, Flags,
                         bool DoNotRegisterBase = false);

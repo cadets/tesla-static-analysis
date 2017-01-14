@@ -953,7 +953,6 @@ bool Parser::ParseFieldAssign(Expression *E, const clang::BinaryOperator *O,
       && ParseArg([=]() { return A->mutable_value(); }, O->getRHS(), F);
 }
 
-
 bool Parser::ParseStructField(StructField *Field, const MemberExpr *ME,
                               Flags F, bool DoNotRegisterBase) {
 
@@ -980,12 +979,12 @@ bool Parser::ParseStructField(StructField *Field, const MemberExpr *ME,
   Field->set_name(Member->getName());
 
   return ParseArg([=]() { return Field->mutable_base(); },
-                  Base, F, DoNotRegisterBase);
+                  Base, F, DoNotRegisterBase, true);
 }
 
 
 bool Parser::ParseArg(ArgFactory NextArg, const Expr *E, Flags F,
-                      bool DoNotRegister) {
+                      bool DoNotRegister, bool justField) {
   assert(E != NULL);
 
   auto P = E->IgnoreParenCasts();
@@ -1034,8 +1033,9 @@ bool Parser::ParseArg(ArgFactory NextArg, const Expr *E, Flags F,
 
   }
 
-  if (auto DRE = dyn_cast<DeclRefExpr>(P))
-    return ParseArg(NextArg, DRE->getDecl(), false, F, DoNotRegister);
+  if (auto DRE = dyn_cast<DeclRefExpr>(P)) {
+    return ParseArg(NextArg, DRE->getDecl(), false, F, DoNotRegister, justField);
+  }
 
   llvm::APSInt ConstValue;
   if (P->isIntegerConstantExpr(ConstValue, Ctx)) {
@@ -1120,7 +1120,8 @@ bool Parser::Parse(FunctionRef *FnRef, const FunctionDecl *Fn, Flags F) {
 
 
 bool Parser::ParseArg(ArgFactory NextArg, const ValueDecl *D,
-                      bool AllowAny, Flags F, bool DoNotRegister) {
+                      bool AllowAny, Flags F, bool DoNotRegister,
+                      bool justField) {
   assert(D != NULL);
 
   if (find(FreeVariables.begin(), FreeVariables.end(), D)
@@ -1135,24 +1136,27 @@ bool Parser::ParseArg(ArgFactory NextArg, const ValueDecl *D,
   if (auto *Typedef = dyn_cast<TypedefType>(T))
     T = Typedef->desugar();
 
-  if (auto *ET = dyn_cast<ElaboratedType>(T)) {
-    if (auto *StructTy = dyn_cast<RecordType>(ET->getNamedType())) {
-      /*
-       * TODO(JA): this treatment of pass-by-value structures is highly
-       *           platform-dependent and should be driven by ArgABIInfo.
-       */
+  if(!justField) {
+    if (auto *ET = dyn_cast<ElaboratedType>(T)) {
+      if (auto *StructTy = dyn_cast<RecordType>(ET->getNamedType())) {
+        /*
+         * TODO(JA): this treatment of pass-by-value structures is highly
+         *           platform-dependent and should be driven by ArgABIInfo.
+         */
 
-      // TODO(JA): use range-based iterator when we update Clang
-      RecordDecl *Struct = StructTy->getDecl();
-      for (auto i = Struct->decls_begin(); i != Struct->decls_end(); i++) {
-        auto *Field = dyn_cast<FieldDecl>(*i);
-        assert(Field);
+        // TODO(JA): use range-based iterator when we update Clang
+        RecordDecl *Struct = StructTy->getDecl();
+        for (auto i = Struct->decls_begin(); i != Struct->decls_end(); i++) {
+          auto *Field = dyn_cast<FieldDecl>(*i);
+          assert(Field);
 
-        if (!ParseArg(NextArg, Field, AllowAny, F, DoNotRegister))
-          return false;
+          // Do we want to pass a different arg here or something?
+          if (!ParseArg(NextArg, Field, AllowAny, F, DoNotRegister))
+            return false;
+        }
+
+        return true;
       }
-
-      return true;
     }
   }
 
