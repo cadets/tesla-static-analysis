@@ -99,8 +99,11 @@ bool FieldReferenceInstrumenter::runOnModule(Module &Mod) {
   //
   // First, find all struct fields that we want to instrument.
   //
-  for (auto *Root : M.RootAutomata())
-    BuildInstrumentation(*M.FindAutomaton(Root->identifier()));
+  for (auto *Root : M.RootAutomata()) {
+    if(!Root->deleted()) {
+      BuildInstrumentation(*M.FindAutomaton(Root->identifier()));
+    }
+  }
 
   //
   // Then, iterate through all uses of the LLVM pointer annotation and look

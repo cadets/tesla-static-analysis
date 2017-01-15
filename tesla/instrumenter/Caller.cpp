@@ -106,6 +106,10 @@ bool FnCallerInstrumenter::doInitialization(Module &Mod) {
 
 
   for (auto i : M.RootAutomata()) {
+    if(i->deleted()) {
+      continue;
+    }
+
     auto& A = *M.FindAutomaton(i->identifier());
     for (auto EquivClass : A) {
       assert(!EquivClass.empty());
