@@ -189,7 +189,10 @@ add_subdirectory(include)
 add_subdirectory(libtesla)
 add_subdirectory(tesla)
 add_subdirectory(scripts)
-add_subdirectory(experiments)
+
+if(BUILD_EXPERIMENTS)
+  add_subdirectory(experiments)
+endif()
 
 # A top-level 'check' target to drive all tests of TESLA subdirectories.
 add_custom_target(check DEPENDS libtesla-test tesla-test run-demos)
