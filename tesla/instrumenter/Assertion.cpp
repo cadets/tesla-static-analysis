@@ -50,6 +50,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <iostream>
 #include <set>
 
 using namespace llvm;
@@ -113,20 +114,22 @@ bool AssertionSiteInstrumenter::ConvertAssertions(
 
   for (auto *AssertCall : AssertCalls) {
     auto *Automaton(FindAutomaton(AssertCall));
-    auto AssertTransitions(this->AssertTrans(Automaton));
+    if(!Automaton->Use()->deleted()) {
+      auto AssertTransitions(this->AssertTrans(Automaton));
 
-    // Generate the static automaton description.
-    InstrCtx->BuildAutomatonDescription(Automaton);
+      // Generate the static automaton description.
+      InstrCtx->BuildAutomatonDescription(Automaton);
 
-    // Convert the assertion into appropriate instrumentation.
-    IRBuilder<> Builder(AssertCall);
-    vector<Value*> Args(CollectArgs(AssertCall, *Automaton, Mod, Builder));
+      // Convert the assertion into appropriate instrumentation.
+      IRBuilder<> Builder(AssertCall);
+      vector<Value*> Args(CollectArgs(AssertCall, *Automaton, Mod, Builder));
 
-    TranslationFn *TransFn = InstrCtx->CreateInstrFn(*Automaton, Args);
-    TransFn->InsertCallBefore(AssertCall, Args);
+      TranslationFn *TransFn = InstrCtx->CreateInstrFn(*Automaton, Args);
+      TransFn->InsertCallBefore(AssertCall, Args);
 
-    EventTranslator E = TransFn->AddInstrumentation(*Automaton);
-    E.CallUpdateState(*Automaton, AssertTransitions.Symbol);
+      EventTranslator E = TransFn->AddInstrumentation(*Automaton);
+      E.CallUpdateState(*Automaton, AssertTransitions.Symbol);
+    }
 
     // Delete the call to the assertion pseudo-function.
     AssertCall->removeFromParent();
