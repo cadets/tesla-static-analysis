@@ -8,7 +8,7 @@ set(MAIN_C_SOURCES
   lock.c
 )
 
-add_tesla_executable("${MAIN_C_SOURCES}" "${MAIN_EXE_NAME}")
+add_tesla_executable("${MAIN_C_SOURCES}" "${MAIN_EXE_NAME}" TRUE)
 
 function(example name)
   set(SRC
@@ -16,7 +16,7 @@ function(example name)
     lock.c
     mock.c
   )
-  add_tesla_executable("${SRC}" ${name})
+  add_tesla_executable("${SRC}" ${name} TRUE)
 endfunction()
 
 example(basic)

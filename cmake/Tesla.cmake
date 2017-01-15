@@ -1,6 +1,6 @@
 find_package(Threads)
 
-function(add_tesla_executable C_SOURCES EXE_NAME)
+function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
   set(TESLA_LINK "-L/home/test/tesla_install/lib" "-ltesla")
 
   set(TESLA_INCLUDE "-I/home/test/tesla_install/include")
@@ -48,21 +48,51 @@ function(add_tesla_executable C_SOURCES EXE_NAME)
 
   add_custom_command(
     OUTPUT ${EXE_NAME}.instr.bc
-    COMMAND tesla instrument -tesla-manifest ${EXE_NAME}_tesla.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.instr.bc
-    DEPENDS ${EXE_NAME}.bc ${EXE_NAME}_tesla.manifest
+    COMMAND tesla instrument -tesla-manifest ${EXE_NAME}.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.instr.bc
+    DEPENDS ${EXE_NAME}.bc ${EXE_NAME}.manifest
   )
   add_custom_target(${EXE_NAME}_instr
     ALL DEPENDS ${EXE_NAME}.instr.bc
   )
 
   add_custom_command(
-    OUTPUT ${EXE_NAME}_tesla.manifest
-    COMMAND tesla cat ${TESLA_FILES} -o ${EXE_NAME}_tesla.manifest
+    OUTPUT ${EXE_NAME}.manifest
+    COMMAND tesla cat ${TESLA_FILES} -o ${EXE_NAME}.manifest
     DEPENDS ${TESLA_FILES}
   )
   add_custom_target(${EXE_NAME}-manifest
-    ALL DEPENDS ${EXE_NAME}_tesla.manifest
+    ALL DEPENDS ${EXE_NAME}.manifest
   )
+
+  if(STATIC AND CMAKE_USE_STATIC)
+    add_custom_command(
+      OUTPUT ${EXE_NAME}.static.manifest
+      COMMAND tesla static ${EXE_NAME}.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.static.manifest
+      DEPENDS ${EXE_NAME}.manifest ${EXE_NAME}.bc
+    )
+    add_custom_target(${EXE_NAME}-static-manifest
+      ALL_DEPENDS ${EXE_NAME}.static.manifest
+    )
+    
+    add_custom_command(
+      OUTPUT ${EXE_NAME}.static.instr.bc
+      COMMAND tesla instrument -tesla-manifest ${EXE_NAME}.static.manifest ${EXE_NAME}.bc -o ${EXE_NAME}.static.instr.bc
+      DEPENDS ${EXE_NAME}.bc ${EXE_NAME}.static.manifest
+    )
+    add_custom_target(${EXE_NAME}_static-instr
+      ALL DEPENDS ${EXE_NAME}.static.instr.bc
+    )
+
+    set(INSTR_FILE ${EXE_NAME}.static.instr.bc)
+    add_custom_command(
+      OUTPUT ${EXE_NAME}_static
+      COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILE} -o ${EXE_NAME}_static
+      DEPENDS ${INSTR_FILE}
+    )
+    add_custom_target(${EXE_NAME}-static-tesla-all
+      ALL DEPENDS ${EXE_NAME}_static
+    )
+  endif()
 
   set(INSTR_FILE ${EXE_NAME}.instr.bc)
   add_custom_command(

@@ -58,6 +58,9 @@ message Usage {
 
   /** Where the automataon ends: a bound, a place for cleanup. */
   optional Expression end = 3;
+
+  /** Should this usage be instrumented or ignored (based on static analysis)? **/
+  optional bool deleted = 4;
 }
 
 
