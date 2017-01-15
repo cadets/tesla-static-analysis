@@ -16,7 +16,15 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
 
   auto locs = ReferenceLocations(Man);
   for(auto root : Man.RootAutomata()) {
-    copyUsage(root, File);
+    Usage *newRoot = new Usage;
+    newRoot->CopyFrom(*root);
+
+    if(UsesAcqRel(newRoot, locs)) {
+      newRoot->CopyFrom(*root);
+      newRoot->set_deleted(true);
+    }
+    
+    copyUsage(newRoot, File);
   }
 
   auto unique = unique_ptr<ManifestFile>(File);
