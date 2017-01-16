@@ -32,7 +32,43 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
 }
 
 bool AcquireReleasePass::ShouldDelete(Usage *usage, llvm::Module &Mod) {
+  /**
+   * For now, we will only be working on usages that have their entry point as
+   * the entry to a function, and their exit as an exit from that same function.
+   * This simplifies the analysis to an intra-procedural one, as we aren't then
+   * searching through arbitrary 'caller' points (we can just do so in the
+   * function itself).
+   */
+  if(!HasSimpleBounds(usage)) {
+    return false;
+  }
+
   return false;
+}
+
+/**
+ * Return true if and only if the usage given has the simplest form of beginning
+ * / end bounds - entry and exit for the same function.
+ */
+bool AcquireReleasePass::HasSimpleBounds(Usage *usage) {
+  if(usage->beginning().type() != Expression_Type_FUNCTION) {
+    return false;
+  }
+
+  if(usage->end().type() != Expression_Type_FUNCTION) {
+    return false;
+  }
+
+  if(usage->beginning().function().direction() != FunctionEvent_Direction_Entry) {
+    return false;
+  }
+
+  if(usage->end().function().direction() != FunctionEvent_Direction_Exit) {
+    return false;
+  }
+
+  return usage->beginning().function().function().name() ==
+    usage->end().function().function().name();
 }
 
 bool AcquireReleasePass::UsesAcqRel(const Usage *usage, set<const Location> &locs) {
