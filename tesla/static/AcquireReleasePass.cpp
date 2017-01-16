@@ -71,6 +71,14 @@ bool AcquireReleasePass::HasSimpleBounds(Usage *usage) {
     usage->end().function().function().name();
 }
 
+/**
+ * If we know that the usage has simple bounds (as described above), this
+ * function can be used to get the name of that function.
+ */
+std::string AcquireReleasePass::SimpleBoundFunction(Usage *usage) {
+  return usage->beginning().function().function().name();
+}
+
 bool AcquireReleasePass::UsesAcqRel(const Usage *usage, set<const Location> &locs) {
   if(usage->identifier().has_location()) {
     if(locs.find(usage->identifier().location()) != locs.end()) {

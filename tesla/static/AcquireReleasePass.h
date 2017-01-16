@@ -19,6 +19,7 @@ class AcquireReleasePass : public ManifestPass {
     static set<const Location> ReferenceLocations(Manifest &Man);
     static bool ShouldDelete(Usage *usage, llvm::Module &Mod);
     static bool HasSimpleBounds(Usage *usage);
+    static std::string SimpleBoundFunction(Usage *usage);
 };
 
 }
