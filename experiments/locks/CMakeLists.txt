@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.6.2)
 
-project(Locks)
-
 set(MAIN_EXE_NAME locks)
 set(MAIN_C_SOURCES 
   main.c
