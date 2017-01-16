@@ -20,8 +20,7 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
     newRoot->CopyFrom(*root);
 
     if(UsesAcqRel(newRoot, locs)) {
-      newRoot->CopyFrom(*root);
-      newRoot->set_deleted(true);
+      newRoot->set_deleted(ShouldDelete(newRoot, Mod));
     }
     
     copyUsage(newRoot, File);
@@ -30,6 +29,10 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
   auto unique = unique_ptr<ManifestFile>(File);
   return unique_ptr<Manifest>(
       Manifest::construct(llvm::errs(), Automaton::Deterministic, std::move(unique)));
+}
+
+bool AcquireReleasePass::ShouldDelete(Usage *usage, llvm::Module &Mod) {
+  return false;
 }
 
 bool AcquireReleasePass::UsesAcqRel(const Usage *usage, set<const Location> &locs) {
