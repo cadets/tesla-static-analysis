@@ -7,6 +7,10 @@ set(MAIN_C_SOURCES
 )
 
 add_tesla_executable("${MAIN_C_SOURCES}" "${MAIN_EXE_NAME}" TRUE)
+install(
+  PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/locks 
+  DESTINATION bin
+)
 
 function(example name)
   set(SRC
