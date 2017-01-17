@@ -1,7 +1,9 @@
 #include "AcquireReleasePass.h"
 
+#include "AcquireReleaseCheck.h"
 #include "Debug.h"
 
+#include <llvm/PassManager.h>
 #include <llvm/Support/raw_ostream.h>
 
 using std::unique_ptr;
@@ -42,6 +44,10 @@ bool AcquireReleasePass::ShouldDelete(Usage *usage, llvm::Module &Mod) {
   if(!HasSimpleBounds(usage)) {
     return false;
   }
+
+  PassManager passes;
+  passes.add(new AcquireReleaseCheck);
+  passes.run(Mod);
 
   return false;
 }

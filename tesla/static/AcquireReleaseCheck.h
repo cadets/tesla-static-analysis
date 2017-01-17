@@ -7,7 +7,7 @@
 
 using namespace llvm;
 
-class AcquireReleaseCheck : public ModulePass {
+struct AcquireReleaseCheck : public ModulePass {
   AcquireReleaseCheck();
   virtual bool runOnModule(Module &M);
   virtual void getAnalysisUsage(AnalysisUsage &AU) const;

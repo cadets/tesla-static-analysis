@@ -7,7 +7,6 @@ void AcquireReleaseCheck::getAnalysisUsage(AnalysisUsage &AU) const {
 }
 
 bool AcquireReleaseCheck::runOnModule(Module &M) {
-  errs() << "Running AcqRel check on a module\n";
   return true;
 }
   
