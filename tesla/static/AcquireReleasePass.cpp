@@ -46,10 +46,11 @@ bool AcquireReleasePass::ShouldDelete(Usage *usage, llvm::Module &Mod) {
   }
 
   PassManager passes;
-  passes.add(new AcquireReleaseCheck);
+  auto check = new AcquireReleaseCheck(SimpleBoundFunction(usage));
+  passes.add(check);
   passes.run(Mod);
 
-  return false;
+  return check->CorrectUsage();
 }
 
 /**
