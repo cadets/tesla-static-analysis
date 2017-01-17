@@ -8,6 +8,7 @@ add_llvm_executable(tesla-static
   ManifestPass.cpp
   ManifestPassManager.cpp
   AcquireReleasePass.cpp
+  AcquireReleaseCheck.cpp
 )
 
 target_link_libraries(tesla-static

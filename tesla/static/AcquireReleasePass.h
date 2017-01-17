@@ -17,6 +17,9 @@ class AcquireReleasePass : public ManifestPass {
     static bool UsesAcqRel(const Usage *usage, set<const Location> &locs);
     static bool ReferencesAcqRel(const AutomatonDescription *aut);
     static set<const Location> ReferenceLocations(Manifest &Man);
+    static bool ShouldDelete(Usage *usage, llvm::Module &Mod);
+    static bool HasSimpleBounds(Usage *usage);
+    static std::string SimpleBoundFunction(Usage *usage);
 };
 
 }
