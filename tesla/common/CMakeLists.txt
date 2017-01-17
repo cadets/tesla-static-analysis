@@ -4,6 +4,7 @@ add_library(TeslaProto ${PROTO_SRCS} ${PROTO_HDRS})
 target_link_libraries(TeslaProto ${PROTOBUF_LIBRARY})
 
 add_library(TeslaCommon
+  Arguments.cpp
   Automaton.cpp
   Debug.cpp
   Manifest.cpp

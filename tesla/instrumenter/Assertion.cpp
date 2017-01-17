@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  */
 
+#include "Arguments.h"
 #include "Assertion.h"
 #include "Automaton.h"
 #include "Debug.h"
@@ -163,58 +164,7 @@ TEquivalenceClass AssertionSiteInstrumenter::AssertTrans(const Automaton *A) {
 vector<Value*> AssertionSiteInstrumenter::CollectArgs(
     Instruction *Before, const Automaton& A,
     Module& Mod, IRBuilder<>& Builder) {
-
-  // Find named values to be passed to instrumentation.
-  std::map<string,Value*> ValuesInScope;
-  for (auto G = Mod.global_begin(); G != Mod.global_end(); G++)
-    ValuesInScope[G->getName()] = G;
-
-  auto *Fn = Before->getParent()->getParent();
-  for (auto& Arg : Fn->getArgumentList())
-    ValuesInScope[Arg.getName()] = &Arg;
-
-  auto& EntryBlock(*Fn->begin());
-  for (auto& I : EntryBlock) {
-    auto *Inst = dyn_cast<AllocaInst>(&I);
-    if (!Inst)
-      break;
-
-    ValuesInScope[Inst->getName()] = Builder.CreateLoad(Inst);
-  }
-
-  int ArgSize = 0;
-  for (auto& Arg : A.getAssertion().argument())
-    if (!Arg.free())
-      ArgSize = std::max(ArgSize + 1, Arg.index());
-
-  vector<Value*> Args(ArgSize, NULL);
-
-  for (auto& Arg : A.getAssertion().argument()) {
-    if (Arg.free())
-      continue;
-
-    string Name(BaseName(Arg));
-
-    if (ValuesInScope.find(Name) == ValuesInScope.end()) {
-      string s;
-      raw_string_ostream Out(s);
-
-      for (auto v : ValuesInScope) {
-        Out << "  \"" << v.first << "\": ";
-        v.second->getType()->print(Out);
-        Out << "\n";
-      }
-
-      panic("assertion references non-existent variable '" + BaseName(Arg)
-         + "'; was it defined under '#ifdef TESLA'?\n\n"
-           "Variables in scope are:\n" + Out.str());
-    }
-
-    Args[Arg.index()] =
-      GetArgumentValue(ValuesInScope[Name], Arg, Builder, true);
-  }
-
-  return Args;
+  return tesla::CollectArgs(Before, A, Mod, Builder);
 }
 
 

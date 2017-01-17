@@ -113,12 +113,6 @@ llvm::Value* ConstructKey(llvm::IRBuilder<>&, llvm::Module&,
 //! Declare a reference to an external @ref tesla_automaton.
 llvm::Constant* ExternAutomatonDescrip(const Automaton*, llvm::Module&);
 
-
-//! Poke through indirection, struct fields, etc.
-llvm::Value* GetArgumentValue(llvm::Value* Param, const Argument& ArgDescrip,
-                              llvm::IRBuilder<>& Builder,
-                              bool AtAssertionSite = false);
-
 //! Find (or create) one function-event instrumentation function.
 llvm::Function* FunctionInstrumentation(llvm::Module&, const llvm::Function&,
                                         FunctionEvent::Direction,

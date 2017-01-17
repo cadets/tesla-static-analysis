@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  */
 
+#include "Arguments.h"
 #include "Automaton.h"
 #include "EventTranslator.h"
 #include "Instrumentation.h"
