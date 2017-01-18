@@ -72,6 +72,9 @@ public:
   //! Find the @ref tesla::Automaton defined at a @ref tesla::Location.
   const Automaton* FindAutomaton(const Location&) const;
 
+  //! Find the @red tesla::Automaton with this name
+  const Automaton* FindAutomaton(std::string name) const;
+
   const llvm::ArrayRef<Automaton::Lifetime> getLifetimes() const {
     return Lifetimes;
   }

@@ -84,6 +84,13 @@ const Automaton* Manifest::FindAutomaton(const Location& Loc) const {
   return FindAutomaton(ID);
 }
 
+const Automaton* Manifest::FindAutomaton(std::string name) const {
+  Identifier ID;
+  *ID.mutable_name() = name;
+
+  return FindAutomaton(ID);
+}
+
 Manifest* 
 Manifest::construct(raw_ostream& ErrorStream, 
                     Automaton::Type T, 
