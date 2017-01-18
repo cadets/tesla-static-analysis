@@ -19,6 +19,12 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
     return false;
   }
 
+  BasicBlock &entry = BoundFn->getEntryBlock();
+  Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
+  IRBuilder<> B(first);
+
+  std::vector<Value *> args(tesla::CollectArgs(first, automaton, M, B));
+
   return true;
 }
   

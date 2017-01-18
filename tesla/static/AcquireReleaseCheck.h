@@ -3,11 +3,13 @@
 
 #include <llvm/Pass.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/IRBuilder.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <string>
 
 #include "Automaton.h"
+#include "Arguments.h"
 
 using std::string;
 using namespace llvm;
