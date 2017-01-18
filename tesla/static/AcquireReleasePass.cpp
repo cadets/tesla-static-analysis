@@ -1,10 +1,12 @@
-#include "AcquireReleasePass.h"
-
 #include "AcquireReleaseCheck.h"
+#include "AcquireReleasePass.h"
 #include "Debug.h"
 
 #include <llvm/PassManager.h>
 #include <llvm/Support/raw_ostream.h>
+
+#include <algorithm>
+#include <vector>
 
 using std::unique_ptr;
 using std::set;
@@ -15,6 +17,15 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
   auto File = new ManifestFile();
 
   copyDefinitions(Man, File);
+
+  // TODO: check that the arguments are equal
+  auto acq = Man.FindAutomaton("acquire");
+  auto rel = Man.FindAutomaton("release");
+  std::vector<Argument> args;
+
+  std::copy(acq->getAssertion().argument().begin(), 
+            acq->getAssertion().argument().end(), 
+            std::back_inserter(args));
 
   auto locs = ReferenceLocations(Man);
   for(auto root : Man.RootAutomata()) {
