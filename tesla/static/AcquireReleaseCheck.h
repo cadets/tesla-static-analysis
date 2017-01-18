@@ -6,6 +6,7 @@
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -20,6 +21,7 @@ struct AcquireReleaseCheck : public ModulePass {
   
   bool CorrectUsage() { return correctUsage; }
 
+  Value *UsesOtherLock(Value *lock, std::set<Function *> calls);
   virtual bool runOnModule(Module &M);
   virtual void getAnalysisUsage(AnalysisUsage &AU) const;
   virtual const char *getPassName() const;

@@ -39,8 +39,39 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
 
   Value *lock = Args[0];
   auto calledFunctions = tesla::CalledFunctions(BoundFn);
+  if(auto other = UsesOtherLock(lock, calledFunctions)) {
+    errs() << "Use of another lock found - "
+           << "this may lead to a runtime assertion failure.\n"
+           << "Lock expected: "
+           << lock->getName() << '\n'
+           << "Lock used: "
+           << other->getName() << '\n';
+    return true;
+  }
 
   return true;
+}
+
+Value *AcquireReleaseCheck::UsesOtherLock(Value *lock, std::set<Function *> calls) {
+  for(auto f : calls) {
+    auto acquire = f->getParent()->getFunction("lock_acquire");
+    auto release = f->getParent()->getFunction("lock_release");
+
+    for(auto &BB : *f) {
+      for(auto &I : BB) {
+        if(isa<CallInst>(I)) {
+          auto &call = cast<CallInst>(I);
+          if(call.getCalledFunction() == acquire || call.getCalledFunction() == release) {
+            if(call.getArgOperand(0) != lock) {
+              return call.getArgOperand(0);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return nullptr;
 }
   
 void AcquireReleaseCheck::print(raw_ostream &OS, const Module *m) const {
