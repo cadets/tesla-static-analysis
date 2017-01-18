@@ -26,6 +26,18 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
   IRBuilder<> B(first);
 
   std::vector<Value *> Args(tesla::CollectArgs(first, args, M, B));
+  
+  /**
+   * For now, the automata being analysed should only have a single parameter
+   * (the lock structure in question).
+   */
+  if(Args.size() != 1) {
+    errs() << "Automata has more than one parameter\n";
+    return true;
+  }
+
+  Value *lock = Args[0];
+
   return true;
 }
   
