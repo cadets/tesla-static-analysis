@@ -7,11 +7,13 @@
 
 #include <string>
 
+#include "Automaton.h"
+
 using std::string;
 using namespace llvm;
 
 struct AcquireReleaseCheck : public ModulePass {
-  AcquireReleaseCheck(string bound);
+  AcquireReleaseCheck(const tesla::Automaton &A);
   
   bool CorrectUsage() { return correctUsage; }
 
@@ -21,7 +23,8 @@ struct AcquireReleaseCheck : public ModulePass {
   static char ID;
 private:
   bool correctUsage;
-  string boundName;
+  const string boundName;
+  const tesla::Automaton &automaton;
 };
 
 #endif

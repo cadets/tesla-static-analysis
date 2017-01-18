@@ -18,11 +18,16 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
 
   auto locs = ReferenceLocations(Man);
   for(auto root : Man.RootAutomata()) {
+    auto automaton = Man.FindAutomaton(root->identifier());
+    if(!automaton) {
+      panic("Usage without associated automaton");
+    }
+
     Usage *newRoot = new Usage;
     newRoot->CopyFrom(*root);
 
     if(UsesAcqRel(newRoot, locs)) {
-      newRoot->set_deleted(ShouldDelete(newRoot, Mod));
+      newRoot->set_deleted(ShouldDelete(automaton, Mod));
     }
     
     copyUsage(newRoot, File);
@@ -33,7 +38,7 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
       Manifest::construct(llvm::errs(), Automaton::Deterministic, std::move(unique)));
 }
 
-bool AcquireReleasePass::ShouldDelete(Usage *usage, llvm::Module &Mod) {
+bool AcquireReleasePass::ShouldDelete(const Automaton *A, llvm::Module &Mod) {
   /**
    * For now, we will only be working on usages that have their entry point as
    * the entry to a function, and their exit as an exit from that same function.
@@ -41,12 +46,14 @@ bool AcquireReleasePass::ShouldDelete(Usage *usage, llvm::Module &Mod) {
    * searching through arbitrary 'caller' points (we can just do so in the
    * function itself).
    */
+  auto usage = A->Use();
+
   if(!HasSimpleBounds(usage)) {
     return false;
   }
 
   PassManager passes;
-  auto check = new AcquireReleaseCheck(SimpleBoundFunction(usage));
+  auto check = new AcquireReleaseCheck(*A);
   passes.add(check);
   passes.run(Mod);
 
@@ -57,7 +64,7 @@ bool AcquireReleasePass::ShouldDelete(Usage *usage, llvm::Module &Mod) {
  * Return true if and only if the usage given has the simplest form of beginning
  * / end bounds - entry and exit for the same function.
  */
-bool AcquireReleasePass::HasSimpleBounds(Usage *usage) {
+bool AcquireReleasePass::HasSimpleBounds(const Usage *usage) {
   if(usage->beginning().type() != Expression_Type_FUNCTION) {
     return false;
   }
@@ -82,7 +89,7 @@ bool AcquireReleasePass::HasSimpleBounds(Usage *usage) {
  * If we know that the usage has simple bounds (as described above), this
  * function can be used to get the name of that function.
  */
-std::string AcquireReleasePass::SimpleBoundFunction(Usage *usage) {
+std::string AcquireReleasePass::SimpleBoundFunction(const Usage *usage) {
   return usage->beginning().function().function().name();
 }
 

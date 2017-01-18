@@ -1,9 +1,12 @@
 #include "AcquireReleaseCheck.h"
 
-AcquireReleaseCheck::AcquireReleaseCheck(string bound) : 
+AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A) : 
   ModulePass(ID), 
   correctUsage(false),
-  boundName(bound) {}
+  boundName(A.Use()->beginning().function().function().name()),
+  automaton(A)
+{
+}
 
 void AcquireReleaseCheck::getAnalysisUsage(AnalysisUsage &AU) const {
 }
