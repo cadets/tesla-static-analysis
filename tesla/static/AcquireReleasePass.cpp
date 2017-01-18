@@ -38,7 +38,7 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
     newRoot->CopyFrom(*root);
 
     if(UsesAcqRel(newRoot, locs)) {
-      newRoot->set_deleted(ShouldDelete(automaton, Mod));
+      newRoot->set_deleted(ShouldDelete(automaton, args, Mod));
     }
     
     copyUsage(newRoot, File);
@@ -49,7 +49,9 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
       Manifest::construct(llvm::errs(), Automaton::Deterministic, std::move(unique)));
 }
 
-bool AcquireReleasePass::ShouldDelete(const Automaton *A, llvm::Module &Mod) {
+bool AcquireReleasePass::ShouldDelete(const Automaton *A, 
+                                      std::vector<Argument> args, 
+                                      llvm::Module &Mod) {
   /**
    * For now, we will only be working on usages that have their entry point as
    * the entry to a function, and their exit as an exit from that same function.
@@ -64,7 +66,7 @@ bool AcquireReleasePass::ShouldDelete(const Automaton *A, llvm::Module &Mod) {
   }
 
   PassManager passes;
-  auto check = new AcquireReleaseCheck(*A);
+  auto check = new AcquireReleaseCheck(*A, args);
   passes.add(check);
   passes.run(Mod);
 

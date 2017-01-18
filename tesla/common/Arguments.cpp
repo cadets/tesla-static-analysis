@@ -11,7 +11,7 @@ using std::string;
 using std::vector;
 
 vector<Value*> tesla::CollectArgs(
-    Instruction *Before, vector<Argument> args,
+    Instruction *Before, vector<tesla::Argument> args,
     Module& Mod, IRBuilder<>& Builder) {
   // Find named values to be passed to instrumentation.
   std::map<string,Value*> ValuesInScope;

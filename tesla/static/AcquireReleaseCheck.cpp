@@ -1,10 +1,12 @@
 #include "AcquireReleaseCheck.h"
 
-AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A) : 
+AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A, 
+                                         std::vector<tesla::Argument> args_) : 
   ModulePass(ID), 
   correctUsage(false),
   boundName(A.Use()->beginning().function().function().name()),
-  automaton(A)
+  automaton(A),
+  args(args_)
 {
 }
 
@@ -23,8 +25,7 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
   Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
   IRBuilder<> B(first);
 
-  std::vector<Value *> args(tesla::CollectArgs(first, automaton, M, B));
-
+  std::vector<Value *> Args(tesla::CollectArgs(first, args, M, B));
   return true;
 }
   

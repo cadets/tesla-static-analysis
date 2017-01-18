@@ -7,6 +7,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include <string>
+#include <vector>
 
 #include "Automaton.h"
 #include "Arguments.h"
@@ -15,7 +16,7 @@ using std::string;
 using namespace llvm;
 
 struct AcquireReleaseCheck : public ModulePass {
-  AcquireReleaseCheck(const tesla::Automaton &A);
+  AcquireReleaseCheck(const tesla::Automaton &A, std::vector<tesla::Argument> args);
   
   bool CorrectUsage() { return correctUsage; }
 
@@ -27,6 +28,7 @@ private:
   bool correctUsage;
   const string boundName;
   const tesla::Automaton &automaton;
+  std::vector<tesla::Argument> args;
 };
 
 #endif
