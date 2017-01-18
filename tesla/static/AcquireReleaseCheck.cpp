@@ -45,4 +45,8 @@ void AcquireReleaseCheck::print(raw_ostream &OS, const Module *m) const {
   OS << "[AcqRel] correct usage: " << correctUsage << '\n';
 }
 
+const char *AcquireReleaseCheck::getPassName() const {
+  return "AcquireReleaseCheck";
+}
+
 char AcquireReleaseCheck::ID = 0;

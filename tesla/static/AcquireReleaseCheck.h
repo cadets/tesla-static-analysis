@@ -22,6 +22,7 @@ struct AcquireReleaseCheck : public ModulePass {
 
   virtual bool runOnModule(Module &M);
   virtual void getAnalysisUsage(AnalysisUsage &AU) const;
+  virtual const char *getPassName() const;
   void print(raw_ostream &OS, const Module *m = 0) const;
   static char ID;
 private:
