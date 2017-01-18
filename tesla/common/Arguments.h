@@ -27,6 +27,10 @@ class Automaton;
 std::vector<llvm::Value*> CollectArgs(llvm::Instruction *, const Automaton&,
                                       llvm::Module&, llvm::IRBuilder<>&);
 
+//!
+std::vector<llvm::Value*> CollectArgs(llvm::Instruction *, std::vector<tesla::Argument>,
+                                      llvm::Module&, llvm::IRBuilder<>&);
+
 //! Poke through indirection, struct fields, etc.
 llvm::Value* GetArgumentValue(llvm::Value* Param, const Argument& ArgDescrip,
                               llvm::IRBuilder<>& Builder,

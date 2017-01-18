@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "Arguments.h"
 
 #include "Automaton.h"
@@ -9,9 +11,8 @@ using std::string;
 using std::vector;
 
 vector<Value*> tesla::CollectArgs(
-    Instruction *Before, const Automaton& A,
+    Instruction *Before, vector<tesla::Argument> args,
     Module& Mod, IRBuilder<>& Builder) {
-
   // Find named values to be passed to instrumentation.
   std::map<string,Value*> ValuesInScope;
   for (auto G = Mod.global_begin(); G != Mod.global_end(); G++)
@@ -31,13 +32,13 @@ vector<Value*> tesla::CollectArgs(
   }
 
   int ArgSize = 0;
-  for (auto& Arg : A.getAssertion().argument())
+  for (auto& Arg : args)
     if (!Arg.free())
       ArgSize = std::max(ArgSize + 1, Arg.index());
 
   vector<Value*> Args(ArgSize, NULL);
 
-  for (auto& Arg : A.getAssertion().argument()) {
+  for (auto& Arg : args) {
     if (Arg.free())
       continue;
 
@@ -63,6 +64,17 @@ vector<Value*> tesla::CollectArgs(
   }
 
   return Args;
+}
+
+vector<Value*> tesla::CollectArgs(
+    Instruction *Before, const Automaton& A,
+    Module& Mod, IRBuilder<>& Builder) {
+
+  vector<Argument> newArgs;
+  auto args = A.getAssertion().argument();
+
+  std::copy(args.begin(), args.end(), std::back_inserter(newArgs));
+  return tesla::CollectArgs(Before, newArgs, Mod, Builder);
 }
 
 Value* tesla::GetArgumentValue(Value* Param, const Argument& ArgDescrip,
