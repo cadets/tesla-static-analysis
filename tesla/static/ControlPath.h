@@ -3,13 +3,13 @@
 
 #include <llvm/IR/Function.h>
 
-#include <vector>
+#include <set>
 
 using namespace llvm;
 
 namespace tesla {
 
-std::vector<Function *> CalledFunctions(Function *root);
+std::set<Function *> CalledFunctions(Function *root);
 
 }
 

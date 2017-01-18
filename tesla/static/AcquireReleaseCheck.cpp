@@ -1,4 +1,5 @@
 #include "AcquireReleaseCheck.h"
+#include "ControlPath.h"
 
 AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A, 
                                          std::vector<tesla::Argument> args_) : 
@@ -37,6 +38,7 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
   }
 
   Value *lock = Args[0];
+  auto calledFunctions = tesla::CalledFunctions(BoundFn);
 
   return true;
 }
