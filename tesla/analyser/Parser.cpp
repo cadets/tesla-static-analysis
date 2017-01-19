@@ -367,8 +367,7 @@ bool Parser::Parse(Expression *Ex, const Expr *E, Flags F) {
 }
 
 bool Parser::Parse(Expression *E, const clang::ChooseExpr *CE, Flags F) {
-  // Note: the Ctx parameter is gone in LLVM 3.4
-  return Parse(E, CE->getChosenSubExpr(Ctx), F);
+  return Parse(E, CE->getChosenSubExpr(), F);
 }
 
 bool Parser::Parse(Expression *E, const BinaryOperator *Bop, Flags F) {
@@ -989,7 +988,7 @@ bool Parser::ParseArg(ArgFactory NextArg, const Expr *E, Flags F,
 
   auto P = E->IgnoreParenCasts();
   if (const ChooseExpr *CE = dyn_cast<ChooseExpr>(P))
-    return ParseArg(NextArg, CE->getChosenSubExpr(Ctx), F, DoNotRegister);
+    return ParseArg(NextArg, CE->getChosenSubExpr(), F, DoNotRegister);
 
   // Each variable references must be one of:
   //  - a call to a TESLA pseudo-function:
