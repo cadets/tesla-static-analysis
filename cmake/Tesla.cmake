@@ -39,7 +39,7 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
 
   add_custom_command(
     OUTPUT ${EXE_NAME}.bc
-    COMMAND llvm-link33 ${LL_FILES} -o ${EXE_NAME}.bc
+    COMMAND llvm-link34 ${LL_FILES} -o ${EXE_NAME}.bc
     DEPENDS ${LL_FILES}
   )
   add_custom_target(${EXE_NAME}_lto

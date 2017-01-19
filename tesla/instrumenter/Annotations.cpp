@@ -32,6 +32,7 @@
 #include "Annotations.h"
 
 #include <llvm/ADT/APInt.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/GlobalVariable.h>
 
 using namespace llvm;

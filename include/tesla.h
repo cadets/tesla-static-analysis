@@ -50,9 +50,16 @@ __BEGIN_DECLS
  * @{
  */
 
+// We know that these types are of zero size, and so we don't need a warning
+// that they are of 0 size when building.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextern-c-compat"
+
 /** The basic TESLA type is a pointer to a TESLA Basic TESLA types (magic for the compiler to munge). */
 typedef	struct __tesla_event {}		__tesla_event;
 typedef	struct __tesla_locality {}	__tesla_locality;
+
+#pragma clang diagnostic pop
 
 /** A number of times to match an event: positive or "any number". */
 typedef	int	__tesla_count;

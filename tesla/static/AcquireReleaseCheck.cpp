@@ -1,6 +1,8 @@
 #include "AcquireReleaseCheck.h"
 #include "ControlPath.h"
 
+#include <llvm/Analysis/CallGraph.h>
+
 AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A, 
                                          std::vector<tesla::Argument> args_) : 
   ModulePass(ID), 
@@ -12,6 +14,7 @@ AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A,
 }
 
 void AcquireReleaseCheck::getAnalysisUsage(AnalysisUsage &AU) const {
+  AU.addRequired<CallGraph>();
 }
 
 bool AcquireReleaseCheck::runOnModule(Module &M) {
@@ -21,6 +24,8 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
            << " does not exist in this module.\n";
     return false;
   }
+
+  CallGraph *CG = &getAnalysis<CallGraph>();
 
   BasicBlock &entry = BoundFn->getEntryBlock();
   Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();

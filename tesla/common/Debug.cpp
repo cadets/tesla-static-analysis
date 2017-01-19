@@ -102,7 +102,9 @@ namespace {
 class StaticDebugInit {
 public:
   StaticDebugInit() {
-    sys::PrintStackTraceOnErrorSignal();
+    // For some horrible, horrible reason this code will segfault under LLVM
+    // 3.4, so I've commented it out - no idea why this happens.
+    // sys::PrintStackTraceOnErrorSignal();
   }
 
 } DebugInit;
