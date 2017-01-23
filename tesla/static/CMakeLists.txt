@@ -10,6 +10,7 @@ add_llvm_executable(tesla-static
   AcquireReleasePass.cpp
   AcquireReleaseCheck.cpp
   ControlPath.cpp
+  Analysis.cpp
 )
 
 target_link_libraries(tesla-static
