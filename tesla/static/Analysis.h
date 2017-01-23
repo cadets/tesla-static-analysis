@@ -13,6 +13,7 @@ struct Analysis {
   void AddMessage(std::string e);
   std::string Message();
   virtual std::string AnalysisName() const = 0;
+  virtual bool run() const = 0;
 
 protected:
   Module &Mod;

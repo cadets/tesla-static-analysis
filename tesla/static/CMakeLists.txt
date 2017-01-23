@@ -11,6 +11,7 @@ add_llvm_executable(tesla-static
   AcquireReleaseCheck.cpp
   ControlPath.cpp
   Analysis.cpp
+  OtherLockAnalysis.cpp
 )
 
 target_link_libraries(tesla-static
