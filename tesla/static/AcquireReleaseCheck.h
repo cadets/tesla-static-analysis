@@ -21,7 +21,6 @@ struct AcquireReleaseCheck : public ModulePass {
   
   bool CorrectUsage() { return correctUsage; }
 
-  Value *UsesOtherLock(Value *lock, std::set<Function *> calls);
   virtual bool runOnModule(Module &M);
   virtual void getAnalysisUsage(AnalysisUsage &AU) const;
   virtual const char *getPassName() const;
