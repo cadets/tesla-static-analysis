@@ -32,9 +32,9 @@ bool OtherLockAnalysis::run() {
   auto calledFunctions = tesla::CalledFunctions(&Bound);
   if(auto other = UsesOtherLock(calledFunctions)) {
     AddMessage("Use of another lock found - "
-               "this may lead to a runtime assertion failure.\n");
-    AddMessage("Lock expected: " + Lock.getName().str() + "\n");
-    AddMessage("Lock used: " + other->getName().str() + "\n");
+               "this may lead to a runtime assertion failure.");
+    AddMessage("Lock expected: " + Lock.getName().str());
+    AddMessage("Lock used: " + other->getName().str());
     return true;
   }
 

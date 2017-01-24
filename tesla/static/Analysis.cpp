@@ -6,7 +6,7 @@ Analysis::Analysis(Module &M) : Mod(M) {
 }
 
 void Analysis::AddMessage(std::string e) {
-  errs << "[" << AnalysisName() << "] " << e;
+  errs << "[" << AnalysisName() << "] " << e << '\n';
 }
 
 string Analysis::Message() {
