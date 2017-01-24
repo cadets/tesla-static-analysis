@@ -41,11 +41,18 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
     return true;
   }
 
-  auto oth = new OtherLockAnalysis(M, *BoundFn, *Args[0]);
-  if(oth->run()) {
-    errs() << oth->Message();
-    return true;
-  }
+  std::vector<Analysis *> Analyses{
+    new OtherLockAnalysis(M, *BoundFn, *Args[0])
+  };
+
+  std::for_each(Analyses.begin(), Analyses.end(),
+    [=](Analysis *a) {
+      if(a->run()) {
+        correctUsage = false;
+        errs() << a->Message();
+      }
+    }
+  );
 
   return true;
 }
