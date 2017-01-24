@@ -1,8 +1,49 @@
 #include "NoBranchAnalysis.h"
 
+#include <llvm/IR/InstrTypes.h>
+
+#include <queue>
+
 bool NoBranchAnalysis::run() {
-  auto x = AcquireCalls();
-  return false;
+  bool allBranch = true;
+
+  auto calls = AcquireCalls();
+  for(auto call : calls) {
+    bool hasBranch = false;
+
+    std::queue<Value *> traces;
+    std::for_each(call->use_begin(), call->use_end(),
+      [&](Value *use) {
+        traces.push(use);
+      }
+    );
+
+    while(!traces.empty()) {
+      auto use = traces.front();
+      traces.pop();
+
+      if(auto op = dyn_cast<BinaryOperator>(use)) {
+        std::for_each(op->use_begin(), op->use_end(),
+          [&](Value *use) {
+            traces.push(use);
+          }
+        );
+      }
+
+      if(isa<BranchInst>(use)) {
+        hasBranch = true;
+      }
+    }
+
+    if(!hasBranch) {
+      AddMessage("Found acquire call with no branches - lock usage might be incorrect");
+      AddMessage("Acquire call is:");
+    }
+
+    allBranch = hasBranch && allBranch;
+  }
+
+  return !allBranch;
 }
 
 std::set<CallInst *> NoBranchAnalysis::AcquireCalls() {
