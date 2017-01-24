@@ -37,7 +37,11 @@ bool NoBranchAnalysis::run() {
 
     if(!hasBranch) {
       AddMessage("Found acquire call with no branches - lock usage might be incorrect");
-      AddMessage("Acquire call is:");
+      auto DI = call->getDebugLoc();
+      AddMessage("The call location is: " +
+                 Mod.getModuleIdentifier() + ":" + 
+                 call->getParent()->getParent()->getName().str() + ":" +
+                 std::to_string(DI.getLine()));
     }
 
     allBranch = hasBranch && allBranch;
