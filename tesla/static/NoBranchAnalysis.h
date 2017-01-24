@@ -3,11 +3,18 @@
 
 #include "Analysis.h"
 
+#include <llvm/IR/Instructions.h>
+
+#include <set>
+
 struct NoBranchAnalysis : public Analysis {
   NoBranchAnalysis(Module &M) : Analysis(M) {}
 
-  virtual bool run() override;
-  virtual std::string AnalysisName() const override;
+  bool run() override;
+  std::string AnalysisName() const override { return "NoBranchAnalysis"; }
+
+private:
+  std::set<CallInst *> AcquireCalls();
 };
 
 #endif
