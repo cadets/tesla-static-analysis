@@ -1,6 +1,7 @@
 #include "AcquireReleaseCheck.h"
 #include "ControlPath.h"
 #include "OtherLockAnalysis.h"
+#include "NoBranchAnalysis.h"
 
 #include <llvm/Analysis/CallGraph.h>
 
@@ -42,7 +43,8 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
   }
 
   std::vector<Analysis *> Analyses{
-    new OtherLockAnalysis(M, *BoundFn, *Args[0])
+    new OtherLockAnalysis(M, *BoundFn, *Args[0]),
+    new NoBranchAnalysis(M)
   };
 
   std::for_each(Analyses.begin(), Analyses.end(),

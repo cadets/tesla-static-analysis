@@ -12,6 +12,7 @@ add_llvm_executable(tesla-static
   ControlPath.cpp
   Analysis.cpp
   OtherLockAnalysis.cpp
+  NoBranchAnalysis.cpp
 )
 
 target_link_libraries(tesla-static
