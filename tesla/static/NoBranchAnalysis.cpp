@@ -1,3 +1,4 @@
+#include "Debug.h"
 #include "NoBranchAnalysis.h"
 
 #include <llvm/IR/InstrTypes.h>
@@ -37,11 +38,7 @@ bool NoBranchAnalysis::run() {
 
     if(!hasBranch) {
       AddMessage("Found acquire call with no branches - lock usage might be incorrect");
-      auto DI = call->getDebugLoc();
-      AddMessage("The call location is: " +
-                 Mod.getModuleIdentifier() + ":" + 
-                 call->getParent()->getParent()->getName().str() + ":" +
-                 std::to_string(DI.getLine()));
+      AddMessage("Acquire call: " + tesla::DebugLocationString(call));
     }
 
     allBranch = hasBranch && allBranch;
