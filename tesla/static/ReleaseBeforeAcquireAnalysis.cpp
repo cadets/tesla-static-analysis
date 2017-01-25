@@ -1,5 +1,6 @@
-#include "ReleaseBeforeAcquireAnalysis.h"
 #include "ControlPath.h"
+#include "Debug.h"
+#include "ReleaseBeforeAcquireAnalysis.h"
 
 #include <llvm/Analysis/Dominators.h>
 #include <llvm/IR/Instructions.h>
@@ -49,7 +50,9 @@ bool ReleaseBeforeAcquireAnalysis::runOnFunction(Function *F) {
   for(auto release : rels) {
     for(auto acquire : acqs) {
       if(DT.dominates(release, acquire)) {
-        AddMessage("Found a dominator");
+        AddMessage("Found a release call dominating an acquire call:");
+        AddMessage("Release call: " + tesla::DebugLocationString(release));
+        AddMessage("Acquire call: " + tesla::DebugLocationString(acquire));
         return true;
       }
     }
