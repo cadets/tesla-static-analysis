@@ -94,6 +94,13 @@ raw_ostream& tesla::debugs(StringRef DebugModuleName) {
   return NullStream;
 }
 
+std::string tesla::DebugLocationString(Instruction *I) {
+  auto DI = I->getDebugLoc();
+  return I->getParent()->getParent()->getParent()->getModuleIdentifier() + ":" +
+         I->getParent()->getParent()->getName().str() + ":" +
+         std::to_string(DI.getLine());
+}
+
 #ifndef NDEBUG
 #include <llvm/Support/Signals.h>
 
