@@ -34,6 +34,12 @@
 
 #include <llvm/ADT/StringRef.h>
 #include <llvm/ADT/Twine.h>
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/Module.h>
+
+#include <string>
 
 namespace llvm {
   class raw_ostream;
@@ -45,6 +51,8 @@ llvm::raw_ostream& debugs(llvm::StringRef DebugModuleName = "tesla");
 
 LLVM_ATTRIBUTE_NORETURN
 void panic(llvm::Twine Message, bool PrintStackTrace = true);
+
+std::string DebugLocationString(llvm::Instruction *I);
 
 #ifdef NDEBUG
 #define __debugonly __attribute__((unused))
