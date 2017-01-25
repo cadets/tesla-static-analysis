@@ -46,6 +46,7 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
   std::vector<Analysis *> Analyses{
     new OtherLockAnalysis(M, *BoundFn, *Args[0]),
     new NoBranchAnalysis(M),
+    new ReleaseBeforeAcquireAnalysis(M, *BoundFn, *Args[0])
   };
 
   std::for_each(Analyses.begin(), Analyses.end(),
