@@ -15,9 +15,10 @@ void acq() {
 
 void rel() {
   lock_release(&lock);
+  acq();
 }
 
 void do_work(void) {
-  rel();
   acq();
+  rel();
 }
