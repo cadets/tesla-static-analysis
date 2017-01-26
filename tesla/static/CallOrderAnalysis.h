@@ -16,6 +16,9 @@ struct CallOrderAnalysis : public Analysis {
 private:
   Function &Bound;
   SimpleCallGraph CG;
+
+  vector<Function *> Acquirers();
+  vector<Function *> Releasers();
 };
 
 #endif
