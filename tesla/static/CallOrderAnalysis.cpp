@@ -5,6 +5,10 @@
 bool CallOrderAnalysis::run() {
   for(auto rel : Releasers()) {
     auto afterRels = CG.TransitiveCalls(rel);
+    auto reach = CG.TransitiveCalls(&Bound);
+    if(std::find(reach.begin(), reach.end(), rel) == reach.end()) {
+      continue;
+    }
 
     for(auto acq : Acquirers()) {
       if(std::find(afterRels.begin(), afterRels.end(), acq) != afterRels.end()) {
