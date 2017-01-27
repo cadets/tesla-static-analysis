@@ -12,7 +12,9 @@ bool CallOrderAnalysis::run() {
 
     for(auto acq : Acquirers()) {
       if(std::find(afterRels.begin(), afterRels.end(), acq) != afterRels.end()) {
-        AddMessage("Indirect release before acquire");
+        AddMessage("Indirect release before acquire:");
+        AddMessage("Function '" + rel->getName().str() + "' calls function '" + 
+                   acq->getName().str() + "'");
         return true;
       }
     }
