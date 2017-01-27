@@ -31,6 +31,7 @@ struct SimpleCallGraph {
   vector<Function *> TransitiveCalls(Function *f);
 private:
   map<Function *, vector<Function *>> Adjacency;
+  static bool shouldInclude(Function *f);
   static vector<Function *> getAdjacency(Function &f);
 };
 

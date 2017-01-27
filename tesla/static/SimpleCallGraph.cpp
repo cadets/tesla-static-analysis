@@ -14,6 +14,10 @@ SimpleCallGraph::SimpleCallGraph(Module &M) {
   }
 }
 
+bool SimpleCallGraph::shouldInclude(Function *f) {
+  return f && !f->isDeclaration();
+}
+
 vector<Function *> SimpleCallGraph::TransitiveCalls(Function *root) {
   queue<Function *> toVisit{};
   set<Function *> found{};
@@ -22,32 +26,40 @@ vector<Function *> SimpleCallGraph::TransitiveCalls(Function *root) {
 
   while(!toVisit.empty()) {
     auto fn = toVisit.front();
+    toVisit.pop();
 
     for(auto called : Calls(fn)) {
-      if(std::find(found.begin(), found.end(), called) == found.end()) {
-        found.insert(called); 
-        toVisit.push(called);
+      if(shouldInclude(called)) {
+        if(std::find(found.begin(), found.end(), called) == found.end()) {
+          found.insert(called); 
+          toVisit.push(called);
+        }
       }
     }
   }
 
   vector<Function *>ret{};
-  std::copy(found.begin(), found.end(), ret.begin());
+  ret.assign(found.begin(), found.end());
 
   return ret;
 }
 
 vector<Function *> SimpleCallGraph::getAdjacency(Function &f) {
-  vector<Function *> called{};
+  set<Function *> called{};
 
   for(auto &BB : f) {
     for(auto &I : BB) {
       if(isa<CallInst>(I)) {
         auto &call = cast<CallInst>(I);
-        called.push_back(call.getCalledFunction());
+        auto calledFn = call.getCalledFunction();
+        if(shouldInclude(calledFn)) {
+          called.insert(calledFn);
+        }
       }
     }
   }
 
-  return called;
+  vector<Function *> ret{};
+  ret.assign(called.begin(), called.end());
+  return ret;
 }
