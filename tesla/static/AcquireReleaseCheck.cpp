@@ -1,5 +1,6 @@
 #include "AcquireReleaseCheck.h"
 #include "ControlPath.h"
+#include "AcquireSequenceAnalysis.h"
 #include "AddressTakenAnalysis.h"
 #include "CallOrderAnalysis.h"
 #include "MissingCallAnalysis.h"
@@ -54,7 +55,8 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
     new OtherLockAnalysis(M, *BoundFn, *Args[0]),
     new NoBranchAnalysis(M),
     new ReleaseBeforeAcquireAnalysis(M, *BoundFn, *Args[0]),
-    new CallOrderAnalysis(M, *BoundFn)
+    new CallOrderAnalysis(M, *BoundFn),
+    new AcquireSequenceAnalysis(M)
   };
 
   std::for_each(Analyses.begin(), Analyses.end(),
