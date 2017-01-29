@@ -22,6 +22,10 @@ ReachabilityGraph::ReachabilityGraph(Function &F) : Func(F) {
 }
 
 bool ReachabilityGraph::Reachable(BasicBlock *start, BasicBlock *end) {
+  if(start == end) {
+    return true;
+  }
+
   set<BasicBlock *> visited;
   stack<BasicBlock *> st;
 
