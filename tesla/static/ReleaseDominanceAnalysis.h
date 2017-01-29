@@ -3,6 +3,11 @@
 
 #include "Analysis.h"
 
+#include <llvm/IR/Instructions.h>
+
+#include <set>
+
+using std::set;
 using namespace llvm;
 
 struct ReleaseDominanceAnalysis : public Analysis {
@@ -12,6 +17,7 @@ struct ReleaseDominanceAnalysis : public Analysis {
   std::string AnalysisName() const override { return "ReleaseDominanceAnalysis"; }
   bool run() override;
 private:
+  map<Function *, set<CallInst *>> ReleaseCalls();
   Function &Bound;
 };
 
