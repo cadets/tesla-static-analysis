@@ -8,8 +8,13 @@ bool ReleaseDominanceAnalysis::run() {
   auto ret = true;
   auto relFn = Mod.getFunction("lock_release");
   SimpleCallGraph CG{Mod};
+  auto path = CG.TransitiveCalls(&Bound);
 
   for(auto &F : Mod) {
+    if(std::find(path.begin(), path.end(), &F) == path.end()) {
+      continue;
+    }
+
     ReachabilityGraph RG{F};
 
     auto localRels = releases[&F];
