@@ -1,5 +1,6 @@
 #include "AcquireReleaseCheck.h"
 #include "ControlPath.h"
+#include "AddressTakenAnalysis.h"
 #include "CallOrderAnalysis.h"
 #include "MissingCallAnalysis.h"
 #include "NoBranchAnalysis.h"
@@ -47,6 +48,7 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
   }
 
   std::vector<Analysis *> Analyses{
+    new AddressTakenAnalysis(M),
     new MissingCallAnalysis(M, *BoundFn),
     new ReleaseDominanceAnalysis(M, *BoundFn),
     new OtherLockAnalysis(M, *BoundFn, *Args[0]),
