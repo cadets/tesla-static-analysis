@@ -17,6 +17,7 @@ add_llvm_executable(tesla-static
   CallOrderAnalysis.cpp
   MissingCallAnalysis.cpp
   ReleaseDominanceAnalysis.cpp
+  AddressTakenAnalysis.cpp
   ReachabilityGraph.cpp
   SimpleCallGraph.cpp
 )
