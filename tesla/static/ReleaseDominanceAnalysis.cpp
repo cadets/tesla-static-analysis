@@ -5,7 +5,7 @@
 
 bool ReleaseDominanceAnalysis::run() {
   auto releases = ReleaseCalls();
-  auto ret = true;
+  auto ret = false;
   auto relFn = Mod.getFunction("lock_release");
   SimpleCallGraph CG{Mod};
   auto path = CG.TransitiveCalls(&Bound);
