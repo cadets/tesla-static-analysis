@@ -13,7 +13,7 @@
 AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A, 
                                          std::vector<tesla::Argument> args_) : 
   ModulePass(ID), 
-  correctUsage(false),
+  correctUsage(true),
   boundName(A.Use()->beginning().function().function().name()),
   automaton(A),
   args(args_)
