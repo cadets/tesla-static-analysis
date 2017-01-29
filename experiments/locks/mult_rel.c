@@ -12,8 +12,21 @@
 
 lock_t lock;
 
+void baz(void) {
+  lock_release(&lock);
+}
+
+void bar(void) {
+  baz();
+}
+
+void foo(void) {
+  bar();
+}
+
 void do_work(void) {
   while(!lock_acquire(&lock)) {}
   lock_release(&lock);
   lock_release(&lock);
+  foo();
 }
