@@ -12,6 +12,14 @@ install(
   DESTINATION bin
 )
 
+set(BENCH_EXE_NAME locks_bench)
+set(BENCH_C_SOURCES 
+  bench.c
+  lock.c
+)
+
+add_tesla_executable("${BENCH_C_SOURCES}" "${BENCH_EXE_NAME}" TRUE)
+
 function(example name)
   set(SRC
     "${name}.c"
