@@ -1,5 +1,12 @@
 find_package(Threads)
 
+option(TESLA_PERFORMANCE "Use build settings for performance analysis" OFF)
+if(TESLA_PERFORMANCE)
+  set(PERF_FLAGS "-pg" "-O3")
+else()
+  set(PERF_FLAGS "")
+endif()
+
 function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
   set(TESLA_LINK "-L/home/test/tesla_install/lib" "-ltesla")
 
@@ -86,7 +93,7 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
     set(INSTR_FILE ${EXE_NAME}.static.instr.bc)
     add_custom_command(
       OUTPUT ${EXE_NAME}_static
-      COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILE} -o ${EXE_NAME}_static
+      COMMAND ${CMAKE_C_COMPILER} ${PERF_FLAGS} ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILE} -o ${EXE_NAME}_static
       DEPENDS ${INSTR_FILE}
     )
     add_custom_target(${EXE_NAME}-static-tesla-all
@@ -97,7 +104,7 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
   set(INSTR_FILE ${EXE_NAME}.instr.bc)
   add_custom_command(
     OUTPUT ${EXE_NAME}
-    COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILE} -o ${EXE_NAME}
+    COMMAND ${CMAKE_C_COMPILER} ${PERF_FLAGS} ${CMAKE_C_FLAGS} ${CMAKE_THREAD_LIBS_INIT} ${TESLA_LINK} ${INSTR_FILE} -o ${EXE_NAME}
     DEPENDS ${INSTR_FILE}
   )
   add_custom_target(${EXE_NAME}-tesla-all
