@@ -1,6 +1,17 @@
 #include "AcquireSequenceAnalysis.h"
+#include "SimpleCallGraph.h"
 
 bool AcquireSequenceAnalysis::run() {
+  auto allUsages = AcquireUsages();
+
+  for(auto usagePair : allUsages) {
+    set<Value *> usages = usagePair.second;
+    for(auto v : usages) {
+      for(auto bl : trace(v)) {
+      }
+    }
+  }
+
   return false;
 }
 
@@ -80,13 +91,18 @@ set<BranchLoc> AcquireSequenceAnalysis::trace(Value *usage, BoolFactory e) {
     locs.insert({br, e});
   }
 
-  for(auto it = usage->use_begin(); it != usage->use_end(); it++) {
-    if(auto bop = dyn_cast<BinaryOperator>(*it)) {
-      auto recLocs = trace(bop, e);
+  if(auto bop = dyn_cast<BinaryOperator>(usage)) {
+    auto recLocs = trace(bop, e);
 
-      for(auto l : recLocs) {
-        locs.insert(l);
-      }
+    for(auto l : recLocs) {
+      locs.insert(l);
+    }
+  }
+
+  for(auto it = usage->use_begin(); it != usage->use_end(); it++) {
+    auto recUses = trace(*it, e);
+    for(auto u : recUses) {
+      locs.insert(u);
     }
   }
 
