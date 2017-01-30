@@ -14,6 +14,6 @@ lock_t lock;
 
 void do_work() {
   while(!lock_acquire(&lock)) {}
-  lock_acquire(&lock);
+  while(!lock_acquire(&lock)) {}
   lock_release(&lock);
 }
