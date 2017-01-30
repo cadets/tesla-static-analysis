@@ -56,7 +56,7 @@ bool AcquireReleaseCheck::runOnModule(Module &M) {
     new NoBranchAnalysis(M),
     new ReleaseBeforeAcquireAnalysis(M, *BoundFn, *Args[0]),
     new CallOrderAnalysis(M, *BoundFn),
-    new AcquireSequenceAnalysis(M)
+    new AcquireSequenceAnalysis(M, *BoundFn)
   };
 
   std::for_each(Analyses.begin(), Analyses.end(),
