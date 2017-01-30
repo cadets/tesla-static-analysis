@@ -23,3 +23,20 @@ set<CallInst *> AcquireSequenceAnalysis::AcquireCalls() {
 
   return ret;
 }
+
+map<CallInst *, set<Value *>> AcquireSequenceAnalysis::AcquireUsages() {
+  auto calls = AcquireCalls();
+  map<CallInst *, set<Value *>> usageMap{};
+
+  for(auto call : calls) {
+    set<Value *> usages;
+
+    for(auto it = call->use_begin(); it != call->use_end(); it++) {
+      usages.insert(*it);
+    }
+
+    usageMap[call] = usages;
+  }
+
+  return usageMap;
+}

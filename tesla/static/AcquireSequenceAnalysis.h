@@ -5,8 +5,10 @@
 
 #include <llvm/IR/Instructions.h>
 
+#include <map>
 #include <set>
 
+using std::map;
 using std::set;
 using namespace llvm;
 
@@ -18,6 +20,7 @@ struct AcquireSequenceAnalysis : public Analysis {
   bool run() override;
 private:
   set<CallInst *> AcquireCalls();
+  map<CallInst *, set<Value *>> AcquireUsages();
   Function &Bound;
 };
 
