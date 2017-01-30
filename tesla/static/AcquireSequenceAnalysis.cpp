@@ -40,3 +40,7 @@ map<CallInst *, set<Value *>> AcquireSequenceAnalysis::AcquireUsages() {
 
   return usageMap;
 }
+
+BranchLoc *AcquireSequenceAnalysis::trace(Value *usage) {
+  return nullptr;
+}

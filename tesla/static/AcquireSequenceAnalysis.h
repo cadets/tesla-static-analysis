@@ -3,6 +3,7 @@
 
 #include "Analysis.h"
 
+#include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Instructions.h>
 
 #include <map>
@@ -11,6 +12,18 @@
 using std::map;
 using std::set;
 using namespace llvm;
+
+using BoolFactory = bool(*)();
+
+struct BranchLoc {
+public:
+  BranchLoc(BranchInst *b, BoolFactory e) :
+    branch(b), expr(e) {}
+
+  BranchInst *branch;
+  inline BasicBlock *trueDest() { return branch->getSuccessor(!expr()); }
+  BoolFactory expr;
+};
 
 struct AcquireSequenceAnalysis : public Analysis {
   AcquireSequenceAnalysis(Module &M, Function &F) : 
@@ -21,6 +34,7 @@ struct AcquireSequenceAnalysis : public Analysis {
 private:
   set<CallInst *> AcquireCalls();
   map<CallInst *, set<Value *>> AcquireUsages();
+  BranchLoc *trace(Value *usage);
   Function &Bound;
 };
 
