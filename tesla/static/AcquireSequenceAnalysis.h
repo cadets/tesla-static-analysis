@@ -16,7 +16,6 @@ using namespace llvm;
 using BoolFactory = bool(*)();
 
 struct BranchLoc {
-public:
   BranchLoc(BranchInst *b, BoolFactory e) :
     branch(b), expr(e) {}
 
@@ -34,7 +33,7 @@ struct AcquireSequenceAnalysis : public Analysis {
 private:
   set<CallInst *> AcquireCalls();
   map<CallInst *, set<Value *>> AcquireUsages();
-  BranchLoc *trace(Value *usage);
+  set<BranchLoc> trace(Value *usage);
   Function &Bound;
 };
 
