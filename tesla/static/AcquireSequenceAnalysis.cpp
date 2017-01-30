@@ -1,11 +1,15 @@
 #include "AcquireSequenceAnalysis.h"
+#include "Debug.h"
+#include "ReachabilityGraph.h"
 
 bool AcquireSequenceAnalysis::run() {
   auto allUsages = AcquireUsages();
   auto callPath = CG.TransitiveCalls(&Bound);
 
   for(auto usagePair : allUsages) {
-    auto parentFn = usagePair.first->getCalledFunction();
+    auto call = usagePair.first;
+    auto parentFn = call->getCalledFunction();
+
     if(std::find(callPath.begin(), callPath.end(), parentFn) == callPath.end()) {
       continue;
     }
@@ -13,6 +17,20 @@ bool AcquireSequenceAnalysis::run() {
     set<Value *> usages = usagePair.second;
     for(auto v : usages) {
       for(auto bl : trace(v)) {
+        auto nextTrue = bl.trueDest();
+
+        for(auto other : allUsages) {
+          if(other.first != call && 
+             other.first->getParent()->getParent() == call->getParent()->getParent()) {
+            ReachabilityGraph RG{*call->getParent()->getParent()};
+            if(RG.Reachable(nextTrue, other.first->getParent())) {
+              AddMessage("Call to lock_acquire after a previous call returned true:");
+              AddMessage("First call: " + tesla::DebugLocationString(call));
+              AddMessage("Second call: " + tesla::DebugLocationString(other.first));
+              return true;
+            }
+          }
+        }
       }
     }
   }
