@@ -2,6 +2,7 @@
 #define ACQUIRE_SEQUENCE_ANALYSIS_H
 
 #include "Analysis.h"
+#include "SimpleCallGraph.h"
 
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Instructions.h>
@@ -30,7 +31,7 @@ struct BranchLoc {
 
 struct AcquireSequenceAnalysis : public Analysis {
   AcquireSequenceAnalysis(Module &M, Function &F) : 
-    Analysis(M), Bound(F) {}
+    Analysis(M), Bound(F), CG(M) {}
 
   std::string AnalysisName() const override { return "AcquireSequenceAnalysis"; }
   bool run() override;
@@ -43,6 +44,7 @@ private:
   set<BranchLoc> trace(Value *usage);
 
   Function &Bound;
+  SimpleCallGraph CG;
 };
 
 #endif

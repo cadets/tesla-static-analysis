@@ -1,10 +1,15 @@
 #include "AcquireSequenceAnalysis.h"
-#include "SimpleCallGraph.h"
 
 bool AcquireSequenceAnalysis::run() {
   auto allUsages = AcquireUsages();
+  auto callPath = CG.TransitiveCalls(&Bound);
 
   for(auto usagePair : allUsages) {
+    auto parentFn = usagePair.first->getCalledFunction();
+    if(std::find(callPath.begin(), callPath.end(), parentFn) == callPath.end()) {
+      continue;
+    }
+
     set<Value *> usages = usagePair.second;
     for(auto v : usages) {
       for(auto bl : trace(v)) {
