@@ -13,7 +13,7 @@ using std::map;
 using std::set;
 using namespace llvm;
 
-using BoolFactory = bool(*)();
+using BoolFactory = std::function<bool ()>;
 
 struct BranchLoc {
   BranchLoc(BranchInst *b, BoolFactory e) :
@@ -22,6 +22,10 @@ struct BranchLoc {
   BranchInst *branch;
   inline BasicBlock *trueDest() { return branch->getSuccessor(!expr()); }
   BoolFactory expr;
+
+  bool operator<(const BranchLoc &other) const {
+    return branch < other.branch;
+  }
 };
 
 struct AcquireSequenceAnalysis : public Analysis {
@@ -33,7 +37,11 @@ struct AcquireSequenceAnalysis : public Analysis {
 private:
   set<CallInst *> AcquireCalls();
   map<CallInst *, set<Value *>> AcquireUsages();
+
+  set<BranchLoc> trace(BinaryOperator *bop, BoolFactory e);
+  set<BranchLoc> trace(Value *usage, BoolFactory e);
   set<BranchLoc> trace(Value *usage);
+
   Function &Bound;
 };
 
