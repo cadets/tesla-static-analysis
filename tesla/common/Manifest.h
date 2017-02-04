@@ -75,6 +75,18 @@ public:
   //! Find the @red tesla::Automaton with this name
   const Automaton* FindAutomaton(std::string name) const;
 
+  //! Find the @ref tesla::Automaton named by an @ref tesla::Identifier.
+  //  Will return `nullptr` instead of panicking if the automaton is not found.
+  const Automaton* FindAutomatonSafe(const Identifier&) const;
+
+  //! Find the @ref tesla::Automaton defined at a @ref tesla::Location.
+  //  Will return `nullptr` instead of panicking if the automaton is not found.
+  const Automaton* FindAutomatonSafe(const Location&) const;
+  
+  //! Find the @red tesla::Automaton with this name
+  //  Will return `nullptr` instead of panicking if the automaton is not found.
+  const Automaton* FindAutomatonSafe(std::string name) const;
+
   const llvm::ArrayRef<Automaton::Lifetime> getLifetimes() const {
     return Lifetimes;
   }
