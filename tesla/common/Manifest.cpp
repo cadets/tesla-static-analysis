@@ -91,6 +91,28 @@ const Automaton* Manifest::FindAutomaton(std::string name) const {
   return FindAutomaton(ID);
 }
 
+const Automaton* Manifest::FindAutomatonSafe(const Identifier& ID) const {
+  auto i = Automata.find(ID);
+  if (i == Automata.end())
+    return nullptr;
+
+  return i->second;
+}
+
+const Automaton* Manifest::FindAutomatonSafe(const Location& Loc) const {
+  Identifier ID;
+  *ID.mutable_location() = Loc;
+
+  return FindAutomatonSafe(ID);
+}
+
+const Automaton* Manifest::FindAutomatonSafe(std::string name) const {
+  Identifier ID;
+  *ID.mutable_name() = name;
+
+  return FindAutomatonSafe(ID);
+}
+
 Manifest* 
 Manifest::construct(raw_ostream& ErrorStream, 
                     Automaton::Type T, 

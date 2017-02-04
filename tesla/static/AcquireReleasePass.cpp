@@ -20,29 +20,31 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
   copyDefinitions(Man, File);
 
   // TODO: check that the arguments are equal
-  auto acq = Man.FindAutomaton("acquire");
-  auto rel = Man.FindAutomaton("release");
-  std::vector<Argument> args;
+  auto acq = Man.FindAutomatonSafe("acquire");
+  auto rel = Man.FindAutomatonSafe("release");
+  if(acq && rel) {
+    std::vector<Argument> args;
 
-  std::copy(acq->getAssertion().argument().begin(), 
-            acq->getAssertion().argument().end(), 
-            std::back_inserter(args));
+    std::copy(acq->getAssertion().argument().begin(), 
+              acq->getAssertion().argument().end(), 
+              std::back_inserter(args));
 
-  auto locs = ReferenceLocations(Man);
-  for(auto root : Man.RootAutomata()) {
-    auto automaton = Man.FindAutomaton(root->identifier());
-    if(!automaton) {
-      panic("Usage without associated automaton");
+    auto locs = ReferenceLocations(Man);
+    for(auto root : Man.RootAutomata()) {
+      auto automaton = Man.FindAutomatonSafe(root->identifier());
+      if(!automaton) {
+        panic("Usage without associated automaton");
+      }
+
+      Usage *newRoot = new Usage;
+      newRoot->CopyFrom(*root);
+
+      if(UsesAcqRel(newRoot, locs)) {
+        newRoot->set_deleted(ShouldDelete(automaton, args, Mod));
+      }
+      
+      copyUsage(newRoot, File);
     }
-
-    Usage *newRoot = new Usage;
-    newRoot->CopyFrom(*root);
-
-    if(UsesAcqRel(newRoot, locs)) {
-      newRoot->set_deleted(ShouldDelete(automaton, args, Mod));
-    }
-    
-    copyUsage(newRoot, File);
   }
 
   auto unique = unique_ptr<ManifestFile>(File);
