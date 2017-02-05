@@ -1,5 +1,6 @@
 #include "CallsFunctionOnce.h"
 #include "ReachabilityGraph.h"
+#include "SimpleCallGraph.h"
 
 #include <llvm/Analysis/Dominators.h>
 
@@ -10,7 +11,24 @@ bool tesla::CallsFunctionOnce(Function *callee, Function *caller) {
     return false;
   }
 
+  if (TransitiveCallsTo(callee, caller)) {
+    return false;
+  }
+
   return true;
+}
+
+bool tesla::TransitiveCallsTo(Function *callee, Function *caller) {
+  SimpleCallGraph CG{*caller->getParent()};
+  for (auto directCall : CG.Calls(caller)) {
+    auto tCalls = CG.TransitiveCalls(directCall);
+
+    if (std::find(tCalls.begin(), tCalls.end(), callee) != tCalls.end()) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool tesla::ExitsDominated(Function *caller, set<ReturnInst *> exits,
