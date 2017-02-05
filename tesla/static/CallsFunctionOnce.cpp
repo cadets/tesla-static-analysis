@@ -4,6 +4,31 @@
 
 #include <llvm/Analysis/Dominators.h>
 
+set<Function *> tesla::TransitiveCallsOnce(Module &M, Function *callee) {
+  set<Function *> fns;
+
+  for(auto &F : M) {
+    if(CallsFunctionOnce(callee, &F)) {
+      fns.insert(&F);
+    }
+  }
+
+  auto size = -1;
+  while(size != fns.size()) {
+    size = fns.size();
+
+    for(auto &F : M) {
+      for(auto fn : fns) {
+        if(CallsFunctionOnce(fn, &F)) {
+          fns.insert(&F);
+        }
+      }
+    }
+  }
+
+  return fns;
+}
+
 bool tesla::CallsFunctionOnce(Function *callee, Function *caller) {
   auto exits = FunctionExits(caller);
   auto calls = CallsTo(callee, caller);
