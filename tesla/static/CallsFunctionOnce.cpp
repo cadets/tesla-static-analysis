@@ -4,8 +4,6 @@
 #include <llvm/Analysis/Dominators.h>
 
 bool tesla::CallsFunctionOnce(Function *callee, Function *caller) {
-  ReachabilityGraph RG{*caller};
-
   auto exits = FunctionExits(caller);
   auto calls = CallsTo(callee, caller);
   if (!ExitsDominated(caller, exits, calls)) {
@@ -26,6 +24,10 @@ bool tesla::ExitsDominated(Function *caller, set<ReturnInst *> exits,
     for (auto call : calls) {
       if (DT.dominates(call, exit)) {
         dominanceCount++;
+
+        if (CallsReachable(call, calls)) {
+          return false;
+        }
       }
     }
 
@@ -35,6 +37,17 @@ bool tesla::ExitsDominated(Function *caller, set<ReturnInst *> exits,
   }
 
   return true;
+}
+
+bool tesla::CallsReachable(CallInst *call, set<CallInst *> others) {
+  ReachabilityGraph RG{*call->getParent()->getParent()};
+
+  for (auto other : others) {
+    if (call != other && RG.Reachable(call->getParent(), other->getParent())) {
+    }
+  }
+
+  return false;
 }
 
 set<ReturnInst *> tesla::FunctionExits(Function *f) {
