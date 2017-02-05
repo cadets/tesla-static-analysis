@@ -12,9 +12,9 @@ using namespace llvm;
 namespace tesla {
 
 bool CallsFunctionOnce(Function *callee, Function *caller);
+bool ExitsDominated(Function *caller, set<ReturnInst *> es, set<CallInst *> cs);
 set<ReturnInst *> FunctionExits(Function *f);
 set<CallInst *> CallsTo(Function *callee, Function *caller);
-
 }
 
 #endif

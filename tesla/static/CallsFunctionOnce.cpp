@@ -4,36 +4,45 @@
 #include <llvm/Analysis/Dominators.h>
 
 bool tesla::CallsFunctionOnce(Function *callee, Function *caller) {
-  DominatorTree DT;
-  DT.runOnFunction(*caller);
-
   ReachabilityGraph RG{*caller};
 
   auto exits = FunctionExits(caller);
   auto calls = CallsTo(callee, caller);
-  for(auto exit : exits) {
+  if (!ExitsDominated(caller, exits, calls)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool tesla::ExitsDominated(Function *caller, set<ReturnInst *> exits,
+                           set<CallInst *> calls) {
+  DominatorTree DT;
+  DT.runOnFunction(*caller);
+
+  for (auto exit : exits) {
     int dominanceCount = 0;
 
-    for(auto call : calls) {
-      if(DT.dominates(call, exit)) {
+    for (auto call : calls) {
+      if (DT.dominates(call, exit)) {
         dominanceCount++;
       }
     }
 
-    if(dominanceCount != 1) {
+    if (dominanceCount != 1) {
       return false;
     }
   }
 
-  return false;
+  return true;
 }
 
 set<ReturnInst *> tesla::FunctionExits(Function *f) {
   set<ReturnInst *> ret;
 
-  for(auto &BB : *f) {
-    for(auto &I : BB) {
-      if(auto ri = dyn_cast<ReturnInst>(&I)) {
+  for (auto &BB : *f) {
+    for (auto &I : BB) {
+      if (auto ri = dyn_cast<ReturnInst>(&I)) {
         ret.insert(ri);
       }
     }
@@ -44,11 +53,11 @@ set<ReturnInst *> tesla::FunctionExits(Function *f) {
 
 set<CallInst *> tesla::CallsTo(Function *callee, Function *caller) {
   set<CallInst *> ret;
-  
-  for(auto &BB : *caller) {
-    for(auto &I : BB) {
-      if(auto ci = dyn_cast<CallInst>(&I)) {
-        if(ci->getCalledFunction() == callee) {
+
+  for (auto &BB : *caller) {
+    for (auto &I : BB) {
+      if (auto ci = dyn_cast<CallInst>(&I)) {
+        if (ci->getCalledFunction() == callee) {
           ret.insert(ci);
         }
       }
