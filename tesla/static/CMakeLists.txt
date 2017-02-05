@@ -21,6 +21,7 @@ add_llvm_executable(tesla-static
   AcquireSequenceAnalysis.cpp
   ReachabilityGraph.cpp
   SimpleCallGraph.cpp
+  CallsFunctionOnce.cpp
 )
 
 target_link_libraries(tesla-static
