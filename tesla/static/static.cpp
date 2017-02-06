@@ -1,4 +1,5 @@
 #include "AcquireReleasePass.h"
+#include "CallSequencePass.h"
 #include "Debug.h"
 #include "Manifest.h"
 #include "ManifestPassManager.h"
@@ -51,6 +52,7 @@ int main(int argc, char **argv) {
 
   tesla::ManifestPassManager PM(std::move(Manifest), std::move(Mod));
   PM.addPass(new tesla::AcquireReleasePass);
+  PM.addPass(new tesla::CallSequencePass);
 
   PM.runPasses();
   if(!PM.Manifest) {

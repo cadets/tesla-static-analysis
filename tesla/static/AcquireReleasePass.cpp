@@ -1,9 +1,9 @@
-#include "AcquireReleaseCheck.h"
 #include "AcquireReleasePass.h"
+#include "AcquireReleaseCheck.h"
 #include "Debug.h"
 
-#include <llvm/PassManager.h>
 #include <llvm/Analysis/CallGraph.h>
+#include <llvm/PassManager.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
@@ -22,38 +22,37 @@ unique_ptr<Manifest> AcquireReleasePass::run(Manifest &Man, llvm::Module &Mod) {
   // TODO: check that the arguments are equal
   auto acq = Man.FindAutomatonSafe("acquire");
   auto rel = Man.FindAutomatonSafe("release");
-  if(acq && rel) {
-    std::vector<Argument> args;
 
-    std::copy(acq->getAssertion().argument().begin(), 
-              acq->getAssertion().argument().end(), 
-              std::back_inserter(args));
+  auto locs = ReferenceLocations(Man);
+  for (auto root : Man.RootAutomata()) {
+    auto automaton = Man.FindAutomatonSafe(root->identifier());
+    if (!automaton) {
+      panic("Usage without associated automaton");
+    }
 
-    auto locs = ReferenceLocations(Man);
-    for(auto root : Man.RootAutomata()) {
-      auto automaton = Man.FindAutomatonSafe(root->identifier());
-      if(!automaton) {
-        panic("Usage without associated automaton");
-      }
+    Usage *newRoot = new Usage;
+    newRoot->CopyFrom(*root);
 
-      Usage *newRoot = new Usage;
-      newRoot->CopyFrom(*root);
+    if (acq && rel) {
+      std::vector<Argument> args;
 
-      if(UsesAcqRel(newRoot, locs)) {
+      std::copy(acq->getAssertion().argument().begin(),
+                acq->getAssertion().argument().end(), std::back_inserter(args));
+      if (UsesAcqRel(newRoot, locs)) {
         newRoot->set_deleted(ShouldDelete(automaton, args, Mod));
       }
-      
-      copyUsage(newRoot, File);
     }
+
+    copyUsage(newRoot, File);
   }
 
   auto unique = unique_ptr<ManifestFile>(File);
-  return unique_ptr<Manifest>(
-      Manifest::construct(llvm::errs(), Automaton::Deterministic, std::move(unique)));
+  return unique_ptr<Manifest>(Manifest::construct(
+      llvm::errs(), Automaton::Deterministic, std::move(unique)));
 }
 
-bool AcquireReleasePass::ShouldDelete(const Automaton *A, 
-                                      std::vector<Argument> args, 
+bool AcquireReleasePass::ShouldDelete(const Automaton *A,
+                                      std::vector<Argument> args,
                                       llvm::Module &Mod) {
   /**
    * For now, we will only be working on usages that have their entry point as
@@ -64,7 +63,7 @@ bool AcquireReleasePass::ShouldDelete(const Automaton *A,
    */
   auto usage = A->Use();
 
-  if(!HasSimpleBounds(usage)) {
+  if (!HasSimpleBounds(usage)) {
     return false;
   }
 
@@ -82,24 +81,25 @@ bool AcquireReleasePass::ShouldDelete(const Automaton *A,
  * / end bounds - entry and exit for the same function.
  */
 bool AcquireReleasePass::HasSimpleBounds(const Usage *usage) {
-  if(usage->beginning().type() != Expression_Type_FUNCTION) {
+  if (usage->beginning().type() != Expression_Type_FUNCTION) {
     return false;
   }
 
-  if(usage->end().type() != Expression_Type_FUNCTION) {
+  if (usage->end().type() != Expression_Type_FUNCTION) {
     return false;
   }
 
-  if(usage->beginning().function().direction() != FunctionEvent_Direction_Entry) {
+  if (usage->beginning().function().direction() !=
+      FunctionEvent_Direction_Entry) {
     return false;
   }
 
-  if(usage->end().function().direction() != FunctionEvent_Direction_Exit) {
+  if (usage->end().function().direction() != FunctionEvent_Direction_Exit) {
     return false;
   }
 
   return usage->beginning().function().function().name() ==
-    usage->end().function().function().name();
+         usage->end().function().function().name();
 }
 
 /**
@@ -110,9 +110,10 @@ std::string AcquireReleasePass::SimpleBoundFunction(const Usage *usage) {
   return usage->beginning().function().function().name();
 }
 
-bool AcquireReleasePass::UsesAcqRel(const Usage *usage, set<const Location> &locs) {
-  if(usage->identifier().has_location()) {
-    if(locs.find(usage->identifier().location()) != locs.end()) {
+bool AcquireReleasePass::UsesAcqRel(const Usage *usage,
+                                    set<const Location> &locs) {
+  if (usage->identifier().has_location()) {
+    if (locs.find(usage->identifier().location()) != locs.end()) {
       return true;
     }
   }
@@ -123,24 +124,24 @@ bool AcquireReleasePass::UsesAcqRel(const Usage *usage, set<const Location> &loc
 bool AcquireReleasePass::ReferencesAcqRel(const AutomatonDescription *aut) {
   auto expr = aut->expression();
 
-  if(expr.type() != Expression_Type_SEQUENCE) {
+  if (expr.type() != Expression_Type_SEQUENCE) {
     return false;
   }
 
-  if(!expr.has_sequence()) {
+  if (!expr.has_sequence()) {
     tesla::panic("Expression has type SEQUENCE but no sequence data");
   }
 
   auto seq = expr.sequence().expression();
-  for(auto it = seq.begin(); it != seq.end(); it++) {
-    if(it->type() == Expression_Type_NULL_EXPR) {
+  for (auto it = seq.begin(); it != seq.end(); it++) {
+    if (it->type() == Expression_Type_NULL_EXPR) {
       continue;
     }
 
-    if(it->type() == Expression_Type_ASSERTION_SITE) {
+    if (it->type() == Expression_Type_ASSERTION_SITE) {
       it++;
-      if(it != seq.end() && it->type() == Expression_Type_SUB_AUTOMATON) {
-        if(it->subautomaton().name() == AutomatonName()) {
+      if (it != seq.end() && it->type() == Expression_Type_SUB_AUTOMATON) {
+        if (it->subautomaton().name() == AutomatonName()) {
           return true;
         }
       }
@@ -153,8 +154,8 @@ bool AcquireReleasePass::ReferencesAcqRel(const AutomatonDescription *aut) {
 set<const Location> AcquireReleasePass::ReferenceLocations(Manifest &Man) {
   auto ret = set<const Location>();
 
-  for(auto entry : Man.AllAutomata()) {
-    if(ReferencesAcqRel(entry.second)) {
+  for (auto entry : Man.AllAutomata()) {
+    if (ReferencesAcqRel(entry.second)) {
       ret.insert(entry.first.location());
     }
   }
@@ -166,8 +167,5 @@ const std::string AcquireReleasePass::PassName() const {
   return "AcquireRelease";
 }
 
-const std::string AcquireReleasePass::AutomatonName() {
-  return "acq_rel";
-}
-
+const std::string AcquireReleasePass::AutomatonName() { return "acq_rel"; }
 }
