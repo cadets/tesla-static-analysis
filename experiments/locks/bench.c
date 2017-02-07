@@ -90,7 +90,7 @@ void *thread_work(void *args) {
 
   thread_task(ag->start, ag->num);
   bool s = verify_sort(ag->start, ag->num);
-  fprintf(stderr, 
+  fprintf(stdout, 
           "Interval [%d, %d) sorted: %s\n", 
           ag->start, ag->start + ag->num, s ? "t" : "f");
 
