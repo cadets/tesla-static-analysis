@@ -12,7 +12,7 @@
  * mocked out.
  */
 
-#define N_DATA 250000
+#define N_DATA 100000
 int data[N_DATA];
 
 void lock_init(lock_t *lock) {
@@ -107,14 +107,15 @@ int main(void) {
   lock_init(&lock);
 
   const int N_THREADS = 20;
-  const int N_PER = N_DATA / N_THREADS;
+  const int N_SORT = 10000;
+  //const int N_PER = N_DATA / N_THREADS;
 
   pthread_t ts[N_THREADS];
   for(int i = 0; i < N_THREADS; i++) {
     struct thread_args *arg = malloc(sizeof(*arg));
     arg->id = i;
-    arg->start = i * N_PER;
-    arg->num = N_PER;
+    arg->start = rand() % (N_DATA - N_SORT);
+    arg->num = N_SORT;
     pthread_create(&ts[i], NULL, thread_work, arg);
   }
 
