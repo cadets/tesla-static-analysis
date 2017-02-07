@@ -1,6 +1,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "lock.h"
 
@@ -10,6 +11,9 @@
  * In this version, these functions actually perform locking rather than being
  * mocked out.
  */
+
+#define N_DATA 250000
+int data[N_DATA];
 
 void lock_init(lock_t *lock) {
   atomic_init(&(lock->locked), false);
@@ -36,45 +40,85 @@ static lock_t lock;
 
 struct thread_args {
   int id;
+  int start;
+  int num;
 };
 
-void thread_say(int id) {
-  while(!lock_acquire(&lock)) {}
+void bubble_sort(int start, int num) {
+  int end = start + num;
+  bool swapped;
 
-  for(volatile int sp = 0; sp < 250000; sp++) {}
-  printf("Hello from thread %d\n", id);
+  do {
+    swapped = false;
 
-  lock_release(&lock);
+    for(int i = start + 1; i < end; i++) {
+      if(data[i-1] > data[i]) {
+        int tmp = data[i-1];
+        data[i-1] = data[i];
+        data[i] = tmp;
+        swapped = true;
+      }
+    }
+
+    end -= 1;
+  } while(swapped);
+}
+
+bool verify_sort(int start, int num) {
+  bool sorted = true;
+  for(int i = start; i < start + num - 1; i++) {
+    if(data[i] > data[i+1]) {
+      sorted = false;
+    }
+  }
+  return sorted;
+}
+
+void thread_task(int start, int num) {
+  bubble_sort(start, num);
 }
 
 void *thread_work(void *args) {
-  struct thread_args *data = (struct thread_args *)args;
+  struct thread_args *ag = (struct thread_args *)args;
 
   TESLA_WITHIN(thread_work, strict(eventually(
     acq_rel(&lock),
     returnfrom(thread_work)
   )));
 
-  thread_say(data->id);
+  while(!lock_acquire(&lock)) {}
 
+  thread_task(ag->start, ag->num);
+  bool s = verify_sort(ag->start, ag->num);
+  printf("Interval [%d, %d) sorted: %s\n", ag->start, ag->start + ag->num, s ? "t" : "f");
+
+  lock_release(&lock);
   pthread_exit(0);
 }
 
 int main(void) {
+  srand(time(NULL));
+  for(int i = 0; i < N_DATA; i++) {
+    data[i] = rand() % 100;
+  }
+
   TESLA_WITHIN(main, eventually(lifetime(&lock)));
 
   lock_init(&lock);
 
-  const int N = 50;
+  const int N_THREADS = 20;
+  const int N_PER = N_DATA / N_THREADS;
 
-  pthread_t ts[N];
-  for(int i = 0; i < N; i++) {
+  pthread_t ts[N_THREADS];
+  for(int i = 0; i < N_THREADS; i++) {
     struct thread_args *arg = malloc(sizeof(*arg));
     arg->id = i;
+    arg->start = i * N_PER;
+    arg->num = N_PER;
     pthread_create(&ts[i], NULL, thread_work, arg);
   }
 
-  for(int i = 0; i < N; i++) {
+  for(int i = 0; i < N_THREADS; i++) {
     pthread_join(ts[i], NULL);
   }
 
