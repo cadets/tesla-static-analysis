@@ -90,7 +90,9 @@ void *thread_work(void *args) {
 
   thread_task(ag->start, ag->num);
   bool s = verify_sort(ag->start, ag->num);
-  printf("Interval [%d, %d) sorted: %s\n", ag->start, ag->start + ag->num, s ? "t" : "f");
+  fprintf(stderr, 
+          "Interval [%d, %d) sorted: %s\n", 
+          ag->start, ag->start + ag->num, s ? "t" : "f");
 
   lock_release(&lock);
   pthread_exit(0);
