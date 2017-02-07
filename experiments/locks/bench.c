@@ -98,7 +98,7 @@ void *thread_work(void *args) {
   pthread_exit(0);
 }
 
-int main(void) {
+int main(int argc, char **argv) {
   srand(time(NULL));
   for(int i = 0; i < N_DATA; i++) {
     data[i] = rand() % 100;
@@ -108,9 +108,8 @@ int main(void) {
 
   lock_init(&lock);
 
-  const int N_THREADS = 20;
-  const int N_SORT = 10000;
-  //const int N_PER = N_DATA / N_THREADS;
+  int N_THREADS = strtol(argv[1], NULL, 10);
+  int N_SORT = strtol(argv[2], NULL, 10);
 
   pthread_t ts[N_THREADS];
   for(int i = 0; i < N_THREADS; i++) {
