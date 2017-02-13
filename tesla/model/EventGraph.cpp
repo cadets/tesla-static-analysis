@@ -9,6 +9,8 @@ EventGraph::EventGraph(BasicBlock *bb) {
   auto tail = RootNode;
   for(auto &I : *bb) {
     if(auto call = dyn_cast<CallInst>(&I)) {
+      if(call->getCalledFunction()->isDeclaration()) { continue; }
+
       auto node = new CallNode(call);
 
       if(!tail) {

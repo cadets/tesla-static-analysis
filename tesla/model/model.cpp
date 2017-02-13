@@ -5,6 +5,8 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include "EventGraph.h"
+
 using namespace llvm;
 
 static cl::opt<std::string>
@@ -20,6 +22,15 @@ int main(int argc, char **argv) {
   if(Mod.get() == nullptr) {
     Err.print(argv[0], errs());
     return 1;
+  }
+
+  for(auto &F : *Mod) {
+    for(auto &BB : F) {
+      auto eg = new EventGraph{&BB};
+      if(!eg->Empty()) {
+        errs() << eg->GraphViz();
+      }
+    }
   }
   
   return 0;
