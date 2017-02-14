@@ -4,8 +4,8 @@
 
 using std::map;
 
-Event::Event(EventGraph *g) 
-  : Graph(g)
+Event::Event(EventKind k, EventGraph *g) 
+  : Graph(g), Kind(k)
 {
   g->Events.insert(this);
 }

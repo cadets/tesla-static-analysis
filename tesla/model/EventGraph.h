@@ -43,41 +43,61 @@ struct Event {
   friend struct EventGraph;
   friend struct EventRange;
 
+  enum EventKind {
+    EV_Instruction,
+    EV_Empty,
+    EV_BasicBlock
+  };
+
   static Event *Create(Instruction *I);
 
   virtual string Name() const = 0;
   virtual string GraphViz() const;
 
+  EventKind getKind() const { return Kind; }
 protected:
-  Event(EventGraph *g);
+  Event(EventKind k, EventGraph *g);
 
 private:
   set<Event *> successors;
   EventGraph *const Graph;
+  EventKind Kind;
 };
 
 struct InstructionEvent : public Event {
   InstructionEvent(EventGraph *g, Instruction *I)
-    : Event(g), Instr(I) {}
+    : Event(EV_Instruction, g), Instr(I) {}
 
   virtual string Name() const override;
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Instruction;
+  }
 private:
-    Instruction *Instr;
+  Instruction *Instr;
 };
 
 struct EmptyEvent : public Event {
-  EmptyEvent(EventGraph *g) : Event(g) {}
+  EmptyEvent(EventGraph *g) : Event(EV_Empty, g) {}
   virtual string Name() const override;
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Empty;
+  }
 };
 
 struct BasicBlockEvent : public Event {
   BasicBlockEvent(EventGraph *g, BasicBlock *bb)
-    : Event(g), Block(bb) {}
+    : Event(EV_BasicBlock, g), Block(bb) {}
 
   virtual string Name() const override {
     std::stringstream ss;
     ss << Block->getName().str() << ":" << Block;
     return ss.str();
+  }
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_BasicBlock;
   }
 private:
   BasicBlock *Block;
