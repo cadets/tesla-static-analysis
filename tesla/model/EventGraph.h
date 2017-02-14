@@ -33,7 +33,7 @@ struct EventNode {
     return value() == other.value();
   }
 
-  string GraphViz() const;
+  virtual string GraphViz() const;
 };
 
 struct CallNode : public EventNode {
@@ -44,6 +44,15 @@ struct CallNode : public EventNode {
 
 private:
   CallInst *call;
+};
+
+struct EmptyNode : public EventNode {
+  Value *value() const override { return nullptr; }
+  string name() const override {
+    stringstream ss;
+    ss << "\"" << this << "\"";
+    return ss.str();
+  }
 };
 
 struct EventGraph {
@@ -57,6 +66,8 @@ struct EventGraph {
   const EventNode& Root() const { return *RootNode; }
   const EventNode& Exit() const { return *ExitNode; }
   bool Empty() const { return !RootNode; }
+
+  static EventGraph *BBCachedCreate(map<BasicBlock *, EventGraph *> &c, BasicBlock *bb);
 
   string GraphViz() const;
 

@@ -5,8 +5,13 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include <map>
+#include <queue>
+
 #include "EventGraph.h"
 
+using std::map;
+using std::queue;
 using namespace llvm;
 
 static cl::opt<std::string>
@@ -25,11 +30,9 @@ int main(int argc, char **argv) {
   }
 
   for(auto &F : *Mod) {
-    for(auto &BB : F) {
-      auto eg = new EventGraph{&BB};
-      if(!eg->Empty()) {
-        errs() << eg->GraphViz();
-      }
+    if(!F.isDeclaration()) {
+      auto eg = EventGraph{&F};
+      errs() << eg.GraphViz();
     }
   }
   
