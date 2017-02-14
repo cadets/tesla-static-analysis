@@ -71,9 +71,9 @@ struct EventRange {
   EventRange(Event *b, Event *e);
 
   static EventRange *Create(EventGraph *g, BasicBlock *bb);
-//private:
-  Event *begin;
-  Event *end;
+
+  Event *const begin;
+  Event *const end;
 };
 
 #endif

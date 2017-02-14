@@ -9,22 +9,24 @@ Event::Event(EventGraph *g)
 void EventGraph::replace(Event *from, Event *to) {
   assert(from->Graph == to->Graph && "Can't replace between graphs!");
 
+  replace(from, new EventRange(to, to));
+}
+
+void EventGraph::replace(Event *from, EventRange *to) {
+  assert(from->Graph == to->begin->Graph && "Can't replace between graphs!");
+
   for(auto ev : Events) {
     if(ev->successors.find(from) != ev->successors.end()) {
       ev->successors.erase(from);
-      ev->successors.insert(to);
+      ev->successors.insert(to->begin);
     }
   }
 
   Events.erase(from);
-  Events.insert(to);
 
   for(auto suc : from->successors) {
-    to->successors.insert(suc);
+    to->end->successors.insert(suc);
   }
-}
-
-void EventGraph::replace(Event *from, EventRange *to) {
 }
 
 EventRange *EventRange::Create(EventGraph *g, BasicBlock *bb) {
