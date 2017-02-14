@@ -6,7 +6,7 @@ using std::set;
 
 EventGraph::EventGraph(Function *b) {
   RootNode = new FuncEntryNode(b);
-  ExitNode = nullptr;
+  ExitNode = new FuncExitNode(b);
 
   map<BasicBlock *, EventGraph *> cache;
 
@@ -27,9 +27,15 @@ EventGraph::EventGraph(Function *b) {
     }
 
     auto gr = BBCachedCreate(cache, bb);
-    RootNode->addNeighbour(gr->RootNode);
+    if(RootNode->neighbours.empty()) {
+      RootNode->addNeighbour(gr->RootNode);
+    }
 
     auto term = bb->getTerminator();
+    if(isa<ReturnInst>(term) || isa<UnreachableInst>(term)) {
+      gr->ExitNode->addNeighbour(ExitNode);
+    }
+
     for(auto i = 0; i < term->getNumSuccessors(); i++) {
       auto suc = term->getSuccessor(i);
       auto sucGr = BBCachedCreate(cache, suc);
@@ -38,12 +44,6 @@ EventGraph::EventGraph(Function *b) {
       blocks.push(suc);
     }
   }
-  /*for(auto &BB : F) {
-    auto eg = new EventGraph{&BB};
-    if(!eg->Empty()) {
-      errs() << eg->GraphViz();
-    }
-  }*/
 }
 
 EventGraph::EventGraph(BasicBlock *bb) {

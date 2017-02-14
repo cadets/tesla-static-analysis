@@ -66,6 +66,17 @@ private:
   Function *Fn;
 };
 
+struct FuncExitNode : public EventNode {
+  FuncExitNode(Function *f) : Fn(f) {}
+  Value *value() const override { return Fn; }
+
+  string name() const override {
+    return "\"exit:" + Fn->getName().str() + "\"";
+  }
+private:
+  Function *Fn;
+};
+
 struct EventGraph {
   friend struct EventNode;
 

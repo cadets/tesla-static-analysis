@@ -29,12 +29,14 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  errs() << "digraph {\n";
   for(auto &F : *Mod) {
     if(!F.isDeclaration()) {
       auto eg = EventGraph{&F};
       errs() << eg.GraphViz();
     }
   }
+  errs() << "}\n";
   
   return 0;
 }
