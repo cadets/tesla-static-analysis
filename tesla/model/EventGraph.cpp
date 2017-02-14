@@ -4,14 +4,23 @@
 
 using std::set;
 
-EventGraph::EventGraph(Module *m) {
+EventGraph *EventGraph::get(Function *root) {
+  static map<Function *, EventGraph *> fCache;
+  static map<BasicBlock *, EventGraph *> bbCache;
+  
+  auto ret = FCachedCreate(fCache, bbCache, root);
+  ret->Simplify();
+
+  return ret;
 }
 
-EventGraph::EventGraph(Function *b) {
-  RootNode = new FuncEntryNode(b);
+EventGraph::EventGraph(Function *b,
+                       CallInst *c,
+                       map<Function *, EventGraph *> fCache,
+                       map<BasicBlock *, EventGraph *> bbCache)
+{
+  RootNode = new FuncEntryNode(c, b);
   ExitNode = new FuncExitNode(b);
-
-  map<BasicBlock *, EventGraph *> cache;
 
   auto entry = &b->getEntryBlock();
   queue<BasicBlock *> blocks;
@@ -29,7 +38,7 @@ EventGraph::EventGraph(Function *b) {
       continue;
     }
 
-    auto gr = BBCachedCreate(cache, bb);
+    auto gr = BBCachedCreate(fCache, bbCache, bb);
     if(RootNode->neighbours.empty()) {
       RootNode->addNeighbour(gr->RootNode);
     }
@@ -41,7 +50,7 @@ EventGraph::EventGraph(Function *b) {
 
     for(auto i = 0; i < term->getNumSuccessors(); i++) {
       auto suc = term->getSuccessor(i);
-      auto sucGr = BBCachedCreate(cache, suc);
+      auto sucGr = BBCachedCreate(fCache, bbCache, suc);
       gr->ExitNode->addNeighbour(sucGr->RootNode);
 
       blocks.push(suc);
@@ -49,7 +58,10 @@ EventGraph::EventGraph(Function *b) {
   }
 }
 
-EventGraph::EventGraph(BasicBlock *bb) {
+EventGraph::EventGraph(BasicBlock *bb, 
+                       map<Function *, EventGraph *> fCache,
+                       map<BasicBlock *, EventGraph *> bbCache)
+{
   RootNode = nullptr;
 
   auto tail = RootNode;
@@ -57,15 +69,15 @@ EventGraph::EventGraph(BasicBlock *bb) {
     if(auto call = dyn_cast<CallInst>(&I)) {
       if(call->getCalledFunction()->isDeclaration()) { continue; }
 
-      auto node = new CallNode(call);
+      auto fGr = FCachedCreate(fCache, bbCache, call->getCalledFunction(), call);
 
       if(!tail) {
-        RootNode = node;
-        tail = node;
+        RootNode = fGr->RootNode;
       } else {
-        tail->addNeighbour(node);
-        tail = node;
+        tail->addNeighbour(fGr->RootNode);
       }
+
+      tail = fGr->ExitNode;
     }
   }
 
@@ -151,7 +163,29 @@ void EventGraph::SimplifyEmptyNodes() {
   } while(found);
 }
 
-EventGraph *EventGraph::BBCachedCreate(map<BasicBlock *, EventGraph *> &c, BasicBlock *bb) {
+EventGraph *EventGraph::FCachedCreate(
+    map<Function *, EventGraph *> &c,
+    map<BasicBlock *, EventGraph *> &bbc, Function *f, CallInst *call) 
+{
+  if(c.find(f) != c.end()) {
+    return c[f];
+  }
+
+  EventGraph *ret;
+  if(call) {
+    ret = new EventGraph{call};
+  } else {
+    ret = new EventGraph{f};
+  }
+
+  c[f] = ret;
+  return ret;
+}
+
+EventGraph *EventGraph::BBCachedCreate(
+    map<Function *, EventGraph *> &fc,
+    map<BasicBlock *, EventGraph *> &c, BasicBlock *bb) 
+{
   if(c.find(bb) != c.end()) {
     return c[bb];
   }

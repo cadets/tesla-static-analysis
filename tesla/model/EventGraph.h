@@ -111,18 +111,26 @@ struct EmptyNode : public EventNode {
  * Event representing entry to a function.
  */
 struct FuncEntryNode : public EventNode {
-  FuncEntryNode(Function *f) : EventNode(ENK_Entry), Fn(f) {}
+  FuncEntryNode(CallInst *call, Function *f) : 
+    EventNode(ENK_Entry), Call(call), Fn(f) {}
 
   Value *value() const override { return Fn; }
 
   string name() const override {
-    return "\"entry:" + Fn->getName().str() + "\"";
+    stringstream ss;
+    ss << "\"entry:" << Fn->getName().str();
+    if(Call) {
+       ss << ":" << Call;
+    }
+    ss << "\"";
+    return ss.str();
   }
 
   static bool classof(const EventNode *E) {
     return E->getKind() == ENK_Entry;
   }
 private:
+  CallInst *Call;
   Function *Fn;
 };
 
@@ -155,23 +163,46 @@ struct EventGraph {
   /**
    * Construct an event graph for a whole module.
    */
-  EventGraph(Module *m);
+  static EventGraph *get(Function *root);
 
   /**
    * Construct the event graph for a single function.
    */
-  EventGraph(Function *b);
+  EventGraph(Function *b,
+             CallInst *c,
+             map<Function *, EventGraph *> fCache={},
+             map<BasicBlock *, EventGraph *> bbCache={});
+
+  EventGraph(Function *b,
+             map<Function *, EventGraph *> fCache={},
+             map<BasicBlock *, EventGraph *> bbCache={})
+    : EventGraph(b, nullptr, fCache, bbCache) {}
+
+  EventGraph(CallInst *call,
+             map<Function *, EventGraph *> fCache={},
+             map<BasicBlock *, EventGraph *> bbCache={})
+    : EventGraph(call->getCalledFunction(), call, fCache, bbCache) {}
 
   /**
    * Construct the event graph for a single basic block.
    */
-  EventGraph(BasicBlock *bb);
+  EventGraph(BasicBlock *bb, 
+             map<Function *, EventGraph *> fCache={},
+             map<BasicBlock *, EventGraph *> bbCache={});
 
   /**
    * Get the event graph for a basic block out of a cache if possible, or
    * construct one if not.
    */
-  static EventGraph *BBCachedCreate(map<BasicBlock *, EventGraph *> &c, BasicBlock *bb);
+  static EventGraph *FCachedCreate(
+    map<Function *, EventGraph *> &c,
+    map<BasicBlock *, EventGraph *> &bbc, Function *f, CallInst *call = nullptr);
+
+  /**
+   */
+  static EventGraph *BBCachedCreate(
+    map<Function *, EventGraph *> &c,
+    map<BasicBlock *, EventGraph *> &bbc, BasicBlock *f);
 
   /**
    * Apply all possible simplifications to this graph.
@@ -195,8 +226,6 @@ struct EventGraph {
   string GraphViz() const;
 
 private:
-  map<Function *, EventGraph *> funcCache;
-  map<BasicBlock *, EventGraph *> bbCache;
   EventNode *RootNode;
   EventNode *ExitNode;
 };

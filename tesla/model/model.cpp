@@ -30,13 +30,8 @@ int main(int argc, char **argv) {
   }
 
   errs() << "digraph {\n";
-  for(auto &F : *Mod) {
-    if(!F.isDeclaration()) {
-      auto eg = EventGraph{&F};
-      eg.Simplify();
-      errs() << eg.GraphViz();
-    }
-  }
+  auto eg = EventGraph::get(Mod->getFunction("main"));
+  errs() << eg->GraphViz();
   errs() << "}\n";
   
   return 0;
