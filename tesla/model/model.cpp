@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
   for(auto &F : *Mod) {
     if(F.isDeclaration()) continue;
 
-    auto eg = EventGraph::BasicBlockGraph(&F);
+    auto eg = EventGraph::InstructionGraph(&F);
     errs() << F.getName().str() << '\n';
     errs() << eg->GraphViz();
   }

@@ -99,7 +99,7 @@ struct BasicBlockEvent : public Event {
   static bool classof(const Event *other) {
     return other->getKind() == EV_BasicBlock;
   }
-private:
+
   BasicBlock *Block;
 };
 

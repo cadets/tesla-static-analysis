@@ -11,7 +11,7 @@ Event::Event(EventKind k, EventGraph *g)
 }
 
 EventGraph *EventGraph::BasicBlockGraph(Function *f) {
-  EventGraph *eg = new EventGraph;
+  auto eg = new EventGraph;
 
   map<BasicBlock *, Event *> cache;
 
@@ -35,7 +35,21 @@ EventGraph *EventGraph::BasicBlockGraph(Function *f) {
 }
 
 EventGraph *EventGraph::InstructionGraph(Function *f) {
-  return nullptr;
+  auto eg = BasicBlockGraph(f);
+
+  set<BasicBlockEvent *> toRemove;
+  for(auto ev : eg->Events) {
+    if(auto bbe = dyn_cast<BasicBlockEvent>(ev)) {
+      toRemove.insert(bbe);
+    }
+  }
+
+  for(auto bbe : toRemove) {
+    auto range = EventRange::Create(eg, bbe->Block);
+    eg->replace(bbe, range);
+  }
+  
+  return eg;
 }
 
 void EventGraph::replace(Event *from, Event *to) {
@@ -46,7 +60,6 @@ void EventGraph::replace(Event *from, Event *to) {
 
 void EventGraph::replace(Event *from, EventRange *to) {
   assert(from->Graph == to->begin->Graph && "Can't replace between graphs!");
-
   for(auto ev : Events) {
     if(ev->successors.find(from) != ev->successors.end()) {
       ev->successors.erase(from);
@@ -107,8 +120,9 @@ string EmptyEvent::Name() const {
 }
 
 string InstructionEvent::Name() const {
-  std::stringstream ss;
-  ss << Instr;
+  string s;
+  raw_string_ostream ss(s);
+  Instr->print(ss);
   return ss.str();
 }
 
