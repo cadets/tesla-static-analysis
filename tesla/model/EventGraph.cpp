@@ -31,6 +31,14 @@ EventNode *EventNode::splice(EventGraph *g) {
   return g->ExitNode;
 }
 
+void EventGraph::concat(EventGraph *other) {
+  if(!ExitNode) { 
+    return;
+  }
+
+  ExitNode = ExitNode->splice(other);
+}
+
 string EventNode::GraphViz() const {
   stringstream ss;
   ss << name() << ";\n";

@@ -52,6 +52,8 @@ struct EventGraph {
   EventGraph(Function *b);
   EventGraph(BasicBlock *bb);
 
+  void concat(EventGraph *other);
+
   const EventNode& Root() const { return *RootNode; }
   const EventNode& Exit() const { return *ExitNode; }
   bool Empty() const { return !RootNode; }
