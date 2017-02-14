@@ -4,6 +4,9 @@
 
 using std::set;
 
+EventGraph::EventGraph(Module *m) {
+}
+
 EventGraph::EventGraph(Function *b) {
   RootNode = new FuncEntryNode(b);
   ExitNode = new FuncExitNode(b);
@@ -127,7 +130,7 @@ void EventGraph::SimplifyEmptyNodes() {
 
       set<EventNode *> toErase;
       for(auto n : node->neighbours) {
-        if(n->IsEmpty()) {
+        if(isa<EmptyNode>(n)) {
           for(auto en : n->neighbours) {
             node->addNeighbour(en);  
           }

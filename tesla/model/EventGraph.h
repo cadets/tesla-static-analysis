@@ -7,6 +7,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Support/Casting.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <map>
@@ -28,6 +29,13 @@ using namespace llvm;
  * different types of events.
  */
 struct EventNode {
+  enum EventNodeKind {
+    ENK_Call,
+    ENK_Entry,
+    ENK_Exit,
+    ENK_Empty
+  };
+
   /**
    * Events may have an LLVM value associated with them (e.g. a function call).
    */
@@ -52,27 +60,30 @@ struct EventNode {
   void addNeighbour(EventNode *n) { neighbours.push_back(n); }
 
   /**
-   * Overridden by any subclass of node that wants to be seen as "empty" by
-   * simplification algorithms (i.e. when the graph is simplified, these nodes
-   * are removed).
-   */
-  virtual bool IsEmpty() const { return false; }
-
-  /**
    * A string that can be placed inside a graphviz graph to describe this node.
    */
   virtual string GraphViz() const;
+
+private:
+  const EventNodeKind Kind;
+public:
+  EventNode(EventNodeKind K) : Kind(K) {}
+  EventNodeKind getKind() const { return Kind; }
 };
 
 /**
  * Node subclass representing a function call event.
  */
 struct CallNode : public EventNode {
-  CallNode(CallInst *c) : call(c) {}
+  CallNode(CallInst *c) : EventNode(ENK_Call), call(c) {}
 
   Value *value() const override { return call; }
 
   string name() const override { return call->getCalledFunction()->getName().str(); }
+
+  static bool classof(const EventNode *E) {
+    return E->getKind() == ENK_Call;
+  }
 
 private:
   CallInst *call;
@@ -82,24 +93,34 @@ private:
  * Placeholder node that will be removed by simplification.
  */
 struct EmptyNode : public EventNode {
+  EmptyNode() : EventNode(ENK_Empty) {}
+
   Value *value() const override { return nullptr; }
   string name() const override {
     stringstream ss;
     ss << "\"" << this << "\"";
     return ss.str();
   }
-  virtual bool IsEmpty() const override { return true; }
+
+  static bool classof(const EventNode *E) {
+    return E->getKind() == ENK_Empty;
+  }
 };
 
 /**
  * Event representing entry to a function.
  */
 struct FuncEntryNode : public EventNode {
-  FuncEntryNode(Function *f) : Fn(f) {}
+  FuncEntryNode(Function *f) : EventNode(ENK_Entry), Fn(f) {}
+
   Value *value() const override { return Fn; }
 
   string name() const override {
     return "\"entry:" + Fn->getName().str() + "\"";
+  }
+
+  static bool classof(const EventNode *E) {
+    return E->getKind() == ENK_Entry;
   }
 private:
   Function *Fn;
@@ -111,11 +132,15 @@ private:
  * Corresponds to return and unreachable instructions currently.
  */
 struct FuncExitNode : public EventNode {
-  FuncExitNode(Function *f) : Fn(f) {}
+  FuncExitNode(Function *f) : EventNode(ENK_Exit), Fn(f) {}
   Value *value() const override { return Fn; }
 
   string name() const override {
     return "\"exit:" + Fn->getName().str() + "\"";
+  }
+
+  static bool classof(const EventNode *E) {
+    return E->getKind() == ENK_Exit;
   }
 private:
   Function *Fn;
@@ -126,6 +151,11 @@ private:
  */
 struct EventGraph {
   friend struct EventNode;
+
+  /**
+   * Construct an event graph for a whole module.
+   */
+  EventGraph(Module *m);
 
   /**
    * Construct the event graph for a single function.
