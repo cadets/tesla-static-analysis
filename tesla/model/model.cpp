@@ -29,10 +29,13 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  errs() << "digraph {\n";
-  auto eg = EventGraph::get(Mod->getFunction("main"));
+  auto eg = new EventGraph();
+  for(auto &F : *Mod) {
+    for(auto &BB : F) {
+      auto bbr = EventRange::Create(eg, &BB);
+    }
+  }
   errs() << eg->GraphViz();
-  errs() << "}\n";
-  
+
   return 0;
 }
