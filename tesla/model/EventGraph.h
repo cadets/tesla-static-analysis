@@ -19,12 +19,15 @@ using std::queue;
 using std::vector;
 using namespace llvm;
 
+struct EventGraph;
+
 struct EventNode {
   virtual Value *value() const = 0;
   virtual string name() const = 0;
   vector<EventNode *> neighbours;
 
   void addNeighbour(EventNode *n) { neighbours.push_back(n); }
+  EventNode *splice(EventGraph *g);
 
   bool operator==(const EventNode &other) const {
     return value() == other.value();
@@ -44,6 +47,8 @@ private:
 };
 
 struct EventGraph {
+  friend struct EventNode;
+
   EventGraph(Function *b);
   EventGraph(BasicBlock *bb);
 

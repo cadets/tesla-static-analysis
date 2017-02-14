@@ -26,6 +26,11 @@ EventGraph::EventGraph(BasicBlock *bb) {
   ExitNode = tail;
 }
 
+EventNode *EventNode::splice(EventGraph *g) {
+  addNeighbour(g->RootNode);
+  return g->ExitNode;
+}
+
 string EventNode::GraphViz() const {
   stringstream ss;
   ss << name() << ";\n";
