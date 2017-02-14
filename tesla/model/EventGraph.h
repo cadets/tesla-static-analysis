@@ -27,7 +27,6 @@ struct EventNode {
   vector<EventNode *> neighbours;
 
   void addNeighbour(EventNode *n) { neighbours.push_back(n); }
-  EventNode *splice(EventGraph *g);
 
   bool operator==(const EventNode &other) const {
     return value() == other.value();
@@ -82,8 +81,6 @@ struct EventGraph {
 
   EventGraph(Function *b);
   EventGraph(BasicBlock *bb);
-
-  void concat(EventGraph *other);
 
   const EventNode& Root() const { return *RootNode; }
   const EventNode& Exit() const { return *ExitNode; }
