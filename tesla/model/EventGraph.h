@@ -30,14 +30,7 @@ struct EventNode {
     return value() == other.value();
   }
 
-  string GraphViz() const {
-    stringstream ss;
-    ss << name() << '\n';
-    for(auto n : neighbours) {
-      ss << name() << " -> " << n->name() << '\n';
-    }
-    return ss.str();
-  }
+  string GraphViz() const;
 };
 
 struct CallNode : public EventNode {
@@ -45,6 +38,7 @@ struct CallNode : public EventNode {
 
   Value *value() const override { return call; }
   string name() const override { return call->getCalledFunction()->getName().str(); }
+
 private:
   CallInst *call;
 };
@@ -57,22 +51,8 @@ struct EventGraph {
   const EventNode& Exit() const { return *ExitNode; }
   bool Empty() const { return !RootNode; }
 
-  string GraphViz() const {
-    stringstream ss;
+  string GraphViz() const;
 
-    queue<EventNode *> q;
-    q.push(RootNode);
-    while(!q.empty()) {
-      auto node = q.front();
-      q.pop();
-      ss << node->GraphViz();  
-      for(auto n : node->neighbours) {
-        q.push(n);
-      }
-    }
-
-    return ss.str();
-  }
 private:
   map<Function *, EventGraph *> funcCache;
   map<BasicBlock *, EventGraph *> bbCache;

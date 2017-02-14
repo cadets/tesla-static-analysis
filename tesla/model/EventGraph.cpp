@@ -25,3 +25,31 @@ EventGraph::EventGraph(BasicBlock *bb) {
 
   ExitNode = tail;
 }
+
+string EventNode::GraphViz() const {
+  stringstream ss;
+  ss << name() << ";\n";
+  for(auto n : neighbours) {
+    ss << name() << " -> " << n->name() << ";\n";
+  }
+  return ss.str();
+}
+
+string EventGraph::GraphViz() const {
+  stringstream ss;
+  ss << "digraph {\n";
+
+  queue<EventNode *> q;
+  q.push(RootNode);
+  while(!q.empty()) {
+    auto node = q.front();
+    q.pop();
+    ss << node->GraphViz();
+    for(auto n : node->neighbours) {
+      q.push(n);
+    }
+  }
+
+  ss << "}\n";
+  return ss.str();
+}
