@@ -29,13 +29,11 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  auto eg = new EventGraph();
   for(auto &F : *Mod) {
-    for(auto &BB : F) {
-      auto bbr = EventRange::Create(eg, &BB);
-    }
+    auto eg = EventGraph::BasicBlockGraph(&F);
+    errs() << F.getName().str() << '\n';
+    errs() << eg->GraphViz();
   }
-  errs() << eg->GraphViz();
 
   return 0;
 }

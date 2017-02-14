@@ -31,6 +31,8 @@ struct EventGraph {
   void replace(Event *from, Event *to);
   void replace(Event *from, EventRange *to);
 
+  static EventGraph *BasicBlockGraph(Function *f);
+
   string GraphViz() const;
 private:
   set<Event *> Events;
@@ -65,6 +67,19 @@ private:
 struct EmptyEvent : public Event {
   EmptyEvent(EventGraph *g) : Event(g) {}
   virtual string Name() const override;
+};
+
+struct BasicBlockEvent : public Event {
+  BasicBlockEvent(EventGraph *g, BasicBlock *bb)
+    : Event(g), Block(bb) {}
+
+  virtual string Name() const override {
+    std::stringstream ss;
+    ss << Block->getName().str() << ":" << Block;
+    return ss.str();
+  }
+private:
+  BasicBlock *Block;
 };
 
 struct EventRange {
