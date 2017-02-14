@@ -32,6 +32,7 @@ struct EventGraph {
   void replace(Event *from, EventRange *to);
 
   static EventGraph *BasicBlockGraph(Function *f);
+  static EventGraph *InstructionGraph(Function *f);
 
   string GraphViz() const;
 private:

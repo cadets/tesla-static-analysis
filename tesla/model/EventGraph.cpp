@@ -34,6 +34,10 @@ EventGraph *EventGraph::BasicBlockGraph(Function *f) {
   return eg;
 }
 
+EventGraph *EventGraph::InstructionGraph(Function *f) {
+  return nullptr;
+}
+
 void EventGraph::replace(Event *from, Event *to) {
   assert(from->Graph == to->Graph && "Can't replace between graphs!");
 
