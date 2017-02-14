@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
   for(auto &F : *Mod) {
     if(!F.isDeclaration()) {
       auto eg = EventGraph{&F};
+      eg.Simplify();
       errs() << eg.GraphViz();
     }
   }

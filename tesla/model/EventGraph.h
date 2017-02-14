@@ -32,6 +32,8 @@ struct EventNode {
     return value() == other.value();
   }
 
+  virtual bool IsEmpty() const { return false; }
+
   virtual string GraphViz() const;
 };
 
@@ -52,6 +54,7 @@ struct EmptyNode : public EventNode {
     ss << "\"" << this << "\"";
     return ss.str();
   }
+  virtual bool IsEmpty() const override { return true; }
 };
 
 struct FuncEntryNode : public EventNode {
@@ -87,6 +90,10 @@ struct EventGraph {
   bool Empty() const { return !RootNode; }
 
   static EventGraph *BBCachedCreate(map<BasicBlock *, EventGraph *> &c, BasicBlock *bb);
+
+  void Simplify();
+  void SimplifyEmptyNodes();
+  void SimplifyDuplicates();
 
   string GraphViz() const;
 

@@ -74,6 +74,80 @@ EventGraph::EventGraph(BasicBlock *bb) {
   }
 }
 
+void EventGraph::Simplify() {
+  SimplifyEmptyNodes();
+  SimplifyDuplicates();
+}
+
+void EventGraph::SimplifyDuplicates() {
+  queue<EventNode *> q;
+  set<EventNode *> visits;
+  q.push(RootNode);
+
+  while(!q.empty()) {
+    auto node = q.front();
+    q.pop();
+
+    if(visits.find(node) == visits.end()) {
+      visits.insert(node);
+    } else {
+      continue;
+    }
+
+    set<EventNode *> dedup;
+    for(auto n : node->neighbours) {
+      dedup.insert(n);
+      q.push(n);
+    }
+
+    node->neighbours.clear();
+    node->neighbours.insert(node->neighbours.begin(), dedup.begin(), dedup.end());
+  }
+}
+
+void EventGraph::SimplifyEmptyNodes() {
+  bool found;
+  do {
+    found = false;
+
+    queue<EventNode *> q;
+    set<EventNode *> visits;
+
+    q.push(RootNode);
+
+    while(!q.empty()) {
+      auto node = q.front();
+      q.pop();
+
+      if(visits.find(node) == visits.end()) {
+        visits.insert(node);
+      } else {
+        continue;
+      }
+
+      set<EventNode *> toErase;
+      for(auto n : node->neighbours) {
+        if(n->IsEmpty()) {
+          for(auto en : n->neighbours) {
+            node->addNeighbour(en);  
+          }
+
+          found = true;
+          toErase.insert(n);
+        }
+
+        q.push(n);
+      }
+
+      node->neighbours.erase(std::remove_if(node->neighbours.begin(), node->neighbours.end(),
+        [=](EventNode *e) {
+          return toErase.find(e) != toErase.end();
+        }
+      ), node->neighbours.end());
+    }
+  } while(found);
+}
+
 EventGraph *EventGraph::BBCachedCreate(map<BasicBlock *, EventGraph *> &c, BasicBlock *bb) {
   if(c.find(bb) != c.end()) {
     return c[bb];
