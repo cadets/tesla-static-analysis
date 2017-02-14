@@ -55,6 +55,17 @@ struct EmptyNode : public EventNode {
   }
 };
 
+struct FuncEntryNode : public EventNode {
+  FuncEntryNode(Function *f) : Fn(f) {}
+  Value *value() const override { return Fn; }
+
+  string name() const override {
+    return "\"entry:" + Fn->getName().str() + "\"";
+  }
+private:
+  Function *Fn;
+};
+
 struct EventGraph {
   friend struct EventNode;
 

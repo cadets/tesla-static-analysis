@@ -5,7 +5,7 @@
 using std::set;
 
 EventGraph::EventGraph(Function *b) {
-  RootNode = nullptr;
+  RootNode = new FuncEntryNode(b);
   ExitNode = nullptr;
 
   map<BasicBlock *, EventGraph *> cache;
@@ -27,9 +27,7 @@ EventGraph::EventGraph(Function *b) {
     }
 
     auto gr = BBCachedCreate(cache, bb);
-    if(!RootNode) {
-      RootNode = gr->RootNode;
-    }
+    RootNode->addNeighbour(gr->RootNode);
 
     auto term = bb->getTerminator();
     for(auto i = 0; i < term->getNumSuccessors(); i++) {
