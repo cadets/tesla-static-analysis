@@ -1,13 +1,43 @@
 #include "EventGraph.h"
 
 #include <map>
+#include <queue>
+#include <set>
 
 using std::map;
+using std::queue;
+using std::set;
 
 Event::Event(EventKind k, EventGraph *g) 
   : Graph(g), Kind(k)
 {
   g->Events.insert(this);
+}
+
+void EventGraph::assert_valid() {
+  queue<Event *> q;
+  set<Event *> visits;
+
+  for(auto e : Events) {
+    q.push(e);
+  }
+
+  while(!q.empty()) {
+    auto e = q.front();
+    q.pop();
+
+    if(visits.find(e) == visits.end()) {
+      visits.insert(e);
+    } else {
+      continue;
+    }
+
+    for(auto suc : e->successors) {
+      assert(Events.find(suc) != Events.end() &&
+              "Successor not in graph!");
+      q.push(suc);
+    }
+  }
 }
 
 EventGraph *EventGraph::BasicBlockGraph(Function *f) {
@@ -52,14 +82,21 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
   return eg;
 }
 
+void EventGraph::transform(EventTransformation T) {
+  assert_valid();
+}
+
 void EventGraph::replace(Event *from, Event *to) {
   assert(from->Graph == to->Graph && "Can't replace between graphs!");
 
   replace(from, new EventRange(to, to));
+
+  assert_valid();
 }
 
 void EventGraph::replace(Event *from, EventRange *to) {
   assert(from->Graph == to->begin->Graph && "Can't replace between graphs!");
+
   for(auto ev : Events) {
     if(ev->successors.find(from) != ev->successors.end()) {
       ev->successors.erase(from);
@@ -72,6 +109,8 @@ void EventGraph::replace(Event *from, EventRange *to) {
   for(auto suc : from->successors) {
     to->end->successors.insert(suc);
   }
+
+  assert_valid();
 }
 
 EventRange *EventRange::Create(EventGraph *g, BasicBlock *bb) {

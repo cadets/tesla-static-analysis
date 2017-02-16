@@ -26,10 +26,16 @@ struct EventRange;
 struct EventGraph {
   friend struct Event;
 
+  using EventTransformation = std::function<Event *(Event *)>;
+
   EventGraph() {}
+
+  void assert_valid();
 
   void replace(Event *from, Event *to);
   void replace(Event *from, EventRange *to);
+
+  void transform(EventTransformation T);
 
   static EventGraph *BasicBlockGraph(Function *f);
   static EventGraph *InstructionGraph(Function *f);
