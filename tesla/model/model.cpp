@@ -34,7 +34,6 @@ int main(int argc, char **argv) {
 
     auto eg = EventGraph::InstructionGraph(&F);
 
-    eg->transform([=](Event *e) { return new EmptyEvent(eg); });
     errs() << F.getName().str() << '\n';
     errs() << eg->GraphViz();
   }

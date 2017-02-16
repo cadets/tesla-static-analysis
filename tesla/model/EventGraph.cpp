@@ -11,7 +11,9 @@ using std::set;
 Event::Event(EventKind k, EventGraph *g) 
   : Graph(g), Kind(k)
 {
-  g->Events.insert(this);
+  if(g) {
+    g->Events.insert(this);
+  }
 }
 
 void EventGraph::assert_valid() {
@@ -100,6 +102,30 @@ void EventGraph::transform(EventTransformation T) {
   set<Event *> newEvents;
   map<Event *, Event *> cache;
 
+  for(auto ev : Events) {
+    auto newEv = cachedTransform(cache, ev, T);
+    newEv->successors = ev->successors;
+
+    set<set<Event *>> toCheck = {Events, newEvents};
+    std::for_each(toCheck.begin(), toCheck.end(), [&](set<Event *> evs) {
+      for(auto other : evs) {
+        if(other->successors.find(ev) != other->successors.end()) {
+          other->successors.erase(ev);
+          other->successors.insert(newEv);
+        }
+      }}
+    );
+
+    newEvents.insert(newEv);
+  }
+
+  Events.clear();
+
+  for(auto newEv : newEvents) {
+    newEv->Register(this);
+  }
+
+  Events = newEvents;
   assert_valid();
 }
 
@@ -178,7 +204,7 @@ string EmptyEvent::Name() const {
 string InstructionEvent::Name() const {
   string s;
   raw_string_ostream ss(s);
-  ss << this;
+  ss << "instruction:" << this;
   return ss.str();
 }
 
