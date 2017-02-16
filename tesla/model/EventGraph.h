@@ -42,6 +42,7 @@ struct EventGraph {
 
   string GraphViz() const;
 private:
+  void consolidate();
   set<Event *> Events;
 };
 

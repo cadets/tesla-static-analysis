@@ -34,6 +34,18 @@ int main(int argc, char **argv) {
 
     auto eg = EventGraph::InstructionGraph(&F);
 
+    eg->transform(
+      [=](Event *e) -> Event * { 
+        if(auto ie = dyn_cast<InstructionEvent>(e)) {
+          if(isa<CallInst>(ie->Instr())) {
+            return e;
+          }
+        }
+
+        return new EmptyEvent;
+      }
+    );
+
     errs() << F.getName().str() << '\n';
     errs() << eg->GraphViz();
   }

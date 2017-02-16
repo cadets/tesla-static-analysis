@@ -126,7 +126,28 @@ void EventGraph::transform(EventTransformation T) {
   }
 
   Events = newEvents;
+
+  consolidate();
   assert_valid();
+}
+
+void EventGraph::consolidate() {
+  auto EventsCopy = Events;
+
+  for(auto ev : EventsCopy) {
+    if(isa<EmptyEvent>(ev)) {
+      Events.erase(ev);
+
+      for(auto other : EventsCopy) {
+        if(other->successors.find(ev) != other->successors.end()) {
+          other->successors.erase(ev);
+          for(auto suc : ev->successors) {
+            other->successors.insert(suc);
+          }
+        }
+      }
+    }
+  }
 }
 
 void EventGraph::replace(Event *from, Event *to) {
