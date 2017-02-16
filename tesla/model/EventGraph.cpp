@@ -1,235 +1,216 @@
-#include <set>
-
 #include "EventGraph.h"
 
+#include <map>
+#include <queue>
+#include <set>
+
+using std::map;
+using std::queue;
 using std::set;
 
-EventGraph *EventGraph::get(Function *root) {
-  static map<Function *, EventGraph *> fCache;
-  static map<BasicBlock *, EventGraph *> bbCache;
-  
-  auto ret = FCachedCreate(fCache, bbCache, root);
-  ret->Simplify();
-
-  return ret;
-}
-
-EventGraph::EventGraph(Function *b,
-                       CallInst *c,
-                       map<Function *, EventGraph *> fCache,
-                       map<BasicBlock *, EventGraph *> bbCache)
+Event::Event(EventKind k, EventGraph *g) 
+  : Graph(g), Kind(k)
 {
-  RootNode = new FuncEntryNode(c, b);
-  ExitNode = new FuncExitNode(b);
-
-  auto entry = &b->getEntryBlock();
-  queue<BasicBlock *> blocks;
-  set<BasicBlock *> visits;
-
-  blocks.push(entry);
-  
-  while(!blocks.empty()) {
-    auto bb = blocks.front();
-    blocks.pop();
-
-    if(visits.find(bb) == visits.end()) {
-      visits.insert(bb);
-    } else {
-      continue;
-    }
-
-    auto gr = BBCachedCreate(fCache, bbCache, bb);
-    if(RootNode->neighbours.empty()) {
-      RootNode->addNeighbour(gr->RootNode);
-    }
-
-    auto term = bb->getTerminator();
-    if(isa<ReturnInst>(term) || isa<UnreachableInst>(term)) {
-      gr->ExitNode->addNeighbour(ExitNode);
-    }
-
-    for(auto i = 0; i < term->getNumSuccessors(); i++) {
-      auto suc = term->getSuccessor(i);
-      auto sucGr = BBCachedCreate(fCache, bbCache, suc);
-      gr->ExitNode->addNeighbour(sucGr->RootNode);
-
-      blocks.push(suc);
-    }
+  if(g) {
+    g->Events.insert(this);
   }
 }
 
-EventGraph::EventGraph(BasicBlock *bb, 
-                       map<Function *, EventGraph *> fCache,
-                       map<BasicBlock *, EventGraph *> bbCache)
-{
-  RootNode = nullptr;
+void EventGraph::assert_valid() {
+  queue<Event *> q;
+  set<Event *> visits;
 
-  auto tail = RootNode;
-  for(auto &I : *bb) {
-    if(auto call = dyn_cast<CallInst>(&I)) {
-      if(call->getCalledFunction()->isDeclaration()) { continue; }
-
-      auto fGr = FCachedCreate(fCache, bbCache, call->getCalledFunction(), call);
-
-      if(!tail) {
-        RootNode = fGr->RootNode;
-      } else {
-        tail->addNeighbour(fGr->RootNode);
-      }
-
-      tail = fGr->ExitNode;
-    }
+  for(auto e : Events) {
+    q.push(e);
   }
-
-  ExitNode = tail;
-
-  if(!RootNode) {
-    RootNode = new EmptyNode;
-    ExitNode = RootNode;
-  }
-}
-
-void EventGraph::Simplify() {
-  SimplifyEmptyNodes();
-  SimplifyDuplicates();
-}
-
-void EventGraph::SimplifyDuplicates() {
-  queue<EventNode *> q;
-  set<EventNode *> visits;
-  q.push(RootNode);
 
   while(!q.empty()) {
-    auto node = q.front();
+    auto e = q.front();
     q.pop();
 
-    if(visits.find(node) == visits.end()) {
-      visits.insert(node);
+    if(visits.find(e) == visits.end()) {
+      visits.insert(e);
     } else {
       continue;
     }
 
-    set<EventNode *> dedup;
-    for(auto n : node->neighbours) {
-      dedup.insert(n);
-      q.push(n);
+    assert(e->Graph == this);
+
+    for(auto suc : e->successors) {
+      assert(Events.find(suc) != Events.end() &&
+              "Successor not in graph!");
+      q.push(suc);
+    }
+  }
+}
+
+EventGraph *EventGraph::BasicBlockGraph(Function *f) {
+  auto eg = new EventGraph;
+
+  map<BasicBlock *, Event *> cache;
+
+  for(auto &BB : *f) {
+    if(cache.find(&BB) == cache.end()) {
+      cache[&BB] = new BasicBlockEvent(eg, &BB);
     }
 
-    node->neighbours.clear();
-    node->neighbours.insert(node->neighbours.begin(), dedup.begin(), dedup.end());
-  }
-}
-
-void EventGraph::SimplifyEmptyNodes() {
-  bool found;
-  do {
-    found = false;
-
-    queue<EventNode *> q;
-    set<EventNode *> visits;
-
-    q.push(RootNode);
-
-    while(!q.empty()) {
-      auto node = q.front();
-      q.pop();
-
-      if(visits.find(node) == visits.end()) {
-        visits.insert(node);
-      } else {
-        continue;
+    auto term = BB.getTerminator();
+    for(int i = 0; i < term->getNumSuccessors(); i++) {
+      auto suc = term->getSuccessor(i);
+      if(cache.find(suc) == cache.end()) {
+        cache[suc] = new BasicBlockEvent(eg, suc);
       }
 
-      set<EventNode *> toErase;
-      for(auto n : node->neighbours) {
-        if(isa<EmptyNode>(n)) {
-          for(auto en : n->neighbours) {
-            node->addNeighbour(en);  
-          }
-
-          found = true;
-          toErase.insert(n);
-        }
-
-        q.push(n);
-      }
-
-      node->neighbours.erase(std::remove_if(node->neighbours.begin(), node->neighbours.end(),
-        [=](EventNode *e) {
-          return toErase.find(e) != toErase.end();
-        }
-      ), node->neighbours.end());
+      cache[&BB]->successors.insert(cache[suc]);
     }
-  } while(found);
+  }
+
+  return eg;
 }
 
-EventGraph *EventGraph::FCachedCreate(
-    map<Function *, EventGraph *> &c,
-    map<BasicBlock *, EventGraph *> &bbc, Function *f, CallInst *call) 
+EventGraph *EventGraph::InstructionGraph(Function *f) {
+  auto eg = BasicBlockGraph(f);
+
+  set<BasicBlockEvent *> toRemove;
+  for(auto ev : eg->Events) {
+    if(auto bbe = dyn_cast<BasicBlockEvent>(ev)) {
+      toRemove.insert(bbe);
+    }
+  }
+
+  for(auto bbe : toRemove) {
+    auto range = EventRange::Create(eg, bbe->Block);
+    eg->replace(bbe, range);
+  }
+  
+  return eg;
+}
+
+// Just a helper for now so it isn't declared in the class - might need to
+// change in the future but it's OK at the moment.
+Event *cachedTransform(map<Event *, Event *> &cache, Event *e, 
+                       EventGraph::EventTransformation T) 
 {
-  if(c.find(f) != c.end()) {
-    return c[f];
+  if(cache.find(e) == cache.end()) {
+    cache[e] = T(e);
   }
 
-  EventGraph *ret;
-  if(call) {
-    ret = new EventGraph{call};
-  } else {
-    ret = new EventGraph{f};
-  }
-
-  c[f] = ret;
-  return ret;
+  return cache[e];
 }
 
-EventGraph *EventGraph::BBCachedCreate(
-    map<Function *, EventGraph *> &fc,
-    map<BasicBlock *, EventGraph *> &c, BasicBlock *bb) 
-{
-  if(c.find(bb) != c.end()) {
-    return c[bb];
+void EventGraph::transform(EventTransformation T) {
+  set<Event *> newEvents;
+  map<Event *, Event *> cache;
+
+  for(auto ev : Events) {
+    auto newEv = cachedTransform(cache, ev, T);
+    newEv->successors = ev->successors;
+
+    set<set<Event *>> toCheck = {Events, newEvents};
+    std::for_each(toCheck.begin(), toCheck.end(), [&](set<Event *> evs) {
+      for(auto other : evs) {
+        if(other->successors.find(ev) != other->successors.end()) {
+          other->successors.erase(ev);
+          other->successors.insert(newEv);
+        }
+      }}
+    );
+
+    newEvents.insert(newEv);
   }
 
-  auto ret = new EventGraph{bb};
-  c[bb] = ret;
-  return ret;
+  Events.clear();
+
+  for(auto newEv : newEvents) {
+    newEv->Register(this);
+  }
+
+  Events = newEvents;
+  assert_valid();
 }
 
-string EventNode::GraphViz() const {
-  stringstream ss;
-  ss << name() << ";\n";
-  for(auto n : neighbours) {
-    ss << name() << " -> " << n->name() << ";\n";
+void EventGraph::replace(Event *from, Event *to) {
+  assert(from->Graph == to->Graph && "Can't replace between graphs!");
+
+  replace(from, new EventRange(to, to));
+
+  assert_valid();
+}
+
+void EventGraph::replace(Event *from, EventRange *to) {
+  assert(from->Graph == to->begin->Graph && "Can't replace between graphs!");
+
+  for(auto ev : Events) {
+    if(ev->successors.find(from) != ev->successors.end()) {
+      ev->successors.erase(from);
+      ev->successors.insert(to->begin);
+    }
   }
-  return ss.str();
+
+  Events.erase(from);
+
+  for(auto suc : from->successors) {
+    to->end->successors.insert(suc);
+  }
+
+  assert_valid();
+}
+
+EventRange *EventRange::Create(EventGraph *g, BasicBlock *bb) {
+  Event *head = nullptr;
+  Event *tail = nullptr;
+
+  for(auto &I : *bb) {
+    auto next = new InstructionEvent(g, &I);
+    
+    if(!head) {
+      head = next;
+      tail = head;
+    } else {
+      tail->successors.insert(next);
+      tail = next;
+    }
+  }
+
+  return new EventRange{head, tail};
 }
 
 string EventGraph::GraphViz() const {
-  stringstream ss;
-  ss << "subgraph {\n";
+  std::stringstream ss;
 
-  queue<EventNode *> q;
-  set<EventNode *> visits;
-
-  q.push(RootNode);
-  while(!q.empty()) {
-    auto node = q.front();
-    q.pop();
-
-    if(visits.find(node) == visits.end()) {
-      visits.insert(node);
-    } else {
-      continue;
-    }
-    
-    if(node) {
-      ss << node->GraphViz();
-      for(auto n : node->neighbours) {
-        q.push(n);
-      }
+  ss << "digraph {\n";
+  for(auto ev : Events) {
+    ss << "\"" << ev->GraphViz() << "\"" << '\n';
+    for(auto suc : ev->successors) {
+      ss << "\"" << ev->GraphViz() << "\" -> \""
+         << suc->GraphViz() << "\";\n";
     }
   }
-
   ss << "}\n";
+
   return ss.str();
+}
+
+string Event::GraphViz() const {
+  return Name();
+}
+
+string EmptyEvent::Name() const {
+  std::stringstream ss;
+  ss << "empty:" << this;
+  return ss.str();
+}
+
+string InstructionEvent::Name() const {
+  string s;
+  raw_string_ostream ss(s);
+  ss << "instruction:" << this;
+  return ss.str();
+}
+
+EventRange::EventRange(Event *b, Event *e)
+  : begin(b), end(e)
+{
+  assert(b && e && "Range event is nullptr");
+  assert(b->Graph == e->Graph && "Range from different graphs!");
 }

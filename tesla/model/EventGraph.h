@@ -12,222 +12,134 @@
 
 #include <map>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <vector>
 
-using std::map;
+using std::set;
 using std::string;
-using std::stringstream;
-using std::queue;
-using std::vector;
 using namespace llvm;
 
-/**
- * Represents a single node in an event graph.
- *
- * This is a polymorphic class that is subclassed by implementations to provide
- * different types of events.
- */
-struct EventNode {
-  enum EventNodeKind {
-    ENK_Call,
-    ENK_Entry,
-    ENK_Exit,
-    ENK_Empty
+struct Event;
+struct EventRange;
+
+struct EventGraph {
+  friend struct Event;
+
+  using EventTransformation = std::function<Event *(Event *)>;
+
+  EventGraph() {}
+
+  void assert_valid();
+
+  void replace(Event *from, Event *to);
+  void replace(Event *from, EventRange *to);
+
+  void transform(EventTransformation T);
+
+  static EventGraph *BasicBlockGraph(Function *f);
+  static EventGraph *InstructionGraph(Function *f);
+
+  string GraphViz() const;
+private:
+  set<Event *> Events;
+};
+
+struct Event {
+  friend struct EventGraph;
+  friend struct EventRange;
+
+  enum EventKind {
+    EV_Instruction,
+    EV_Empty,
+    EV_BasicBlock
   };
 
-  /**
-   * Events may have an LLVM value associated with them (e.g. a function call).
-   */
-  virtual Value *value() const = 0;
+  static Event *Create(Instruction *I);
 
-  /**
-   * Events provide a name so that they can be printed to a graphviz
-   * representation.
-   */
-  virtual string name() const = 0;
-
-  /**
-   * Stores the immediately accessible neighbours of this node (i.e. if this
-   * node A has another node X in the vector, then there is an edge A -> X).
-   * This supports cycles, self-edges and multiple edges.
-   */
-  vector<EventNode *> neighbours;
-
-  /**
-   * Convenience wrapper to add a neighbour to this node.
-   */
-  void addNeighbour(EventNode *n) { neighbours.push_back(n); }
-
-  /**
-   * A string that can be placed inside a graphviz graph to describe this node.
-   */
+  virtual string Name() const = 0;
   virtual string GraphViz() const;
 
-private:
-  const EventNodeKind Kind;
-public:
-  EventNode(EventNodeKind K) : Kind(K) {}
-  EventNodeKind getKind() const { return Kind; }
-};
-
-/**
- * Node subclass representing a function call event.
- */
-struct CallNode : public EventNode {
-  CallNode(CallInst *c) : EventNode(ENK_Call), call(c) {}
-
-  Value *value() const override { return call; }
-
-  string name() const override { return call->getCalledFunction()->getName().str(); }
-
-  static bool classof(const EventNode *E) {
-    return E->getKind() == ENK_Call;
+  const EventGraph &ParentGraph() {
+    assert(Graph && "Event not initialised!");
+    return *Graph; 
   }
 
+  void Register(EventGraph *g) {
+    assert((Graph == nullptr || Graph == g) && "Can't re-register event!");
+    Graph = g;
+  }
+
+  EventKind getKind() const { return Kind; }
+protected:
+  Event(EventKind k, EventGraph *g);
+  Event(EventKind k) : Event(k, nullptr) {}
+
 private:
-  CallInst *call;
+  set<Event *> successors;
+  EventGraph *Graph;
+  EventKind Kind;
 };
 
-/**
- * Placeholder node that will be removed by simplification.
- */
-struct EmptyNode : public EventNode {
-  EmptyNode() : EventNode(ENK_Empty) {}
+struct InstructionEvent : public Event {
+  InstructionEvent(EventGraph *g, Instruction *I)
+    : Event(EV_Instruction, g), Instr_(I) {}
 
-  Value *value() const override { return nullptr; }
-  string name() const override {
-    stringstream ss;
-    ss << "\"" << this << "\"";
+  InstructionEvent(Instruction *I)
+    : InstructionEvent(nullptr, I) {}
+
+  Instruction *Instr() { return Instr_; }
+
+  virtual string Name() const override;
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Instruction;
+  }
+private:
+  Instruction *Instr_;
+};
+
+struct EmptyEvent : public Event {
+  EmptyEvent(EventGraph *g) 
+    : Event(EV_Empty, g) {}
+
+  EmptyEvent()
+    : EmptyEvent(nullptr) {}
+
+  virtual string Name() const override;
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Empty;
+  }
+};
+
+struct BasicBlockEvent : public Event {
+  BasicBlockEvent(EventGraph *g, BasicBlock *bb)
+    : Event(EV_BasicBlock, g), Block(bb) {}
+
+  BasicBlockEvent(BasicBlock *bb)
+    : BasicBlockEvent(nullptr, bb) {}
+
+  virtual string Name() const override {
+    std::stringstream ss;
+    ss << Block->getName().str() << ":" << Block;
     return ss.str();
   }
 
-  static bool classof(const EventNode *E) {
-    return E->getKind() == ENK_Empty;
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_BasicBlock;
   }
+
+  BasicBlock *Block;
 };
 
-/**
- * Event representing entry to a function.
- */
-struct FuncEntryNode : public EventNode {
-  FuncEntryNode(CallInst *call, Function *f) : 
-    EventNode(ENK_Entry), Call(call), Fn(f) {}
+struct EventRange {
+  EventRange(Event *b, Event *e);
 
-  Value *value() const override { return Fn; }
+  static EventRange *Create(EventGraph *g, BasicBlock *bb);
 
-  string name() const override {
-    stringstream ss;
-    ss << "\"entry:" << Fn->getName().str();
-    if(Call) {
-       ss << ":" << Call;
-    }
-    ss << "\"";
-    return ss.str();
-  }
-
-  static bool classof(const EventNode *E) {
-    return E->getKind() == ENK_Entry;
-  }
-private:
-  CallInst *Call;
-  Function *Fn;
-};
-
-/**
- * Event representing exit from a function.
- *
- * Corresponds to return and unreachable instructions currently.
- */
-struct FuncExitNode : public EventNode {
-  FuncExitNode(Function *f) : EventNode(ENK_Exit), Fn(f) {}
-  Value *value() const override { return Fn; }
-
-  string name() const override {
-    return "\"exit:" + Fn->getName().str() + "\"";
-  }
-
-  static bool classof(const EventNode *E) {
-    return E->getKind() == ENK_Exit;
-  }
-private:
-  Function *Fn;
-};
-
-/**
- * Wrapper class respresenting a whole graph.
- */
-struct EventGraph {
-  friend struct EventNode;
-
-  /**
-   * Construct an event graph for a whole module.
-   */
-  static EventGraph *get(Function *root);
-
-  /**
-   * Construct the event graph for a single function.
-   */
-  EventGraph(Function *b,
-             CallInst *c,
-             map<Function *, EventGraph *> fCache={},
-             map<BasicBlock *, EventGraph *> bbCache={});
-
-  EventGraph(Function *b,
-             map<Function *, EventGraph *> fCache={},
-             map<BasicBlock *, EventGraph *> bbCache={})
-    : EventGraph(b, nullptr, fCache, bbCache) {}
-
-  EventGraph(CallInst *call,
-             map<Function *, EventGraph *> fCache={},
-             map<BasicBlock *, EventGraph *> bbCache={})
-    : EventGraph(call->getCalledFunction(), call, fCache, bbCache) {}
-
-  /**
-   * Construct the event graph for a single basic block.
-   */
-  EventGraph(BasicBlock *bb, 
-             map<Function *, EventGraph *> fCache={},
-             map<BasicBlock *, EventGraph *> bbCache={});
-
-  /**
-   * Get the event graph for a basic block out of a cache if possible, or
-   * construct one if not.
-   */
-  static EventGraph *FCachedCreate(
-    map<Function *, EventGraph *> &c,
-    map<BasicBlock *, EventGraph *> &bbc, Function *f, CallInst *call = nullptr);
-
-  /**
-   */
-  static EventGraph *BBCachedCreate(
-    map<Function *, EventGraph *> &c,
-    map<BasicBlock *, EventGraph *> &bbc, BasicBlock *f);
-
-  /**
-   * Apply all possible simplifications to this graph.
-   */
-  void Simplify();
-
-  /**
-   * Eliminate empty nodes from this graph, while preserving transitive edges.
-   */
-  void SimplifyEmptyNodes();
-
-  /**
-   * Eliminate duplicate edges between nodes in the graph.
-   */
-  void SimplifyDuplicates();
-
-  /**
-   * Generates a graphviz subgraph description of this graph that can be
-   * embedded in a digraph.
-   */
-  string GraphViz() const;
-
-private:
-  EventNode *RootNode;
-  EventNode *ExitNode;
+  Event *const begin;
+  Event *const end;
 };
 
 #endif

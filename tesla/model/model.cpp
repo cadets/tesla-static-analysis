@@ -29,10 +29,14 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  errs() << "digraph {\n";
-  auto eg = EventGraph::get(Mod->getFunction("main"));
-  errs() << eg->GraphViz();
-  errs() << "}\n";
-  
+  for(auto &F : *Mod) {
+    if(F.isDeclaration()) continue;
+
+    auto eg = EventGraph::InstructionGraph(&F);
+
+    errs() << F.getName().str() << '\n';
+    errs() << eg->GraphViz();
+  }
+
   return 0;
 }
