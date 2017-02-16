@@ -142,7 +142,9 @@ void EventGraph::consolidate() {
         if(other->successors.find(ev) != other->successors.end()) {
           other->successors.erase(ev);
           for(auto suc : ev->successors) {
-            other->successors.insert(suc);
+            if(suc != ev) {
+              other->successors.insert(suc);
+            }
           }
         }
       }
@@ -226,6 +228,12 @@ string InstructionEvent::Name() const {
   string s;
   raw_string_ostream ss(s);
   ss << "instruction:" << this;
+  return ss.str();
+}
+
+string CallEvent::Name() const {
+  std::stringstream ss;
+  ss << "call:" << Call()->getCalledFunction()->getName().str() << ":" << this;
   return ss.str();
 }
 

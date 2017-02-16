@@ -53,7 +53,8 @@ struct Event {
   enum EventKind {
     EV_Instruction,
     EV_Empty,
-    EV_BasicBlock
+    EV_BasicBlock,
+    EV_Call
   };
 
   static Event *Create(Instruction *I);
@@ -89,7 +90,7 @@ struct InstructionEvent : public Event {
   InstructionEvent(Instruction *I)
     : InstructionEvent(nullptr, I) {}
 
-  Instruction *Instr() { return Instr_; }
+  Instruction *Instr() const { return Instr_; }
 
   virtual string Name() const override;
 
@@ -98,6 +99,24 @@ struct InstructionEvent : public Event {
   }
 private:
   Instruction *Instr_;
+};
+
+struct CallEvent : public Event {
+  CallEvent(EventGraph *g, CallInst *CI)
+    : Event(EV_Call, g), Call_(CI) {}
+
+  CallEvent(CallInst *CI)
+    : CallEvent(nullptr, CI) {}
+
+  CallInst *Call() const { return Call_; }
+
+  virtual string Name() const override;
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Call;
+  }
+private:
+  CallInst *Call_;
 };
 
 struct EmptyEvent : public Event {
