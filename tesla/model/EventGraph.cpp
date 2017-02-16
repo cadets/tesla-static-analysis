@@ -86,6 +86,41 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
   return eg;
 }
 
+set<Event *> EventGraph::entries() {
+  map<Event *, int> counts;
+
+  for(auto ev : Events) {
+    for(auto suc : ev->successors) {
+      if(counts.find(suc) == counts.end()) {
+        counts[suc] = 0;
+      }
+
+      counts[suc]++;
+    }
+  }
+
+  set<Event *> entries;
+  for(auto ev : Events) {
+    if(counts[ev] == 0) {
+      entries.insert(ev);
+    }
+  }
+
+  return entries;
+}
+
+set<Event *> EventGraph::exits() {
+  set<Event *> exits;
+
+  for(auto ev : Events) {
+    if(ev->successors.size() == 0) {
+      exits.insert(ev);
+    }
+  }
+
+  return exits;
+}
+
 // Just a helper for now so it isn't declared in the class - might need to
 // change in the future but it's OK at the moment.
 Event *cachedTransform(map<Event *, Event *> &cache, Event *e, 

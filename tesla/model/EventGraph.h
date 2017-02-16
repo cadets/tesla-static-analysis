@@ -40,6 +40,9 @@ struct EventGraph {
   static EventGraph *BasicBlockGraph(Function *f);
   static EventGraph *InstructionGraph(Function *f);
 
+  set<Event *> entries();
+  set<Event *> exits();
+
   string GraphViz() const;
 private:
   void consolidate();
