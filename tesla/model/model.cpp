@@ -33,7 +33,8 @@ int main(int argc, char **argv) {
     if(F.isDeclaration()) continue;
 
     auto eg = EventGraph::InstructionGraph(&F);
-    eg->transform([](Event *e) { return e; });
+
+    eg->transform([=](Event *e) { return new EmptyEvent(eg); });
     errs() << F.getName().str() << '\n';
     errs() << eg->GraphViz();
   }

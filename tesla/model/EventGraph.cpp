@@ -32,6 +32,8 @@ void EventGraph::assert_valid() {
       continue;
     }
 
+    assert(e->Graph == this);
+
     for(auto suc : e->successors) {
       assert(Events.find(suc) != Events.end() &&
               "Successor not in graph!");
@@ -82,7 +84,22 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
   return eg;
 }
 
+// Just a helper for now so it isn't declared in the class - might need to
+// change in the future but it's OK at the moment.
+Event *cachedTransform(map<Event *, Event *> &cache, Event *e, 
+                       EventGraph::EventTransformation T) 
+{
+  if(cache.find(e) == cache.end()) {
+    cache[e] = T(e);
+  }
+
+  return cache[e];
+}
+
 void EventGraph::transform(EventTransformation T) {
+  set<Event *> newEvents;
+  map<Event *, Event *> cache;
+
   assert_valid();
 }
 
@@ -161,7 +178,7 @@ string EmptyEvent::Name() const {
 string InstructionEvent::Name() const {
   string s;
   raw_string_ostream ss(s);
-  Instr->print(ss);
+  ss << this;
   return ss.str();
 }
 
