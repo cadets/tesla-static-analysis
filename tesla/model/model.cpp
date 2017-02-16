@@ -50,6 +50,20 @@ int main(int argc, char **argv) {
       }
     );
 
+    auto ent = new EntryEvent(eg, F.getName().str());
+    for(auto e : eg->entries()) {
+      if(e != ent) {
+        ent->addSuccessor(e);
+      }
+    }
+
+    auto ex = new ExitEvent(eg, F.getName().str());
+    for(auto e : eg->exits()) {
+      if(e != ex) {
+        e->addSuccessor(ex);
+      }
+    }
+
     errs() << eg->GraphViz();
   }
 

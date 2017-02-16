@@ -95,7 +95,9 @@ set<Event *> EventGraph::entries() {
         counts[suc] = 0;
       }
 
-      counts[suc]++;
+      if(ev != suc) {
+        counts[suc]++;
+      }
     }
   }
 
@@ -113,7 +115,9 @@ set<Event *> EventGraph::exits() {
   set<Event *> exits;
 
   for(auto ev : Events) {
-    if(ev->successors.size() == 0) {
+    if(ev->successors.size() == 0 ||
+       (ev->successors.size() == 1 && ev->successors.find(ev) != ev->successors.end()))
+    {
       exits.insert(ev);
     }
   }
