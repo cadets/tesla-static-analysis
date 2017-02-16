@@ -121,6 +121,12 @@ set<Event *> EventGraph::exits() {
   return exits;
 }
 
+void EventGraph::releaseAllEvents() {
+  for(auto ev : Events) {
+    ev->Graph = nullptr;
+  }
+}
+
 // Just a helper for now so it isn't declared in the class - might need to
 // change in the future but it's OK at the moment.
 Event *cachedTransform(map<Event *, Event *> &cache, Event *e, 

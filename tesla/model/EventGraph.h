@@ -43,6 +43,8 @@ struct EventGraph {
   set<Event *> entries();
   set<Event *> exits();
 
+  void releaseAllEvents();
+
   string GraphViz() const;
 private:
   void consolidate();
