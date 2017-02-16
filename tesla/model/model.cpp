@@ -40,7 +40,9 @@ int main(int argc, char **argv) {
       [=](Event *e) -> Event * { 
         if(auto ie = dyn_cast<InstructionEvent>(e)) {
           if(auto ci = dyn_cast<CallInst>(ie->Instr())) {
-            return new CallEvent(ci);
+            if(!ci->getCalledFunction()->isDeclaration()) {
+              return new CallEvent(ci);
+            }
           }
         }
 
