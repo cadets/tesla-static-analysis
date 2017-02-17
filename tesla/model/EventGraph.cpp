@@ -82,8 +82,33 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
     auto range = EventRange::Create(eg, bbe->Block);
     eg->replace(bbe, range);
   }
+
+  auto ent = new EntryEvent(eg, f->getName().str());
+  for(auto e : eg->entries()) {
+    if(e != ent) {
+      ent->addSuccessor(e);
+    }
+  }
+
+  auto ex = new ExitEvent(eg, f->getName().str());
+  for(auto e : eg->exits()) {
+    if(e != ex) {
+      e->addSuccessor(ex);
+    }
+  }
   
   return eg;
+}
+
+EventRange *EventGraph::ReleasedRange() {
+  auto ents = entries();
+  auto exs = exits();
+
+  assert(ents.size() == 1 && "Can't get released range for multiple entries");
+  assert(exs.size() == 1 && "Can't get released range for multiple exs");
+
+  releaseAllEvents();
+  return new EventRange{*ents.begin(), *exs.begin()}; 
 }
 
 set<Event *> EventGraph::entries() {

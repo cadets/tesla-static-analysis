@@ -46,23 +46,13 @@ int main(int argc, char **argv) {
           }
         }
 
+        if(isa<EntryEvent>(e) || isa<ExitEvent>(e)) {
+          return e;
+        }
+
         return new EmptyEvent;
       }
     );
-
-    auto ent = new EntryEvent(eg, F.getName().str());
-    for(auto e : eg->entries()) {
-      if(e != ent) {
-        ent->addSuccessor(e);
-      }
-    }
-
-    auto ex = new ExitEvent(eg, F.getName().str());
-    for(auto e : eg->exits()) {
-      if(e != ex) {
-        e->addSuccessor(ex);
-      }
-    }
 
     errs() << eg->GraphViz();
   }

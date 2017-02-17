@@ -30,8 +30,6 @@ struct EventGraph {
 
   EventGraph() {}
 
-  void assert_valid();
-
   void replace(Event *from, Event *to);
   void replace(Event *from, EventRange *to);
 
@@ -43,10 +41,12 @@ struct EventGraph {
   set<Event *> entries();
   set<Event *> exits();
 
-  void releaseAllEvents();
+  EventRange *ReleasedRange();
 
   string GraphViz() const;
 private:
+  void releaseAllEvents();
+  void assert_valid();
   void consolidate();
   set<Event *> Events;
 };
