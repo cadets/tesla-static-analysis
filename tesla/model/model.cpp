@@ -9,6 +9,7 @@
 #include <queue>
 
 #include "EventGraph.h"
+#include "GraphTransforms.h"
 
 using std::map;
 using std::queue;
@@ -36,23 +37,7 @@ int main(int argc, char **argv) {
 
     errs() << F.getName().str() << '\n';
 
-    eg->transform(
-      [=](Event *e) -> Event * { 
-        if(auto ie = dyn_cast<InstructionEvent>(e)) {
-          if(auto ci = dyn_cast<CallInst>(ie->Instr())) {
-            if(!ci->getCalledFunction()->isDeclaration()) {
-              return new CallEvent(ci);
-            }
-          }
-        }
-
-        if(isa<EntryEvent>(e) || isa<ExitEvent>(e)) {
-          return e;
-        }
-
-        return new EmptyEvent;
-      }
-    );
+    eg->transform(GraphTransforms::CallsOnly);
 
     errs() << eg->GraphViz();
   }
