@@ -1,5 +1,7 @@
 #include "EventGraph.h"
 
+#include <llvm/Support/CFG.h>
+
 #include <map>
 #include <queue>
 #include <set>
@@ -50,6 +52,11 @@ EventGraph *EventGraph::BasicBlockGraph(Function *f) {
   map<BasicBlock *, Event *> cache;
 
   for(auto &BB : *f) {
+    // In this case the basic block is statically unreachable so we don't emit
+    // an event for it.
+    if(pred_begin(&BB) == pred_end(&BB) && 
+       &BB != &f->getEntryBlock()) { continue; }
+
     if(cache.find(&BB) == cache.end()) {
       cache[&BB] = new BasicBlockEvent(eg, &BB);
     }
