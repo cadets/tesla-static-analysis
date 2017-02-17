@@ -28,7 +28,11 @@ struct EventGraph {
 
   using EventTransformation = std::function<Event *(Event *)>;
 
-  EventGraph() {}
+  EventGraph(string n)
+    : Name(n) {}
+
+  EventGraph() 
+    : EventGraph("") {}
 
   void replace(Event *from, Event *to);
   void replace(Event *from, EventRange *to);
@@ -49,6 +53,11 @@ private:
   void assert_valid();
   void consolidate();
   set<Event *> Events;
+  string Name;
+
+  string GraphVizStyle() const {
+    return "node [shape = none]";
+  }
 };
 
 struct Event {

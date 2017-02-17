@@ -45,7 +45,7 @@ void EventGraph::assert_valid() {
 }
 
 EventGraph *EventGraph::BasicBlockGraph(Function *f) {
-  auto eg = new EventGraph;
+  auto eg = new EventGraph(f->getName().str());
 
   map<BasicBlock *, Event *> cache;
 
@@ -271,14 +271,17 @@ EventRange *EventRange::Create(EventGraph *g, BasicBlock *bb) {
 string EventGraph::GraphViz() const {
   std::stringstream ss;
 
-  ss << "digraph {\n";
+  ss << "digraph " << Name << " {\n";
+  ss << "  " << GraphVizStyle() << '\n';
+
   for(auto ev : Events) {
-    ss << "\"" << ev->GraphViz() << "\"" << '\n';
+    ss << "  \"" << ev->GraphViz() << "\"" << '\n';
     for(auto suc : ev->successors) {
-      ss << "\"" << ev->GraphViz() << "\" -> \""
+      ss << "  \"" << ev->GraphViz() << "\" -> \""
          << suc->GraphViz() << "\";\n";
     }
   }
+
   ss << "}\n";
 
   return ss.str();

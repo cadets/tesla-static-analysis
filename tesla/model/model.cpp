@@ -34,9 +34,6 @@ int main(int argc, char **argv) {
     if(F.isDeclaration()) continue;
 
     auto eg = EventGraph::InstructionGraph(&F);
-
-    errs() << F.getName().str() << '\n';
-
     eg->transform(GraphTransforms::CallsOnly);
 
     errs() << eg->GraphViz();
