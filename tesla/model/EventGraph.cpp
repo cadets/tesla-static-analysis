@@ -1,4 +1,5 @@
 #include "EventGraph.h"
+#include "GraphTransforms.h"
 
 #include <llvm/Support/CFG.h>
 
@@ -104,6 +105,44 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
     }
   }
   
+  return eg;
+}
+
+EventGraph *EventGraph::ModuleGraph(Module *M, Function *root) {
+  map<Function *, EventRange *> cache;
+
+  for(auto &F : *M) {
+    auto gr = InstructionGraph(&F);
+    gr->transform(GraphTransforms::CallsOnly);
+
+    cache[&F] = gr->ReleasedRange();
+  }
+
+  EventGraph *eg = InstructionGraph(root);
+  eg->transform(GraphTransforms::CallsOnly);
+
+  bool changed;
+  do {
+    changed = false;
+
+    auto EventsCopy = eg->Events;
+    for(auto ev : EventsCopy) {
+      if(auto ce = dyn_cast<CallEvent>(ev)) {
+        auto fn = ce->Call()->getCalledFunction();
+
+        eg->replace(ev, cache[fn]); // do a copy here?????
+        changed = true;
+        continue;
+      }
+
+      if(isa<EntryEvent>(ev) || isa<ExitEvent>(ev)) {
+        continue;
+      }
+
+      assert(false && "Non call event in module graph!");
+    }
+  } while(changed);
+
   return eg;
 }
 
@@ -230,16 +269,12 @@ void EventGraph::consolidate() {
 }
 
 void EventGraph::replace(Event *from, Event *to) {
-  assert(from->Graph == to->Graph && "Can't replace between graphs!");
-
   replace(from, new EventRange(to, to));
 
   assert_valid();
 }
 
 void EventGraph::replace(Event *from, EventRange *to) {
-  assert(from->Graph == to->begin->Graph && "Can't replace between graphs!");
-
   for(auto ev : Events) {
     if(ev->successors.find(from) != ev->successors.end()) {
       ev->successors.erase(from);
@@ -251,6 +286,11 @@ void EventGraph::replace(Event *from, EventRange *to) {
 
   for(auto suc : from->successors) {
     to->end->successors.insert(suc);
+  }
+
+  for(auto ev : to->Events) {
+    ev->Register(from->Graph);
+    Events.insert(ev);
   }
 
   assert_valid();
@@ -322,4 +362,22 @@ EventRange::EventRange(Event *b, Event *e)
 {
   assert(b && e && "Range event is nullptr");
   assert(b->Graph == e->Graph && "Range from different graphs!");
+
+  queue<Event *> visits;
+  visits.push(b);
+
+  while(!visits.empty()) {
+    auto ev = visits.front();
+    visits.pop();
+
+    if(Events.find(ev) == Events.end()) {
+      Events.insert(ev);
+    } else {
+      continue;
+    }
+
+    for(auto suc : ev->successors) {
+      visits.push(suc);
+    }
+  }
 }

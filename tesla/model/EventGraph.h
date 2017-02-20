@@ -41,6 +41,7 @@ struct EventGraph {
 
   static EventGraph *BasicBlockGraph(Function *f);
   static EventGraph *InstructionGraph(Function *f);
+  static EventGraph *ModuleGraph(Module *M, Function *root);
 
   set<Event *> entries();
   set<Event *> exits();
@@ -178,7 +179,7 @@ struct EntryEvent : public Event {
   EntryEvent(string n)
     : EntryEvent(nullptr, n) {}
 
-  const string Description;
+  string Description;
 
   virtual string Name() const override {
     return "enter:" + Description;
@@ -196,7 +197,7 @@ struct ExitEvent : public Event {
   ExitEvent(string n)
     : ExitEvent(nullptr, n) {}
 
-  const string Description;
+  string Description;
 
   virtual string Name() const override {
     return "exit:" + Description;
@@ -214,6 +215,8 @@ struct EventRange {
 
   Event *const begin;
   Event *const end;
+
+  set<Event *> Events;
 };
 
 #endif

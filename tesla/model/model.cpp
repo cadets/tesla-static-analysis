@@ -30,14 +30,8 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  for(auto &F : *Mod) {
-    if(F.isDeclaration()) continue;
-
-    auto eg = EventGraph::InstructionGraph(&F);
-    eg->transform(GraphTransforms::CallsOnly);
-
-    errs() << eg->GraphViz();
-  }
+  auto eg = EventGraph::ModuleGraph(Mod.get(), Mod->getFunction("main"));
+  errs() << eg->GraphViz();
 
   return 0;
 }

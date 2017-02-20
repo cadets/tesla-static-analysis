@@ -17,3 +17,17 @@ Event *GraphTransforms::CallsOnly(Event *e) {
 
   assert(false && "Non instruction event in calls only transform");
 }
+
+Event *GraphTransforms::Tag::operator()(Event *e) {
+  if(e == ev) {
+    if(auto en = dyn_cast<EntryEvent>(e)) {
+      en->Description += str_;
+    }
+
+    if(auto ex = dyn_cast<ExitEvent>(e)) {
+      ex->Description += str_;
+    }
+  }
+
+  return e;
+}
