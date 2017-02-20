@@ -109,29 +109,27 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
 }
 
 EventGraph *EventGraph::ModuleGraph(Module *M, Function *root) {
-  map<Function *, EventRange *> cache;
-
-  for(auto &F : *M) {
-    auto gr = InstructionGraph(&F);
-    gr->transform(GraphTransforms::CallsOnly);
-
-    cache[&F] = gr->ReleasedRange();
-  }
-
   EventGraph *eg = InstructionGraph(root);
   eg->transform(GraphTransforms::CallsOnly);
 
-  bool changed;
-  do {
-    changed = false;
-
+  int depth = 5;
+  for(int i = 0; i < depth; i++) {
     auto EventsCopy = eg->Events;
     for(auto ev : EventsCopy) {
       if(auto ce = dyn_cast<CallEvent>(ev)) {
         auto fn = ce->Call()->getCalledFunction();
 
-        eg->replace(ev, cache[fn]); // do a copy here?????
-        changed = true;
+        auto gr = InstructionGraph(fn);
+        gr->transform(GraphTransforms::CallsOnly);
+
+        auto rr = gr->ReleasedRange();
+        eg->replace(ev, rr); // do a copy here?????
+
+        std::stringstream ss;
+        ss << ":" << rr;
+
+        eg->transform(GraphTransforms::Tag(rr->begin, ss.str()));
+        eg->transform(GraphTransforms::Tag(rr->end, ss.str()));
         continue;
       }
 
@@ -141,7 +139,7 @@ EventGraph *EventGraph::ModuleGraph(Module *M, Function *root) {
 
       assert(false && "Non call event in module graph!");
     }
-  } while(changed);
+  }
 
   return eg;
 }
