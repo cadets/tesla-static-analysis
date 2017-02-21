@@ -1,5 +1,20 @@
 #include "GraphTransforms.h"
 
+Event *GraphTransforms::FindAssertions::operator()(Event *e) {
+  if(isa<EntryEvent>(e) || isa<ExitEvent>(e)) {
+    return e;
+  }
+
+  auto ie = cast<InstructionEvent>(e);
+  if(auto ci = dyn_cast<CallInst>(ie->Instr())) {
+    if(ci->getCalledFunction() == Assertion) {
+      return new AssertEvent("some file", 57, 27);
+    }
+  }
+
+  return e;
+}
+
 Event *GraphTransforms::CallsOnly(Event *e) {
   if(auto ie = dyn_cast<InstructionEvent>(e)) {
     if(auto ci = dyn_cast<CallInst>(ie->Instr())) {
@@ -12,7 +27,7 @@ Event *GraphTransforms::CallsOnly(Event *e) {
     return new EmptyEvent;
   }
 
-  if(isa<EntryEvent>(e) || isa<ExitEvent>(e)) {
+  if(isa<EntryEvent>(e) || isa<ExitEvent>(e) || isa<AssertEvent>(e)) {
     return e;
   }
 

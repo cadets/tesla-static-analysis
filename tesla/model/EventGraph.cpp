@@ -109,7 +109,11 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
 }
 
 EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
+  auto assertFn = M->getFunction("__tesla_inline_assertion");
+  errs() << assertFn;
+
   EventGraph *eg = InstructionGraph(root);
+  eg->transform(GraphTransforms::FindAssertions(assertFn));
   eg->transform(GraphTransforms::CallsOnly);
 
   for(int i = 0; i < depth; i++) {
@@ -119,10 +123,11 @@ EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
         auto fn = ce->Call()->getCalledFunction();
 
         auto gr = InstructionGraph(fn);
+        gr->transform(GraphTransforms::FindAssertions(assertFn));
         gr->transform(GraphTransforms::CallsOnly);
 
         auto rr = gr->ReleasedRange();
-        eg->replace(ev, rr); // do a copy here?????
+        eg->replace(ev, rr);
 
         std::stringstream ss;
         ss << ":" << rr;
@@ -132,7 +137,7 @@ EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
         continue;
       }
 
-      if(isa<EntryEvent>(ev) || isa<ExitEvent>(ev)) {
+      if(isa<EntryEvent>(ev) || isa<ExitEvent>(ev) || isa<AssertEvent>(ev)) {
         continue;
       }
 
