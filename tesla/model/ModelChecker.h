@@ -18,6 +18,15 @@ struct ModelChecker {
 
 private:
   bool CheckState(const tesla::Expression &ex, Event *st);
+
+  bool CheckBoolean(const tesla::BooleanExpr &ex, Event *st);
+  bool CheckSequence(const tesla::Sequence &ex, Event *st);
+  bool CheckNull(Event *st);
+  bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *st);
+  bool CheckFunction(const tesla::FunctionEvent &ex, Event *st);
+  bool CheckFieldAssign(const tesla::FieldAssignment &ex, Event *st);
+  bool CheckSubAutomaton(const tesla::Automaton &ex, Event *st);
+
   EventGraph *Graph;
   tesla::Manifest *Manifest;
 };
