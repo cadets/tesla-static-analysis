@@ -7,6 +7,7 @@ add_llvm_executable(tesla-model
   model.cpp
   EventGraph.cpp
   GraphTransforms.cpp
+  ModelChecker.cpp
 )
 
 target_link_libraries(tesla-model
