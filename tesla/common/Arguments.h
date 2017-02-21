@@ -36,6 +36,11 @@ llvm::Value* GetArgumentValue(llvm::Value* Param, const Argument& ArgDescrip,
                               llvm::IRBuilder<>& Builder,
                               bool AtAssertionSite = false);
 
+/**
+ * Parse a @ref Location out of a @ref CallInst to the TESLA assertion
+ * pseudo-call.
+ */
+void ParseAssertionLocation(Location *Loc, llvm::CallInst*);
 }
 
 #endif
