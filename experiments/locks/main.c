@@ -52,10 +52,10 @@ void thread_say(int id) {
 void *thread_work(void *args) {
   struct thread_args *data = (struct thread_args *)args;
 
-  TESLA_WITHIN(thread_work, strict(eventually(
+  TESLA_WITHIN(thread_work, eventually(strict(TSEQUENCE(
     acq_rel(&lock),
     returnfrom(thread_work)
-  )));
+  ))));
 
   thread_say(data->id);
 
