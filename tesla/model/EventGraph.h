@@ -16,6 +16,9 @@
 #include <sstream>
 #include <vector>
 
+#include "Names.h"
+#include "tesla.pb.h"
+
 using std::set;
 using std::string;
 using namespace llvm;
@@ -71,7 +74,8 @@ struct Event {
     EV_BasicBlock,
     EV_Call,
     EV_Enter,
-    EV_Exit
+    EV_Exit,
+    EV_Assert
   };
 
   static Event *Create(Instruction *I);
@@ -206,6 +210,32 @@ struct ExitEvent : public Event {
   static bool classof(const Event *other) {
     return other->getKind() == EV_Exit;
   }
+};
+
+struct AssertEvent : public Event {
+  AssertEvent(EventGraph *g, string file, int line, int count) :
+    Event(EV_Assert, g), loc(new tesla::Location)
+  {
+    loc->set_filename(file);
+    loc->set_line(line);
+    loc->set_counter(count);
+  }
+
+  AssertEvent(string file, int line, int count) :
+    AssertEvent(nullptr, file, line, count) {}
+
+  const tesla::Location &Location() const { return *loc; }
+
+  virtual string Name() const override {
+    return "assert:" + tesla::ShortName(Location());
+  }
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Assert;
+  }
+
+private:
+  tesla::Location *loc;
 };
 
 struct EventRange {
