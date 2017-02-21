@@ -213,16 +213,11 @@ struct ExitEvent : public Event {
 };
 
 struct AssertEvent : public Event {
-  AssertEvent(EventGraph *g, string file, int line, int count) :
-    Event(EV_Assert, g), loc(new tesla::Location)
-  {
-    loc->set_filename(file);
-    loc->set_line(line);
-    loc->set_counter(count);
-  }
+  AssertEvent(EventGraph *g, tesla::Location *l) :
+    Event(EV_Assert, g), loc(l) {}
 
-  AssertEvent(string file, int line, int count) :
-    AssertEvent(nullptr, file, line, count) {}
+  AssertEvent(tesla::Location *l) :
+    AssertEvent(nullptr, l) {}
 
   const tesla::Location &Location() const { return *loc; }
 

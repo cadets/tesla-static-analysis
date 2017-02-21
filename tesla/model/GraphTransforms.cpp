@@ -12,7 +12,8 @@ Event *GraphTransforms::FindAssertions::operator()(Event *e) {
     if(ci->getCalledFunction() == Assertion) {
       auto loc = new tesla::Location;
       tesla::ParseAssertionLocation(loc, ci);
-      return new AssertEvent("some file", 57, 27);
+
+      return new AssertEvent(loc);
     }
   }
 
