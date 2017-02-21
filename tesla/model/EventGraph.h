@@ -41,7 +41,7 @@ struct EventGraph {
 
   static EventGraph *BasicBlockGraph(Function *f);
   static EventGraph *InstructionGraph(Function *f);
-  static EventGraph *ModuleGraph(Module *M, Function *root);
+  static EventGraph *ModuleGraph(Module *M, Function *root, int depth);
 
   set<Event *> entries();
   set<Event *> exits();

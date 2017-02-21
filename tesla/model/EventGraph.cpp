@@ -108,11 +108,10 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
   return eg;
 }
 
-EventGraph *EventGraph::ModuleGraph(Module *M, Function *root) {
+EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
   EventGraph *eg = InstructionGraph(root);
   eg->transform(GraphTransforms::CallsOnly);
 
-  int depth = 5;
   for(int i = 0; i < depth; i++) {
     auto EventsCopy = eg->Events;
     for(auto ev : EventsCopy) {
@@ -141,6 +140,7 @@ EventGraph *EventGraph::ModuleGraph(Module *M, Function *root) {
     }
   }
 
+  eg->transform(GraphTransforms::DeleteCalls);
   return eg;
 }
 

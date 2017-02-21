@@ -3,7 +3,8 @@
 Event *GraphTransforms::CallsOnly(Event *e) {
   if(auto ie = dyn_cast<InstructionEvent>(e)) {
     if(auto ci = dyn_cast<CallInst>(ie->Instr())) {
-      if(!ci->getCalledFunction()->isDeclaration()) {
+      auto called = ci->getCalledFunction();
+      if(called && !called->isDeclaration()) {
         return new CallEvent(ci);
       }
     }
@@ -16,6 +17,14 @@ Event *GraphTransforms::CallsOnly(Event *e) {
   }
 
   assert(false && "Non instruction event in calls only transform");
+}
+
+Event *GraphTransforms::DeleteCalls(Event *e) {
+  if(isa<CallEvent>(e)) {
+    return new EmptyEvent;
+  }
+
+  return e;
 }
 
 Event *GraphTransforms::Tag::operator()(Event *e) {

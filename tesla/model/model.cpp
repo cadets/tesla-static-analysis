@@ -16,7 +16,13 @@ using std::queue;
 using namespace llvm;
 
 static cl::opt<std::string>
-BitcodeFilename(cl::Positional, cl::desc("bitcode"), cl::Required);
+BitcodeFilename(cl::Positional, cl::desc("<bitcode>"), cl::Required);
+
+static cl::opt<std::string>
+FunctionName(cl::Positional, cl::desc("<function>"), cl::Required);
+
+static cl::opt<int>
+UnrollDepth(cl::Positional, cl::desc("[unroll depth]"), cl::init(10));
 
 int main(int argc, char **argv) {
   SMDiagnostic Err;
@@ -30,7 +36,13 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  auto eg = EventGraph::ModuleGraph(Mod.get(), Mod->getFunction("main"));
+  auto fn = Mod->getFunction(FunctionName);
+  if(!fn) {
+    errs() << "No function named " << FunctionName << " in module " << BitcodeFilename << '\n';
+    return 2;
+  }
+
+  auto eg = EventGraph::ModuleGraph(Mod.get(), fn, UnrollDepth);
   errs() << eg->GraphViz();
 
   return 0;

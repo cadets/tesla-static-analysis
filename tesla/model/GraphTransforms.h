@@ -6,6 +6,7 @@
 namespace GraphTransforms {
 
 Event *CallsOnly(Event *e);
+Event *DeleteCalls(Event *e);
 
 struct Tag{
   Tag(Event *e, string s) :
