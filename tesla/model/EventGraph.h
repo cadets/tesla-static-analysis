@@ -28,9 +28,11 @@ struct EventGraph {
 
   using EventTransformation = std::function<Event *(Event *)>;
 
-  EventGraph() {}
+  EventGraph(string n)
+    : Name(n) {}
 
-  void assert_valid();
+  EventGraph() 
+    : EventGraph("") {}
 
   void replace(Event *from, Event *to);
   void replace(Event *from, EventRange *to);
@@ -39,11 +41,24 @@ struct EventGraph {
 
   static EventGraph *BasicBlockGraph(Function *f);
   static EventGraph *InstructionGraph(Function *f);
+  static EventGraph *ModuleGraph(Module *M, Function *root, int depth);
+
+  set<Event *> entries();
+  set<Event *> exits();
+
+  EventRange *ReleasedRange();
 
   string GraphViz() const;
 private:
+  void releaseAllEvents();
+  void assert_valid();
   void consolidate();
   set<Event *> Events;
+  string Name;
+
+  string GraphVizStyle() const {
+    return "node [shape = none]";
+  }
 };
 
 struct Event {
@@ -54,7 +69,9 @@ struct Event {
     EV_Instruction,
     EV_Empty,
     EV_BasicBlock,
-    EV_Call
+    EV_Call,
+    EV_Enter,
+    EV_Exit
   };
 
   static Event *Create(Instruction *I);
@@ -71,6 +88,8 @@ struct Event {
     assert((Graph == nullptr || Graph == g) && "Can't re-register event!");
     Graph = g;
   }
+
+  void addSuccessor(Event *e) { successors.insert(e); }
 
   EventKind getKind() const { return Kind; }
 protected:
@@ -153,6 +172,42 @@ struct BasicBlockEvent : public Event {
   BasicBlock *Block;
 };
 
+struct EntryEvent : public Event {
+  EntryEvent(EventGraph *g, string n)
+    : Event(EV_Enter, g), Description(n) {}
+
+  EntryEvent(string n)
+    : EntryEvent(nullptr, n) {}
+
+  string Description;
+
+  virtual string Name() const override {
+    return "enter:" + Description;
+  }
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Enter;
+  }
+};
+
+struct ExitEvent : public Event {
+  ExitEvent(EventGraph *g, string n)
+    : Event(EV_Enter, g), Description(n) {}
+
+  ExitEvent(string n)
+    : ExitEvent(nullptr, n) {}
+
+  string Description;
+
+  virtual string Name() const override {
+    return "exit:" + Description;
+  }
+
+  static bool classof(const Event *other) {
+    return other->getKind() == EV_Exit;
+  }
+};
+
 struct EventRange {
   EventRange(Event *b, Event *e);
 
@@ -160,6 +215,8 @@ struct EventRange {
 
   Event *const begin;
   Event *const end;
+
+  set<Event *> Events;
 };
 
 #endif

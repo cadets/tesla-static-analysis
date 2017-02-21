@@ -1,4 +1,7 @@
 #include "EventGraph.h"
+#include "GraphTransforms.h"
+
+#include <llvm/Support/CFG.h>
 
 #include <map>
 #include <queue>
@@ -45,11 +48,16 @@ void EventGraph::assert_valid() {
 }
 
 EventGraph *EventGraph::BasicBlockGraph(Function *f) {
-  auto eg = new EventGraph;
+  auto eg = new EventGraph(f->getName().str());
 
   map<BasicBlock *, Event *> cache;
 
   for(auto &BB : *f) {
+    // In this case the basic block is statically unreachable so we don't emit
+    // an event for it.
+    if(pred_begin(&BB) == pred_end(&BB) && 
+       &BB != &f->getEntryBlock()) { continue; }
+
     if(cache.find(&BB) == cache.end()) {
       cache[&BB] = new BasicBlockEvent(eg, &BB);
     }
@@ -82,8 +90,114 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
     auto range = EventRange::Create(eg, bbe->Block);
     eg->replace(bbe, range);
   }
+
+  auto ent = new EntryEvent(eg, f->getName().str());
+  for(auto e : eg->entries()) {
+    if(e != ent) {
+      ent->addSuccessor(e);
+    }
+  }
+
+  auto ex = new ExitEvent(eg, f->getName().str());
+  for(auto e : eg->exits()) {
+    if(e != ex) {
+      e->addSuccessor(ex);
+    }
+  }
   
   return eg;
+}
+
+EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
+  EventGraph *eg = InstructionGraph(root);
+  eg->transform(GraphTransforms::CallsOnly);
+
+  for(int i = 0; i < depth; i++) {
+    auto EventsCopy = eg->Events;
+    for(auto ev : EventsCopy) {
+      if(auto ce = dyn_cast<CallEvent>(ev)) {
+        auto fn = ce->Call()->getCalledFunction();
+
+        auto gr = InstructionGraph(fn);
+        gr->transform(GraphTransforms::CallsOnly);
+
+        auto rr = gr->ReleasedRange();
+        eg->replace(ev, rr); // do a copy here?????
+
+        std::stringstream ss;
+        ss << ":" << rr;
+
+        eg->transform(GraphTransforms::Tag(rr->begin, ss.str()));
+        eg->transform(GraphTransforms::Tag(rr->end, ss.str()));
+        continue;
+      }
+
+      if(isa<EntryEvent>(ev) || isa<ExitEvent>(ev)) {
+        continue;
+      }
+
+      assert(false && "Non call event in module graph!");
+    }
+  }
+
+  eg->transform(GraphTransforms::DeleteCalls);
+  return eg;
+}
+
+EventRange *EventGraph::ReleasedRange() {
+  auto ents = entries();
+  auto exs = exits();
+
+  assert(ents.size() == 1 && "Can't get released range for multiple entries");
+  assert(exs.size() == 1 && "Can't get released range for multiple exs");
+
+  releaseAllEvents();
+  return new EventRange{*ents.begin(), *exs.begin()}; 
+}
+
+set<Event *> EventGraph::entries() {
+  map<Event *, int> counts;
+
+  for(auto ev : Events) {
+    for(auto suc : ev->successors) {
+      if(counts.find(suc) == counts.end()) {
+        counts[suc] = 0;
+      }
+
+      if(ev != suc) {
+        counts[suc]++;
+      }
+    }
+  }
+
+  set<Event *> entries;
+  for(auto ev : Events) {
+    if(counts[ev] == 0) {
+      entries.insert(ev);
+    }
+  }
+
+  return entries;
+}
+
+set<Event *> EventGraph::exits() {
+  set<Event *> exits;
+
+  for(auto ev : Events) {
+    if(ev->successors.size() == 0 ||
+       (ev->successors.size() == 1 && ev->successors.find(ev) != ev->successors.end()))
+    {
+      exits.insert(ev);
+    }
+  }
+
+  return exits;
+}
+
+void EventGraph::releaseAllEvents() {
+  for(auto ev : Events) {
+    ev->Graph = nullptr;
+  }
 }
 
 // Just a helper for now so it isn't declared in the class - might need to
@@ -153,16 +267,12 @@ void EventGraph::consolidate() {
 }
 
 void EventGraph::replace(Event *from, Event *to) {
-  assert(from->Graph == to->Graph && "Can't replace between graphs!");
-
   replace(from, new EventRange(to, to));
 
   assert_valid();
 }
 
 void EventGraph::replace(Event *from, EventRange *to) {
-  assert(from->Graph == to->begin->Graph && "Can't replace between graphs!");
-
   for(auto ev : Events) {
     if(ev->successors.find(from) != ev->successors.end()) {
       ev->successors.erase(from);
@@ -174,6 +284,11 @@ void EventGraph::replace(Event *from, EventRange *to) {
 
   for(auto suc : from->successors) {
     to->end->successors.insert(suc);
+  }
+
+  for(auto ev : to->Events) {
+    ev->Register(from->Graph);
+    Events.insert(ev);
   }
 
   assert_valid();
@@ -201,14 +316,17 @@ EventRange *EventRange::Create(EventGraph *g, BasicBlock *bb) {
 string EventGraph::GraphViz() const {
   std::stringstream ss;
 
-  ss << "digraph {\n";
+  ss << "digraph " << Name << " {\n";
+  ss << "  " << GraphVizStyle() << '\n';
+
   for(auto ev : Events) {
-    ss << "\"" << ev->GraphViz() << "\"" << '\n';
+    ss << "  \"" << ev->GraphViz() << "\"" << '\n';
     for(auto suc : ev->successors) {
-      ss << "\"" << ev->GraphViz() << "\" -> \""
+      ss << "  \"" << ev->GraphViz() << "\" -> \""
          << suc->GraphViz() << "\";\n";
     }
   }
+
   ss << "}\n";
 
   return ss.str();
@@ -242,4 +360,22 @@ EventRange::EventRange(Event *b, Event *e)
 {
   assert(b && e && "Range event is nullptr");
   assert(b->Graph == e->Graph && "Range from different graphs!");
+
+  queue<Event *> visits;
+  visits.push(b);
+
+  while(!visits.empty()) {
+    auto ev = visits.front();
+    visits.pop();
+
+    if(Events.find(ev) == Events.end()) {
+      Events.insert(ev);
+    } else {
+      continue;
+    }
+
+    for(auto suc : ev->successors) {
+      visits.push(suc);
+    }
+  }
 }

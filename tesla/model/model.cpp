@@ -9,13 +9,20 @@
 #include <queue>
 
 #include "EventGraph.h"
+#include "GraphTransforms.h"
 
 using std::map;
 using std::queue;
 using namespace llvm;
 
 static cl::opt<std::string>
-BitcodeFilename(cl::Positional, cl::desc("bitcode"), cl::Required);
+BitcodeFilename(cl::Positional, cl::desc("<bitcode>"), cl::Required);
+
+static cl::opt<std::string>
+FunctionName(cl::Positional, cl::desc("<function>"), cl::Required);
+
+static cl::opt<int>
+UnrollDepth(cl::Positional, cl::desc("[unroll depth]"), cl::init(10));
 
 int main(int argc, char **argv) {
   SMDiagnostic Err;
@@ -29,29 +36,14 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  for(auto &F : *Mod) {
-    if(F.isDeclaration()) continue;
-
-    auto eg = EventGraph::InstructionGraph(&F);
-
-    errs() << F.getName().str() << '\n';
-
-    eg->transform(
-      [=](Event *e) -> Event * { 
-        if(auto ie = dyn_cast<InstructionEvent>(e)) {
-          if(auto ci = dyn_cast<CallInst>(ie->Instr())) {
-            if(!ci->getCalledFunction()->isDeclaration()) {
-              return new CallEvent(ci);
-            }
-          }
-        }
-
-        return new EmptyEvent;
-      }
-    );
-
-    errs() << eg->GraphViz();
+  auto fn = Mod->getFunction(FunctionName);
+  if(!fn) {
+    errs() << "No function named " << FunctionName << " in module " << BitcodeFilename << '\n';
+    return 2;
   }
+
+  auto eg = EventGraph::ModuleGraph(Mod.get(), fn, UnrollDepth);
+  errs() << eg->GraphViz();
 
   return 0;
 }
