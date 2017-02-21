@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 
   auto eg = EventGraph::ModuleGraph(Mod.get(), fn, UnrollDepth);
 
-  auto mc = ModelChecker(eg, Manifest.get());
+  auto mc = ModelChecker(eg, Mod.get(), Manifest.get());
   for(auto safe : mc.SafeUsages()) {
     errs() << "safe: " << tesla::ShortName(safe->identifier()) << '\n';
   }

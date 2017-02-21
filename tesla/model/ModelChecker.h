@@ -9,10 +9,11 @@
 #include "EventGraph.h"
 
 using std::set;
+using namespace llvm;
 
 struct ModelChecker {
-  ModelChecker(EventGraph *gr, tesla::Manifest *man) :
-    Graph(gr), Manifest(man) {}
+  ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man) :
+    Graph(gr), Mod(mod), Manifest(man) {}
 
   set<const tesla::Usage *> SafeUsages();
 
@@ -28,6 +29,7 @@ private:
   bool CheckSubAutomaton(const tesla::Automaton &ex, Event *st);
 
   EventGraph *Graph;
+  Module *Mod;
   tesla::Manifest *Manifest;
 };
 
