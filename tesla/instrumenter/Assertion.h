@@ -80,12 +80,6 @@ private:
                                         const Automaton&, llvm::Module&,
                                         llvm::IRBuilder<>&);
 
-  /**
-   * Parse a @ref Location out of a @ref CallInst to the TESLA assertion
-   * pseudo-call.
-   */
-  static void ParseAssertionLocation(Location *Loc, llvm::CallInst*);
-
   llvm::OwningPtr<InstrContext> InstrCtx;
 
   //! The TESLA pseudo-function used to declare assertions.

@@ -1,3 +1,5 @@
+#include "Arguments.h"
+
 #include "GraphTransforms.h"
 
 Event *GraphTransforms::FindAssertions::operator()(Event *e) {
@@ -8,6 +10,8 @@ Event *GraphTransforms::FindAssertions::operator()(Event *e) {
   auto ie = cast<InstructionEvent>(e);
   if(auto ci = dyn_cast<CallInst>(ie->Instr())) {
     if(ci->getCalledFunction() == Assertion) {
+      auto loc = new tesla::Location;
+      tesla::ParseAssertionLocation(loc, ci);
       return new AssertEvent("some file", 57, 27);
     }
   }

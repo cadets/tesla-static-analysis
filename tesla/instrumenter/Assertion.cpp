@@ -143,7 +143,6 @@ bool AssertionSiteInstrumenter::ConvertAssertions(
   return true;
 }
 
-
 const Automaton* AssertionSiteInstrumenter::FindAutomaton(CallInst *Call) {
   Location Loc;
   ParseAssertionLocation(&Loc, Call);
@@ -165,47 +164,6 @@ vector<Value*> AssertionSiteInstrumenter::CollectArgs(
     Instruction *Before, const Automaton& A,
     Module& Mod, IRBuilder<>& Builder) {
   return tesla::CollectArgs(Before, A, Mod, Builder);
-}
-
-
-void AssertionSiteInstrumenter::ParseAssertionLocation(
-  Location *Loc, CallInst *Call) {
-
-  assert(Call->getCalledFunction()->getName() == INLINE_ASSERTION);
-
-  if (Call->getNumArgOperands() < 4)
-    panic("TESLA assertion must have at least 4 arguments");
-
-  // The filename (argument 1) should be a global variable.
-  GlobalVariable *NameVar =
-    dyn_cast<GlobalVariable>(Call->getOperand(1)->stripPointerCasts());
-
-  ConstantDataArray *A;
-  if (!NameVar ||
-      !(A = dyn_cast_or_null<ConstantDataArray>(NameVar->getInitializer()))) {
-    Call->dump();
-    panic("unable to parse filename from TESLA assertion");
-  }
-
-  *Loc->mutable_filename() = A->getAsString();
-
-
-  // The line and counter values should be constant integers.
-  ConstantInt *Line = dyn_cast<ConstantInt>(Call->getOperand(2));
-  if (!Line) {
-    Call->getOperand(2)->dump();
-    panic("assertion line must be a constant int");
-  }
-
-  Loc->set_line(Line->getLimitedValue(INT_MAX));
-
-  ConstantInt *Count = dyn_cast<ConstantInt>(Call->getOperand(3));
-  if (!Count) {
-    Call->getOperand(3)->dump();
-    panic("assertion count must be a constant int");
-  }
-
-  Loc->set_counter(Count->getLimitedValue(INT_MAX));
 }
 
 }

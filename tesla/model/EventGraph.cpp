@@ -110,7 +110,6 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
 
 EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
   auto assertFn = M->getFunction("__tesla_inline_assertion");
-  errs() << assertFn;
 
   EventGraph *eg = InstructionGraph(root);
   eg->transform(GraphTransforms::FindAssertions(assertFn));
