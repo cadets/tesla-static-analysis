@@ -2,6 +2,7 @@
 #include <map>
 #include <vector>
 
+#include "Debug.h"
 #include "ModelChecker.h"
 
 using std::map;
@@ -118,7 +119,8 @@ bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, Event *st) {
  */
 bool ModelChecker::CheckSequence(const tesla::Sequence &ex, Event *st) {
   errs() << "seq\n";
-  static map<Event *, tesla::Sequence> tried;
+
+  static map<Event *, set<const tesla::Sequence *>> tries;
 
   int size = ex.expression_size();
   
@@ -139,12 +141,17 @@ bool ModelChecker::CheckSequence(const tesla::Sequence &ex, Event *st) {
     return allSuccessors<tesla::Sequence>(st, tail, &ModelChecker::CheckSequence);
   }
 
-  // If we have already tried this sequence at this event, return false as it
-  // will go into an infinite loop.
-  if(tried.find(st) != tried.end()) {
-    return false;
+  if(tries.find(st) == tries.end()) {
+    tries[st] = {};
   }
-  tried[st] = ex;
+
+  for(auto seqt : tries[st]) {
+    if(*seqt == ex) {
+      return false;
+    }
+  }
+
+  tries[st].insert(new tesla::Sequence(ex));
 
   // Check the sequence at all of the successors
   return allSuccessors<tesla::Sequence>(st, ex, &ModelChecker::CheckSequence);
@@ -179,6 +186,20 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *st)
  */
 bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *st) {
   errs() << "func\n";
+  auto modFn = Mod->getFunction(ex.function().name());
+
+  if(auto ent = dyn_cast<EntryEvent>(st)) {
+    if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
+      return modFn && ent->Func && modFn == ent->Func;
+    }
+  }
+
+  if(auto exit = dyn_cast<ExitEvent>(st)) {
+    if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
+      return modFn && exit->Func && modFn == exit->Func;
+    }
+  }
+
   return false;
 }
 
@@ -196,6 +217,6 @@ bool ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, Event *st)
  * expression at the current state.
  */
 bool ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, Event *st) {
-  errs() << "subauto\n";
+  errs() << "subauto " << tesla::ShortName(ex.getAssertion().identifier()) << '\n';
   return CheckState(ex.getAssertion().expression(), st);
 }

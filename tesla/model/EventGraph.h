@@ -178,12 +178,16 @@ struct BasicBlockEvent : public Event {
 
 struct EntryEvent : public Event {
   EntryEvent(EventGraph *g, string n)
-    : Event(EV_Enter, g), Description(n) {}
+    : Event(EV_Enter, g), Description(n), Func(nullptr) {}
+
+  EntryEvent(EventGraph *g, Function *f)
+    : Event(EV_Enter, g), Description(f->getName().str()), Func(f) {}
 
   EntryEvent(string n)
     : EntryEvent(nullptr, n) {}
 
   string Description;
+  Function *Func;
 
   virtual string Name() const override {
     return "enter:" + Description;
@@ -196,12 +200,16 @@ struct EntryEvent : public Event {
 
 struct ExitEvent : public Event {
   ExitEvent(EventGraph *g, string n)
-    : Event(EV_Enter, g), Description(n) {}
+    : Event(EV_Exit, g), Description(n), Func(nullptr) {}
+
+  ExitEvent(EventGraph *g, Function *f)
+    : Event(EV_Exit, g), Description(f->getName().str()), Func(f) {}
 
   ExitEvent(string n)
     : ExitEvent(nullptr, n) {}
 
   string Description;
+  Function *Func;
 
   virtual string Name() const override {
     return "exit:" + Description;

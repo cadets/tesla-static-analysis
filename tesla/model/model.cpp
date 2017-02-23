@@ -60,6 +60,6 @@ int main(int argc, char **argv) {
   for(auto safe : mc.SafeUsages()) {
     errs() << "safe: " << tesla::ShortName(safe->identifier()) << '\n';
   }
-
+  
   return 0;
 }
