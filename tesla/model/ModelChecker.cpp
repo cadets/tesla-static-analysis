@@ -49,6 +49,24 @@ bool ModelChecker::CheckState(const tesla::Expression &ex, Event *st) {
   }
 }
 
+template<typename T>
+std::function<bool(T, Event *)> ModelChecker::BoundChecker(CheckerFunc<T> f) {
+  return std::bind(f, this, std::placeholders::_1, std::placeholders::_2);
+}
+
+template<typename T>
+bool ModelChecker::allSuccessors(Event *ev, T item, CheckerFunc<T> checker) {
+  if(ev->successors.size() == 0) {
+    return false;
+  }
+
+  return std::all_of(ev->successors.begin(), ev->successors.end(),
+    [=](Event *suc) {
+      return BoundChecker<T>(checker)(item, suc);
+    }
+  );
+}
+
 /**
  * Collects all the checked expressions from the expression then reduces them
  * according to the operation in the expression (and / or / xor).
@@ -60,10 +78,32 @@ bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, Event *st) {
 /**
  * Because sequences can have an arbitrary number of events in them, we need to
  * separate it out into a head / tail (if possible), then check the splits
- * appropriately.
+ * appropriately. Also need to work out a way of extending to allow for reps to
+ * be included - currently ignored (!)
+ *
+ * I *think* that sequences should be the sole way to handle recursing through
+ * the graph - a one event sequence is equivalent to something like X[P] in LTL,
+ * whereas every other type should just be checked at the current state.
  */
 bool ModelChecker::CheckSequence(const tesla::Sequence &ex, Event *st) {
-  return false;
+  int size = ex.expression_size();
+  
+  // Degenerate sequence is always satisfied
+  if(size == 0) {
+    return true;
+  }
+
+  // If the head of the sequence holds here, get the tail of the sequence and
+  // check it at all the successors.
+  auto head = ex.expression(0);
+  if(CheckState(head, st)) {
+    auto tail = tesla::Sequence{};
+
+    return allSuccessors<tesla::Sequence>(st, tail, &ModelChecker::CheckSequence);
+  }
+
+  // Check the sequence at all of the successors
+  return allSuccessors<tesla::Sequence>(st, ex, &ModelChecker::CheckSequence);
 }
 
 /**
@@ -78,6 +118,10 @@ bool ModelChecker::CheckNull(Event *st) {
  * assert event.
  */
 bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *st) {
+  if(auto ae = dyn_cast<AssertEvent>(st)) {
+    return ex.location() == ae->Location();
+  }
+
   return false;
 }
 
@@ -87,7 +131,7 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *st)
  * the event is an entry / exit event with the correct direction).
  */
 bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *st) {
-  return false;
+  return true;
 }
 
 /**

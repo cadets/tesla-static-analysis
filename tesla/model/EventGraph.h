@@ -94,6 +94,7 @@ struct Event {
   }
 
   void addSuccessor(Event *e) { successors.insert(e); }
+  set<Event *> successors;
 
   EventKind getKind() const { return Kind; }
 protected:
@@ -101,7 +102,6 @@ protected:
   Event(EventKind k) : Event(k, nullptr) {}
 
 private:
-  set<Event *> successors;
   EventGraph *Graph;
   EventKind Kind;
 };

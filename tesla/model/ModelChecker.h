@@ -18,6 +18,15 @@ struct ModelChecker {
   set<const tesla::Usage *> SafeUsages();
 
 private:
+  template<typename T>
+  using CheckerFunc = std::function<bool(ModelChecker *, T, Event*)>;
+
+  template<typename T>
+  std::function<bool(T, Event *)> BoundChecker(CheckerFunc<T>);
+
+  template<typename T>
+  bool allSuccessors(Event *ev, T item, CheckerFunc<T> checker);
+
   bool CheckState(const tesla::Expression &ex, Event *st);
 
   bool CheckBoolean(const tesla::BooleanExpr &ex, Event *st);
