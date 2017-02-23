@@ -140,7 +140,17 @@ void tesla::ParseAssertionLocation(
     panic("unable to parse filename from TESLA assertion");
   }
 
-  *Loc->mutable_filename() = A->getAsString();
+  // This is a hack - getAsString gives us a string with a null terminator
+  // attached, but this gets implicitly removed when serialising. Therefore when
+  // comparing an in-memory location with one loaded from disk, the comparison
+  // will fail due to the extra character. Here we check for it and remove it
+  // before doing anything else.
+  auto fn = A->getAsString();
+  if(fn[fn.size()- 1] == '\0') {
+    fn = fn.substr(0, fn.size() - 1);
+  }
+
+  *Loc->mutable_filename() = fn;
 
 
   // The line and counter values should be constant integers.
