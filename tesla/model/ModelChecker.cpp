@@ -1,8 +1,11 @@
+#include <numeric>
 #include <map>
+#include <vector>
 
 #include "ModelChecker.h"
 
 using std::map;
+using std::vector;
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
   set<const tesla::Usage *> safeUses;
@@ -77,7 +80,30 @@ bool ModelChecker::allSuccessors(Event *ev, T item, CheckerFunc<T> checker) {
  */
 bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, Event *st) {
   errs() << "bool\n";
-  return false;
+
+  vector<bool> results;
+  for(int i = 0; i < ex.expression_size(); i++) {
+    results.push_back(CheckState(ex.expression(i), st));
+  }
+
+  std::function<bool(bool, bool)> reducer;
+  switch(ex.operation()) {
+    case tesla::BooleanExpr_Operation_BE_Or:
+      reducer = [](bool x, bool y) { return x || y; };
+      break;
+    case tesla::BooleanExpr_Operation_BE_Xor:
+      reducer = [](bool x, bool y) { return x ^ y; };
+      break;
+    case tesla::BooleanExpr_Operation_BE_And:
+      reducer = [](bool x, bool y) { return x && y; };
+      break;
+  }
+
+  if(results.empty()) {
+    return true;
+  }
+
+  return std::accumulate(results.begin(), results.end(), results[0], reducer);
 }
 
 /**
