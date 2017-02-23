@@ -1,4 +1,8 @@
+#include <map>
+
 #include "ModelChecker.h"
+
+using std::map;
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
   set<const tesla::Usage *> safeUses;
@@ -72,6 +76,7 @@ bool ModelChecker::allSuccessors(Event *ev, T item, CheckerFunc<T> checker) {
  * according to the operation in the expression (and / or / xor).
  */
 bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, Event *st) {
+  errs() << "bool\n";
   return false;
 }
 
@@ -86,6 +91,9 @@ bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, Event *st) {
  * whereas every other type should just be checked at the current state.
  */
 bool ModelChecker::CheckSequence(const tesla::Sequence &ex, Event *st) {
+  errs() << "seq\n";
+  static map<Event *, tesla::Sequence> tried;
+
   int size = ex.expression_size();
   
   // Degenerate sequence is always satisfied
@@ -98,9 +106,19 @@ bool ModelChecker::CheckSequence(const tesla::Sequence &ex, Event *st) {
   auto head = ex.expression(0);
   if(CheckState(head, st)) {
     auto tail = tesla::Sequence{};
+    for(int i = 1; i < ex.expression_size(); i++) {
+      *tail.add_expression() = ex.expression(i);
+    }
 
     return allSuccessors<tesla::Sequence>(st, tail, &ModelChecker::CheckSequence);
   }
+
+  // If we have already tried this sequence at this event, return false as it
+  // will go into an infinite loop.
+  if(tried.find(st) != tried.end()) {
+    return false;
+  }
+  tried[st] = ex;
 
   // Check the sequence at all of the successors
   return allSuccessors<tesla::Sequence>(st, ex, &ModelChecker::CheckSequence);
@@ -110,6 +128,7 @@ bool ModelChecker::CheckSequence(const tesla::Sequence &ex, Event *st) {
  * Any state satisfies a null expression.
  */
 bool ModelChecker::CheckNull(Event *st) {
+  errs() << "null\n";
   return true;
 }
 
@@ -118,6 +137,8 @@ bool ModelChecker::CheckNull(Event *st) {
  * assert event.
  */
 bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *st) {
+  errs() << "assert\n";
+
   if(auto ae = dyn_cast<AssertEvent>(st)) {
     return ex.location() == ae->Location();
   }
@@ -131,7 +152,8 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *st)
  * the event is an entry / exit event with the correct direction).
  */
 bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *st) {
-  return true;
+  errs() << "func\n";
+  return false;
 }
 
 /**
@@ -139,6 +161,7 @@ bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *st) {
  * in the future when the event graph mechanism is upgraded.
  */
 bool ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, Event *st) {
+  errs() << "assign\n";
   return false;
 }
 
@@ -147,5 +170,6 @@ bool ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, Event *st)
  * expression at the current state.
  */
 bool ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, Event *st) {
+  errs() << "subauto\n";
   return CheckState(ex.getAssertion().expression(), st);
 }
