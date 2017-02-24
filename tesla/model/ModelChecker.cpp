@@ -17,7 +17,7 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     
     auto safe = true; 
 
-    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(50);
+    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(25);
     auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Mod->getFunction("main"));
 
     for(auto trace : boundedTraces) {
@@ -109,29 +109,35 @@ bool ModelChecker::CheckSequence(const tesla::Sequence &ex, const FiniteTraces::
 
   int size = ex.expression_size();
 
-  if(ind > (tr.size() - size)) {
-    return false;
-  }
-  
   // Degenerate sequence is always satisfied
   if(size == 0) {
     return true;
   }
 
-  // If the head of the sequence holds here, get the tail of the sequence and
-  // check it at all the successors.
   auto head = ex.expression(0);
-  if(CheckState(head, tr, ind)) {
-    auto tail = tesla::Sequence{};
-    for(int i = 1; i < ex.expression_size(); i++) {
-      *tail.add_expression() = ex.expression(i);
+
+  for(int i = ind; i < tr.size() - size; i++) {
+    auto head_sat = CheckState(head, tr, i);
+    auto tails_sat = false;
+
+    for(int j = 1; j < ex.expression_size(); j++) {
+      tails_sat = tails_sat || CheckState(ex.expression(j), tr, i);
     }
 
-    return CheckSequence(tail, tr, ind+1);
+    if(head_sat) {
+      tesla::Sequence tail;
+      for(int k = 1; k < ex.expression_size(); k++) {
+        *tail.add_expression() = ex.expression(k);
+      }
+      return CheckSequence(tail, tr, i + 1);
+    }
+
+    if(tails_sat) {
+      return false;
+    }
   }
 
-  // Check the sequence at all of the successors
-  return CheckSequence(ex, tr, ind+1);
+  return false;
 }
 
 /**
