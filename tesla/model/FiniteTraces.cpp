@@ -1,5 +1,7 @@
 #include "FiniteTraces.h"
 
+#include <llvm/Support/raw_ostream.h>
+
 FiniteTraces::TraceSet FiniteTraces::OfLength(size_t len) {
   // Look it up in the cache if we can - no set of traces will be computed more
   // than once for a single graph.
@@ -95,4 +97,55 @@ FiniteTraces::TraceSet FiniteTraces::BoundedBy(TraceSet traces, Function *f) {
   );
 
   return bounded;
+}
+
+FiniteTraces::Trace FiniteTraces::Cycle(Trace t) {
+  if(t.empty()) {
+    return {};
+  }
+
+  auto last = t.back();
+  FiniteTraces::Trace cycle;
+
+  for(auto it = t.rbegin(); it != t.rend(); it++) {
+    if(*it == last && it != t.rbegin()) {
+      break;
+    }
+
+    cycle.push_back(*it);
+  }
+  std::reverse(cycle.begin(), cycle.end());
+
+  auto start = cycle.front();
+  int ci = 0;
+  bool check = false;
+
+  for(int i = 0; i < t.size(); i++) {
+    if(t[i] == start) {
+      check = true;
+      ci = i;
+    }
+
+    if(check && t[i] != cycle[(i - ci) % cycle.size()]) {
+      return {};
+    }
+  }
+
+  if(ci == 0) {
+    return {};
+  }
+
+  return cycle;
+}
+
+FiniteTraces::TraceSet FiniteTraces::Cyclic(TraceSet traces) {
+  FiniteTraces::TraceSet cyclic;
+
+  std::copy_if(traces.begin(), traces.end(), std::inserter(cyclic, cyclic.end()),
+    [=](FiniteTraces::Trace t) {
+      return !(Cycle(t).empty());
+    }
+  );
+
+  return cyclic;
 }

@@ -65,7 +65,18 @@ int main(int argc, char **argv) {
   */
 
   auto ft = FiniteTraces{eg};
-  for(auto t : ft.BoundedBy(ft.OfLengthUpTo(50), fn)) {
+  auto all = ft.OfLengthUpTo(15);
+
+  errs() << "BOUNDED\n";
+  for(auto t : ft.BoundedBy(all, fn)) {
+    for(auto ev : t) {
+      errs() << ev->GraphViz() << '\n';
+    }
+    errs() << "------------\n";
+  }
+
+  errs() << "CYCLES\n";
+  for(auto t : ft.Cyclic(all)) {
     for(auto ev : t) {
       errs() << ev->GraphViz() << '\n';
     }

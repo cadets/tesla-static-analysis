@@ -26,6 +26,9 @@ struct FiniteTraces {
 
   static Trace BoundedBy(Trace t, Function *f);
   static TraceSet BoundedBy(TraceSet traces, Function *f);
+
+  static Trace Cycle(Trace t);
+  static TraceSet Cyclic(TraceSet t);
 private:
   map<size_t, TraceSet> cache;
   EventGraph *Graph;
