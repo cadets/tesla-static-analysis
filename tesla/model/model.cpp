@@ -10,6 +10,7 @@
 
 #include "Debug.h"
 #include "EventGraph.h"
+#include "FiniteTraces.h"
 #include "GraphTransforms.h"
 #include "Manifest.h"
 #include "ModelChecker.h"
@@ -56,10 +57,14 @@ int main(int argc, char **argv) {
 
   auto eg = EventGraph::ModuleGraph(Mod.get(), fn, UnrollDepth);
 
+  /*
   auto mc = ModelChecker(eg, Mod.get(), Manifest.get());
   for(auto safe : mc.SafeUsages()) {
     errs() << "safe: " << tesla::ShortName(safe->identifier()) << '\n';
   }
+  */
+
+  auto ft = FiniteTraces{eg};
   
   return 0;
 }
