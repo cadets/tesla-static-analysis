@@ -57,12 +57,11 @@ int main(int argc, char **argv) {
 
   auto eg = EventGraph::ModuleGraph(Mod.get(), fn, UnrollDepth);
 
-  /*
   auto mc = ModelChecker(eg, Mod.get(), Manifest.get());
   for(auto safe : mc.SafeUsages()) {
     errs() << "safe: " << tesla::ShortName(safe->identifier()) << '\n';
   }
-  */
+  /*
 
   auto ft = FiniteTraces{eg};
   auto all = ft.OfLengthUpTo(15);
@@ -82,6 +81,7 @@ int main(int argc, char **argv) {
     }
     errs() << "------------\n";
   }
+  */
   
   return 0;
 }

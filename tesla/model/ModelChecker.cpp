@@ -15,13 +15,18 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     auto automaton = Manifest->FindAutomaton(use->identifier());
     auto expr = automaton->getAssertion().expression();
     
-    auto entries = Graph->entries();
-    auto safe = true; /*std::all_of(
-      entries.begin(), entries.end(),
-      [=](Event *ent) {
-        return CheckState(expr, 
+    auto safe = true; 
+
+    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(50);
+    auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Mod->getFunction("main"));
+
+    for(auto trace : boundedTraces) {
+      for(auto ev : trace) {
+        errs() << ev->GraphViz() << '\n';
       }
-    );*/
+      errs() << "------------------\n";
+      safe = safe && CheckState(expr, trace, 0);
+    }
     
     if(safe) {
       safeUses.insert(use);
@@ -62,7 +67,7 @@ bool ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTraces::T
  * according to the operation in the expression (and / or / xor).
  */
 bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &tr, int ind) {
-  errs() << "bool\n";
+  //errs() << "bool\n";
 
   vector<bool> results;
   for(int i = 0; i < ex.expression_size(); i++) {
@@ -100,9 +105,13 @@ bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces
  * whereas every other type should just be checked at the current state.
  */
 bool ModelChecker::CheckSequence(const tesla::Sequence &ex, const FiniteTraces::Trace &tr, int ind) {
-  errs() << "seq\n";
+  //errs() << "seq\n";
 
   int size = ex.expression_size();
+
+  if(ind > (tr.size() - size)) {
+    return false;
+  }
   
   // Degenerate sequence is always satisfied
   if(size == 0) {
@@ -118,18 +127,18 @@ bool ModelChecker::CheckSequence(const tesla::Sequence &ex, const FiniteTraces::
       *tail.add_expression() = ex.expression(i);
     }
 
-    return false; // TODO
+    return CheckSequence(tail, tr, ind+1);
   }
 
   // Check the sequence at all of the successors
-  return false; // TODO
+  return CheckSequence(ex, tr, ind+1);
 }
 
 /**
  * Any state satisfies a null expression.
  */
 bool ModelChecker::CheckNull(const FiniteTraces::Trace &tr, int ind) {
-  errs() << "null\n";
+  //errs() << "null\n";
   return true;
 }
 
@@ -138,7 +147,7 @@ bool ModelChecker::CheckNull(const FiniteTraces::Trace &tr, int ind) {
  * assert event.
  */
 bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &tr, int ind) {
-  errs() << "assert\n";
+  //errs() << "assert\n";
 
   if(auto ae = dyn_cast<AssertEvent>(tr[ind])) {
     return ex.location() == ae->Location();
@@ -153,7 +162,7 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, const Fini
  * the event is an en, int indy / exit event with the correct direction).
  */
 bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, const FiniteTraces::Trace &tr, int ind) {
-  errs() << "func\n";
+  //errs() << "func\n";
   auto modFn = Mod->getFunction(ex.function().name());
 
   if(auto ent = dyn_cast<EntryEvent>(tr[ind])) {
@@ -176,7 +185,7 @@ bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, const FiniteTra
  * in the future when the event graph mechanism is upgraded.
  */
 bool ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &tr, int ind) {
-  errs() << "assign\n";
+  //errs() << "assign\n";
   return false;
 }
 
@@ -185,6 +194,6 @@ bool ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, const Fini
  * expression at the current state.
  */
 bool ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
-  errs() << "subauto " << tesla::ShortName(ex.getAssertion().identifier()) << '\n';
+  //errs() << "subauto " << tesla::ShortName(ex.getAssertion().identifier()) << '\n';
   return CheckState(ex.getAssertion().expression(), tr, ind);
 }
