@@ -65,6 +65,12 @@ int main(int argc, char **argv) {
   */
 
   auto ft = FiniteTraces{eg};
+  for(auto t : ft.BoundedBy(ft.OfLengthUpTo(50), fn)) {
+    for(auto ev : t) {
+      errs() << ev->GraphViz() << '\n';
+    }
+    errs() << "------------\n";
+  }
   
   return 0;
 }
