@@ -7,6 +7,7 @@
 #include <set>
 
 #include "EventGraph.h"
+#include "FiniteTraces.h"
 
 using std::set;
 using namespace llvm;
@@ -18,24 +19,15 @@ struct ModelChecker {
   set<const tesla::Usage *> SafeUsages();
 
 private:
-  template<typename T>
-  using CheckerFunc = std::function<bool(ModelChecker *, T, Event*)>;
+  bool CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &, int);
 
-  template<typename T>
-  std::function<bool(T, Event *)> BoundChecker(CheckerFunc<T>);
-
-  template<typename T>
-  bool allSuccessors(Event *ev, T item, CheckerFunc<T> checker);
-
-  bool CheckState(const tesla::Expression &ex, Event *st);
-
-  bool CheckBoolean(const tesla::BooleanExpr &ex, Event *st);
-  bool CheckSequence(const tesla::Sequence &ex, Event *st);
-  bool CheckNull(Event *st);
-  bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *st);
-  bool CheckFunction(const tesla::FunctionEvent &ex, Event *st);
-  bool CheckFieldAssign(const tesla::FieldAssignment &ex, Event *st);
-  bool CheckSubAutomaton(const tesla::Automaton &ex, Event *st);
+  bool CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &, int);
+  bool CheckSequence(const tesla::Sequence &ex, const FiniteTraces::Trace &, int);
+  bool CheckNull(const FiniteTraces::Trace &, int);
+  bool CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &, int);
+  bool CheckFunction(const tesla::FunctionEvent &ex, const FiniteTraces::Trace &, int);
+  bool CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &, int);
+  bool CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &, int);
 
   EventGraph *Graph;
   Module *Mod;
