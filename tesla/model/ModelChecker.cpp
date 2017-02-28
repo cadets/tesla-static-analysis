@@ -134,6 +134,7 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
   auto head = ex.expression(0);
   for(int i = ind; i < tr.size(); i++) {
     auto res = CheckState(head, tr, i);
+
     if(res.Successful()) {
       auto tail = tesla::Sequence{};
       for(int i = 1; i < ex.expression_size(); i++) {
@@ -142,41 +143,15 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
 
       return CheckSequence(tail, tr, ind + res.Length(), exprs);
     }
+
+    for(auto expr : exprs) {
+      if(CheckState(*expr, tr, i).Successful()) {
+        return CheckResult::Failed();
+      }
+    }
   }
 
   return CheckResult::Failed();
-  /*
-  int size = ex.expression_size();
-
-  // Degenerate sequence is always satisfied
-  if(size == 0) {
-    return true;
-  }
-
-  auto head = ex.expression(0);
-
-  for(int i = ind; i < tr.size() - size; i++) {
-    auto head_sat = CheckState(head, tr, i);
-    auto tails_sat = false;
-
-    for(int j = 1; j < ex.expression_size(); j++) {
-      tails_sat = tails_sat || CheckState(ex.expression(j), tr, i);
-    }
-
-    if(head_sat) {
-      tesla::Sequence tail;
-      for(int k = 1; k < ex.expression_size(); k++) {
-        *tail.add_expression() = ex.expression(k);
-      }
-      return CheckSequence(tail, tr, i + 1);
-    }
-
-    if(tails_sat) {
-      return false;
-    }
-  }
-
-  return false;*/
 }
 
 /**
