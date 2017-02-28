@@ -12,6 +12,29 @@
 using std::set;
 using namespace llvm;
 
+struct CheckResult {
+  size_t Length() const { 
+    assert(Successful_ && "No length if failure!");
+    return Length_; 
+  }
+  bool Successful() const { return Successful_; }
+
+  static CheckResult Failed() {
+    return CheckResult(0, false);
+  }
+
+  static CheckResult Success(size_t len) {
+    return CheckResult(len, true);
+  }
+
+private:
+  size_t Length_;
+  bool Successful_;
+
+  CheckResult(size_t len, bool suc) :
+    Length_(len), Successful_(suc) {}
+};
+
 struct ModelChecker {
   ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man) :
     Graph(gr), Mod(mod), Manifest(man) {}
