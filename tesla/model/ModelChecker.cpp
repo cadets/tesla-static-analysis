@@ -25,7 +25,7 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
         errs() << ev->GraphViz() << '\n';
       }
       errs() << "------------------\n";
-      safe = safe && CheckState(expr, trace, 0);
+      safe = CheckState(expr, trace, 0).Successful() && safe;
     }
     
     if(safe) {
@@ -36,25 +36,25 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   return safeUses;
 }
 
-bool ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &tr, int ind) {
   switch(ex.type()) {
     case tesla::Expression_Type_BOOLEAN_EXPR:
-      return CheckBoolean(ex.booleanexpr(), tr, ind).Successful();
+      return CheckBoolean(ex.booleanexpr(), tr, ind);
 
     case tesla::Expression_Type_SEQUENCE:
       return CheckSequence(ex.sequence(), tr, ind);
 
     case tesla::Expression_Type_NULL_EXPR:
-      return CheckNull(tr, ind).Successful();
+      return CheckNull(tr, ind);
 
     case tesla::Expression_Type_ASSERTION_SITE:
-      return CheckAssertionSite(ex.assertsite(), tr, ind).Successful();
+      return CheckAssertionSite(ex.assertsite(), tr, ind);
 
     case tesla::Expression_Type_FUNCTION:
-      return CheckFunction(ex.function(), tr, ind).Successful();
+      return CheckFunction(ex.function(), tr, ind);
 
     case tesla::Expression_Type_FIELD_ASSIGN:
-      return CheckFieldAssign(ex.fieldassign(), tr, ind).Successful();
+      return CheckFieldAssign(ex.fieldassign(), tr, ind);
 
     case tesla::Expression_Type_SUB_AUTOMATON:
       auto sub = Manifest->FindAutomaton(ex.subautomaton());
@@ -71,7 +71,7 @@ CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const Finit
 
   vector<bool> results;
   for(int i = 0; i < ex.expression_size(); i++) {
-    results.push_back(CheckState(ex.expression(i), tr, ind));
+    results.push_back(CheckState(ex.expression(i), tr, ind).Successful());
   }
 
   std::function<bool(bool, bool)> reducer;
@@ -105,9 +105,47 @@ CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const Finit
  * the graph - a one event sequence is equivalent to something like X[P] in LTL,
  * whereas every other type should just be checked at the current state.
  */
-bool ModelChecker::CheckSequence(const tesla::Sequence &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex, 
+                                        const FiniteTraces::Trace &tr, 
+                                        int ind,
+                                        set<const tesla::Expression *> exprs) 
+{
   //errs() << "seq\n";
 
+  // Don't go off the end of the trace
+  if(ind >= tr.size()) {
+    return CheckResult::Failed();
+  }
+
+  // A sequence with no expressions can always be successfully matched
+  if(ex.expression_size() == 0) {
+    return CheckResult::Success(0);
+  }
+
+  // If the set of events is empty, then we need to go through the sequence and
+  // add expressions to it - if it's not empty, we already know what events are
+  // important
+  if(exprs.empty()) {
+    for(int i = 0; i < ex.expression_size(); i++) {
+      exprs.insert(new tesla::Expression(ex.expression(i)));
+    }
+  }
+
+  auto head = ex.expression(0);
+  for(int i = ind; i < tr.size(); i++) {
+    auto res = CheckState(head, tr, i);
+    if(res.Successful()) {
+      auto tail = tesla::Sequence{};
+      for(int i = 1; i < ex.expression_size(); i++) {
+        *tail.add_expression() = ex.expression(i);
+      }
+
+      return CheckSequence(tail, tr, ind + res.Length(), exprs);
+    }
+  }
+
+  return CheckResult::Failed();
+  /*
   int size = ex.expression_size();
 
   // Degenerate sequence is always satisfied
@@ -138,7 +176,7 @@ bool ModelChecker::CheckSequence(const tesla::Sequence &ex, const FiniteTraces::
     }
   }
 
-  return false;
+  return false;*/
 }
 
 /**
@@ -154,10 +192,12 @@ CheckResult ModelChecker::CheckNull(const FiniteTraces::Trace &tr, int ind) {
  * assert event.
  */
 CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &tr, int ind) {
-  //errs() << "assert\n";
+  //errs() << "assert: " << tr[ind]->GraphViz() << '\n';
 
   if(auto ae = dyn_cast<AssertEvent>(tr[ind])) {
-    if(ex.location() == ae->Location()) return CheckResult::Success(1);
+    if(ex.location() == ae->Location()) {
+      return CheckResult::Success(1);
+    }
   }
 
   return CheckResult::Failed();
@@ -203,7 +243,7 @@ CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, con
  * Subautomaton checking just recurses into the named automaton's logical
  * expression at the current state.
  */
-bool ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
   //errs() << "subauto " << tesla::ShortName(ex.getAssertion().identifier()) << '\n';
   return CheckState(ex.getAssertion().expression(), tr, ind);
 }
