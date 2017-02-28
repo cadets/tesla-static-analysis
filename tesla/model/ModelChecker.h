@@ -5,6 +5,7 @@
 #include "tesla.pb.h"
 
 #include <set>
+#include <sstream>
 
 #include "EventGraph.h"
 #include "FiniteTraces.h"
@@ -27,6 +28,17 @@ struct CheckResult {
     return CheckResult(len, true);
   }
 
+  string str() const {
+    std::stringstream ss;
+
+    if(Successful()) {
+      ss << "SUCCESS[" << Length() << "]";
+    } else {
+      ss << "FAIL";
+    }
+
+    return ss.str();
+  }
 private:
   size_t Length_;
   bool Successful_;

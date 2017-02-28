@@ -4,6 +4,7 @@
 
 #include "Debug.h"
 #include "ModelChecker.h"
+#include "SequenceExpressions.h"
 
 using std::map;
 using std::vector;
@@ -17,7 +18,7 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     
     auto safe = true; 
 
-    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(25);
+    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(16);
     auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Mod->getFunction("main"));
 
     for(auto trace : boundedTraces) {
@@ -117,8 +118,18 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
     return CheckResult::Failed();
   }
 
-  // A sequence with no expressions can always be successfully matched
+  // A sequence with no expressions can be successfully matched if none of the
+  // expressions we care about match in the future
   if(ex.expression_size() == 0) {
+    for(auto expr : exprs) {
+      for(int i = ind + 1; i < tr.size(); i++) {
+        if(CheckState(*expr, tr, i).Successful()) {
+          //errs() << tesla::ProtoDump((google::protobuf::Message *)expr);
+          return CheckResult::Failed();
+        }
+      }
+    }
+
     return CheckResult::Success(0);
   }
 
@@ -126,9 +137,8 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
   // add expressions to it - if it's not empty, we already know what events are
   // important
   if(exprs.empty()) {
-    for(int i = 0; i < ex.expression_size(); i++) {
-      exprs.insert(new tesla::Expression(ex.expression(i)));
-    }
+    auto ses = SubExpressions(*Manifest).Get(ex);
+    exprs.insert(ses.begin(), ses.end());
   }
 
   auto head = ex.expression(0);
@@ -141,7 +151,12 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
         *tail.add_expression() = ex.expression(i);
       }
 
-      return CheckSequence(tail, tr, ind + res.Length(), exprs);
+      auto ret = CheckSequence(tail, tr, i + res.Length(), exprs);
+      if(ret.Successful()) {
+        return CheckResult::Success(ret.Length() + res.Length());
+      } else {
+        return ret;
+      }
     }
 
     for(auto expr : exprs) {
@@ -219,6 +234,9 @@ CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, con
  * expression at the current state.
  */
 CheckResult ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
-  //errs() << "subauto " << tesla::ShortName(ex.getAssertion().identifier()) << '\n';
-  return CheckState(ex.getAssertion().expression(), tr, ind);
+  //errs() << "enter subauto " << tesla::ShortName(ex.getAssertion().identifier()) << '\n';
+  auto ret = CheckState(ex.getAssertion().expression(), tr, ind);
+  //errs() << "exit subauto " << tesla::ShortName(ex.getAssertion().identifier());
+  //errs() << ": " << ret.str() << '\n';
+  return ret;
 }
