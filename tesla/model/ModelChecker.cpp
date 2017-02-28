@@ -39,22 +39,22 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
 bool ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &tr, int ind) {
   switch(ex.type()) {
     case tesla::Expression_Type_BOOLEAN_EXPR:
-      return CheckBoolean(ex.booleanexpr(), tr, ind);
+      return CheckBoolean(ex.booleanexpr(), tr, ind).Successful();
 
     case tesla::Expression_Type_SEQUENCE:
       return CheckSequence(ex.sequence(), tr, ind);
 
     case tesla::Expression_Type_NULL_EXPR:
-      return CheckNull(tr, ind);
+      return CheckNull(tr, ind).Successful();
 
     case tesla::Expression_Type_ASSERTION_SITE:
-      return CheckAssertionSite(ex.assertsite(), tr, ind);
+      return CheckAssertionSite(ex.assertsite(), tr, ind).Successful();
 
     case tesla::Expression_Type_FUNCTION:
-      return CheckFunction(ex.function(), tr, ind);
+      return CheckFunction(ex.function(), tr, ind).Successful();
 
     case tesla::Expression_Type_FIELD_ASSIGN:
-      return CheckFieldAssign(ex.fieldassign(), tr, ind);
+      return CheckFieldAssign(ex.fieldassign(), tr, ind).Successful();
 
     case tesla::Expression_Type_SUB_AUTOMATON:
       auto sub = Manifest->FindAutomaton(ex.subautomaton());
@@ -66,7 +66,7 @@ bool ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTraces::T
  * Collects all the checked expressions from the expression then reduces them
  * according to the operation in the expression (and / or / xor).
  */
-bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &tr, int ind) {
   //errs() << "bool\n";
 
   vector<bool> results;
@@ -88,10 +88,11 @@ bool ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces
   }
 
   if(results.empty()) {
-    return true;
+    return CheckResult::Success(0);
   }
 
-  return std::accumulate(results.begin(), results.end(), results[0], reducer);
+  return std::accumulate(results.begin(), results.end(), results[0], reducer) ?
+    CheckResult::Success(0) : CheckResult::Failed();
 }
 
 /**
@@ -143,23 +144,23 @@ bool ModelChecker::CheckSequence(const tesla::Sequence &ex, const FiniteTraces::
 /**
  * Any state satisfies a null expression.
  */
-bool ModelChecker::CheckNull(const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckNull(const FiniteTraces::Trace &tr, int ind) {
   //errs() << "null\n";
-  return true;
+  return CheckResult::Success(0);
 }
 
 /**
  * Check passes in the state if we have the same location attached to an
  * assert event.
  */
-bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &tr, int ind) {
   //errs() << "assert\n";
 
   if(auto ae = dyn_cast<AssertEvent>(tr[ind])) {
-    return ex.location() == ae->Location();
+    if(ex.location() == ae->Location()) return CheckResult::Success(1);
   }
 
-  return false;
+  return CheckResult::Failed();
 }
 
 /**
@@ -167,32 +168,35 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, const Fini
  * our module, then see if it's the same as the one on the event (but only if
  * the event is an en, int indy / exit event with the correct direction).
  */
-bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, 
+                                        const FiniteTraces::Trace &tr, 
+                                        int ind) 
+{
   //errs() << "func\n";
   auto modFn = Mod->getFunction(ex.function().name());
 
   if(auto ent = dyn_cast<EntryEvent>(tr[ind])) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
-      return modFn && ent->Func && modFn == ent->Func;
+      if(modFn && ent->Func && modFn == ent->Func) return CheckResult::Success(1);
     }
   }
 
   if(auto exit = dyn_cast<ExitEvent>(tr[ind])) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
-      return modFn && exit->Func && modFn == exit->Func;
+      if(modFn && exit->Func && modFn == exit->Func) return CheckResult::Success(1);
     }
   }
 
-  return false;
+  return CheckResult::Failed();
 }
 
 /**
  * Currently no state can satisfy a field assignment, but this might be changed
  * in the future when the event graph mechanism is upgraded.
  */
-bool ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &tr, int ind) {
   //errs() << "assign\n";
-  return false;
+  return CheckResult::Failed();
 }
 
 /**

@@ -44,12 +44,12 @@ struct ModelChecker {
 private:
   bool CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &, int);
 
-  bool CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &, int);
+  CheckResult CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &, int);
   bool CheckSequence(const tesla::Sequence &ex, const FiniteTraces::Trace &, int);
-  bool CheckNull(const FiniteTraces::Trace &, int);
-  bool CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &, int);
-  bool CheckFunction(const tesla::FunctionEvent &ex, const FiniteTraces::Trace &, int);
-  bool CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &, int);
+  CheckResult CheckNull(const FiniteTraces::Trace &, int);
+  CheckResult CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &, int);
+  CheckResult CheckFunction(const tesla::FunctionEvent &ex, const FiniteTraces::Trace &, int);
+  CheckResult CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &, int);
   bool CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &, int);
 
   EventGraph *Graph;
