@@ -91,14 +91,14 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
     eg->replace(bbe, range);
   }
 
-  auto ent = new EntryEvent(eg, f->getName().str());
+  auto ent = new EntryEvent(eg, f);
   for(auto e : eg->entries()) {
     if(e != ent) {
       ent->addSuccessor(e);
     }
   }
 
-  auto ex = new ExitEvent(eg, f->getName().str());
+  auto ex = new ExitEvent(eg, f);
   for(auto e : eg->exits()) {
     if(e != ex) {
       e->addSuccessor(ex);

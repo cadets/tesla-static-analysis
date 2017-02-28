@@ -39,6 +39,8 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
 
+#include <google/protobuf/text_format.h>
+
 #include <string>
 
 namespace llvm {
@@ -53,6 +55,8 @@ LLVM_ATTRIBUTE_NORETURN
 void panic(llvm::Twine Message, bool PrintStackTrace = true);
 
 std::string DebugLocationString(llvm::Instruction *I);
+
+std::string ProtoDump(google::protobuf::Message *m);
 
 #ifdef NDEBUG
 #define __debugonly __attribute__((unused))

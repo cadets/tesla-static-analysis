@@ -101,6 +101,12 @@ std::string tesla::DebugLocationString(Instruction *I) {
          std::to_string(DI.getLine());
 }
 
+std::string tesla::ProtoDump(google::protobuf::Message *m) {
+  std::string ProtobufText;
+  google::protobuf::TextFormat::PrintToString(*m, &ProtobufText);
+  return ProtobufText;
+}
+
 #ifndef NDEBUG
 #include <llvm/Support/Signals.h>
 
