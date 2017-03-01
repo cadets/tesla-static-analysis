@@ -58,6 +58,8 @@ struct ModelChecker {
 
   set<const tesla::Usage *> SafeUsages();
 
+  void MarkIgnoredEvents(const tesla::Expression &ex, TaggedTrace &tr);
+
   CheckResult CheckState(const tesla::Expression &ex, TaggedTrace, int);
   CheckResult CheckBoolean(const tesla::BooleanExpr &ex, TaggedTrace, int);
   CheckResult CheckSequence(const tesla::Sequence &ex, TaggedTrace, int);

@@ -18,14 +18,18 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     
     auto safe = true; 
 
-    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(25);
+    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(16);
     auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Mod->getFunction("main"));
 
     for(auto trace : boundedTraces) {
       for(auto ev : trace) {
         errs() << ev->GraphViz() << '\n';
       }
-      auto ch = CheckState(expr, tagged(trace), 0);
+
+      auto ttr = tagged(trace);
+      MarkIgnoredEvents(expr, ttr);
+
+      auto ch = CheckState(expr, ttr, 0);
       errs() << "------------------\n";
       safe = safe && ch.Successful();
     }
@@ -36,6 +40,27 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   }
 
   return safeUses;
+}
+
+void ModelChecker::MarkIgnoredEvents(const tesla::Expression &ex, TaggedTrace &tr) {
+  auto subs = SubExpressions(*Manifest).Get(ex);
+
+  for(int i = 0; i < tr.size(); i++) {
+    auto ignore = true;
+
+    for(auto subExpr : subs) {
+      auto res = CheckState(*subExpr, tr, i);
+
+      if(res.Successful()) {
+        ignore = false;
+        break;
+      }
+    }
+
+    if(ignore) {
+      tr[i].second = true;
+    }
+  }
 }
 
 CheckResult ModelChecker::CheckState(const tesla::Expression &ex, ModelChecker::TaggedTrace tr, int ind) {
