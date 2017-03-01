@@ -54,8 +54,8 @@ private:
 struct ModelChecker {
   using TaggedTrace = vector<pair<Event *, bool>>;
 
-  ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man) :
-    Graph(gr), Mod(mod), Manifest(man) {}
+  ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man, Function *bound, int d) :
+    Graph(gr), Mod(mod), Manifest(man), Bound(bound), Depth(d) {}
 
   set<const tesla::Usage *> SafeUsages();
 
@@ -77,6 +77,8 @@ struct ModelChecker {
   EventGraph *Graph;
   Module *Mod;
   tesla::Manifest *Manifest;
+  Function *Bound;
+  int Depth;
 };
 
 #endif

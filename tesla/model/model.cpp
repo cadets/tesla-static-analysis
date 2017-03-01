@@ -23,13 +23,16 @@ static cl::opt<std::string>
 BitcodeFilename(cl::Positional, cl::desc("<bitcode>"), cl::Required);
 
 static cl::opt<std::string>
-FunctionName(cl::Positional, cl::desc("<function>"), cl::Required);
-
-static cl::opt<std::string>
 ManifestFilename(cl::Positional, cl::desc("<manifest>"), cl::Required);
 
+static cl::opt<std::string>
+FunctionName("entry", cl::desc("[entry point]"), cl::init("main"));
+
 static cl::opt<int>
-UnrollDepth(cl::Positional, cl::desc("[unroll depth]"), cl::init(10));
+UnrollDepth("unroll", cl::desc("[unroll depth]"), cl::init(64));
+
+static cl::opt<int>
+FMCBound("bound", cl::desc("[FMC length bound]"), cl::init(100));
 
 int main(int argc, char **argv) {
   SMDiagnostic Err;
@@ -57,31 +60,10 @@ int main(int argc, char **argv) {
 
   auto eg = EventGraph::ModuleGraph(Mod.get(), fn, UnrollDepth);
 
-  auto mc = ModelChecker(eg, Mod.get(), Manifest.get());
+  auto mc = ModelChecker(eg, Mod.get(), Manifest.get(), fn, FMCBound);
   for(auto safe : mc.SafeUsages()) {
     errs() << "safe: " << tesla::ShortName(safe->identifier()) << '\n';
   }
-  /*
-
-  auto ft = FiniteTraces{eg};
-  auto all = ft.OfLengthUpTo(15);
-
-  errs() << "BOUNDED\n";
-  for(auto t : ft.BoundedBy(all, fn)) {
-    for(auto ev : t) {
-      errs() << ev->GraphViz() << '\n';
-    }
-    errs() << "------------\n";
-  }
-
-  errs() << "CYCLES\n";
-  for(auto t : ft.Cyclic(all)) {
-    for(auto ev : t) {
-      errs() << ev->GraphViz() << '\n';
-    }
-    errs() << "------------\n";
-  }
-  */
   
   return 0;
 }

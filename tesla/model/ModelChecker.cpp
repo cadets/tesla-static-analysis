@@ -18,8 +18,8 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     
     auto safe = true; 
 
-    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(30);
-    auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Mod->getFunction("main"));
+    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
+    auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
 
     for(auto trace : boundedTraces) {
       auto ttr = tagged(trace);
