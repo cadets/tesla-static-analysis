@@ -6,11 +6,14 @@
 
 #include <set>
 #include <sstream>
+#include <vector>
 
 #include "EventGraph.h"
 #include "FiniteTraces.h"
 
+using std::pair;
 using std::set;
+using std::vector;
 using namespace llvm;
 
 struct CheckResult {
@@ -39,6 +42,7 @@ struct CheckResult {
 
     return ss.str();
   }
+
 private:
   size_t Length_;
   bool Successful_;
@@ -48,23 +52,27 @@ private:
 };
 
 struct ModelChecker {
+  using TaggedTrace = vector<pair<Event *, bool>>;
+
   ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man) :
     Graph(gr), Mod(mod), Manifest(man) {}
 
   set<const tesla::Usage *> SafeUsages();
 
-  CheckResult CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &, size_t);
-  CheckResult CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckSequence(const tesla::Sequence &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckSequenceOnce(const tesla::Sequence &ex, const FiniteTraces::Trace &, int, 
+  void MarkIgnoredEvents(const tesla::Expression &ex, TaggedTrace &tr);
+
+  CheckResult CheckState(const tesla::Expression &ex, TaggedTrace &, int);
+  CheckResult CheckBoolean(const tesla::BooleanExpr &ex, TaggedTrace &, int);
+  CheckResult CheckSequence(const tesla::Sequence &ex, TaggedTrace &, int);
+  CheckResult CheckSequenceOnce(const tesla::Sequence &ex, TaggedTrace &, int, 
                                 set<const tesla::Expression *> = {});
-  CheckResult CheckNull(const FiniteTraces::Trace &, int);
-  CheckResult CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckFunction(const tesla::FunctionEvent &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &, size_t);
+  CheckResult CheckNull(TaggedTrace &, int);
+  CheckResult CheckAssertionSite(const tesla::AssertionSite &ex, TaggedTrace &, int);
+  CheckResult CheckFunction(const tesla::FunctionEvent &ex, TaggedTrace &, int);
+  CheckResult CheckFieldAssign(const tesla::FieldAssignment &ex, TaggedTrace &, int);
+  CheckResult CheckSubAutomaton(const tesla::Automaton &ex, TaggedTrace &, int);
+
+  static TaggedTrace tagged(const FiniteTraces::Trace);
 
   EventGraph *Graph;
   Module *Mod;
