@@ -25,7 +25,7 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
       for(auto ev : trace) {
         errs() << ev->GraphViz() << '\n';
       }
-      auto ch = CheckState(expr, trace, 0);
+      auto ch = CheckState(expr, tagged(trace), 0);
       errs() << "------------------\n";
       safe = safe && ch.Successful();
     }
@@ -38,7 +38,7 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   return safeUses;
 }
 
-CheckResult ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckState(const tesla::Expression &ex, ModelChecker::TaggedTrace tr, int ind) {
   switch(ex.type()) {
     case tesla::Expression_Type_BOOLEAN_EXPR:
       return CheckBoolean(ex.booleanexpr(), tr, ind);
@@ -68,7 +68,7 @@ CheckResult ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTr
  * Collects all the checked expressions from the expression then reduces them
  * according to the operation in the expression (and / or / xor).
  */
-CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, ModelChecker::TaggedTrace tr, int ind) {
   //errs() << "bool\n";
 
   vector<bool> results;
@@ -98,7 +98,7 @@ CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const Finit
 }
 
 CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex, 
-                                        const FiniteTraces::Trace &tr, 
+                                        ModelChecker::TaggedTrace tr, 
                                         int ind)
 {
   int min = ex.minreps();
@@ -136,7 +136,7 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
  * whereas every other type should just be checked at the current state.
  */
 CheckResult ModelChecker::CheckSequenceOnce(const tesla::Sequence &ex, 
-                                        const FiniteTraces::Trace &tr, 
+                                        ModelChecker::TaggedTrace tr, 
                                         int ind,
                                         set<const tesla::Expression *> exprs)
 {
@@ -192,7 +192,7 @@ CheckResult ModelChecker::CheckSequenceOnce(const tesla::Sequence &ex,
 /**
  * Any state satisfies a null expression.
  */
-CheckResult ModelChecker::CheckNull(const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckNull(ModelChecker::TaggedTrace tr, int ind) {
   //errs() << "null\n";
   return CheckResult::Success(0);
 }
@@ -201,10 +201,10 @@ CheckResult ModelChecker::CheckNull(const FiniteTraces::Trace &tr, int ind) {
  * Check passes in the state if we have the same location attached to an
  * assert event.
  */
-CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, ModelChecker::TaggedTrace tr, int ind) {
   //errs() << "assert: " << tr[ind]->GraphViz() << '\n';
 
-  if(auto ae = dyn_cast<AssertEvent>(tr[ind])) {
+  if(auto ae = dyn_cast<AssertEvent>(tr[ind].first)) {
     if(ex.location() == ae->Location()) {
       return CheckResult::Success(1);
     }
@@ -219,19 +219,19 @@ CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, con
  * the event is an en, int indy / exit event with the correct direction).
  */
 CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, 
-                                        const FiniteTraces::Trace &tr, 
+                                        ModelChecker::TaggedTrace tr, 
                                         int ind) 
 {
   //errs() << "func\n";
   auto modFn = Mod->getFunction(ex.function().name());
 
-  if(auto ent = dyn_cast<EntryEvent>(tr[ind])) {
+  if(auto ent = dyn_cast<EntryEvent>(tr[ind].first)) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
       if(modFn && ent->Func && modFn == ent->Func) return CheckResult::Success(1);
     }
   }
 
-  if(auto exit = dyn_cast<ExitEvent>(tr[ind])) {
+  if(auto exit = dyn_cast<ExitEvent>(tr[ind].first)) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
       if(modFn && exit->Func && modFn == exit->Func) return CheckResult::Success(1);
     }
@@ -244,7 +244,7 @@ CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex,
  * Currently no state can satisfy a field assignment, but this might be changed
  * in the future when the event graph mechanism is upgraded.
  */
-CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, ModelChecker::TaggedTrace tr, int ind) {
   //errs() << "assign\n";
   return CheckResult::Failed();
 }
@@ -253,10 +253,22 @@ CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, con
  * Subautomaton checking just recurses into the named automaton's logical
  * expression at the current state.
  */
-CheckResult ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
+CheckResult ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, ModelChecker::TaggedTrace tr, int ind) {
   //errs() << "enter subauto " << tesla::ShortName(ex.getAssertion().identifier()) << '\n';
   auto ret = CheckState(ex.getAssertion().expression(), tr, ind);
   //errs() << "exit subauto " << tesla::ShortName(ex.getAssertion().identifier());
   //errs() << ": " << ret.str() << '\n';
+  return ret;
+}
+
+ModelChecker::TaggedTrace ModelChecker::tagged(const FiniteTraces::Trace tr) {
+  TaggedTrace ret;
+
+  std::transform(tr.begin(), tr.end(), std::back_inserter(ret),
+    [=](Event *e) {
+      return pair<Event *, bool>{e, false};
+    }
+  );
+
   return ret;
 }
