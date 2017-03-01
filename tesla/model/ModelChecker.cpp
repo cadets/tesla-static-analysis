@@ -18,15 +18,16 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     
     auto safe = true; 
 
-    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(16);
+    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(25);
     auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Mod->getFunction("main"));
 
     for(auto trace : boundedTraces) {
       for(auto ev : trace) {
         errs() << ev->GraphViz() << '\n';
       }
+      auto ch = CheckState(expr, trace, 0);
       errs() << "------------------\n";
-      safe = CheckState(expr, trace, 0).Successful() && safe;
+      safe = safe && ch.Successful();
     }
     
     if(safe) {
@@ -96,6 +97,34 @@ CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const Finit
     CheckResult::Success(0) : CheckResult::Failed();
 }
 
+CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex, 
+                                        const FiniteTraces::Trace &tr, 
+                                        int ind)
+{
+  int min = ex.minreps();
+  int max = ex.maxreps();
+  int count = 0;
+  int len = 0;
+  int index = ind;
+
+  for(; count < max; count++) {
+    auto res = CheckSequenceOnce(ex, tr, index);
+
+    if(res.Successful()) {
+      len += res.Length();
+      index += res.Length();
+    } else {
+      break;
+    }
+  }
+
+  if(count < min) {
+    return CheckResult::Failed();
+  }
+
+  return CheckResult::Success(len);
+}
+
 /**
  * Because sequences can have an arbi, int indary number of events in them, we need to
  * separate it out into a head / tail (if possible), then check the splits
@@ -106,10 +135,10 @@ CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const Finit
  * the graph - a one event sequence is equivalent to something like X[P] in LTL,
  * whereas every other type should just be checked at the current state.
  */
-CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex, 
+CheckResult ModelChecker::CheckSequenceOnce(const tesla::Sequence &ex, 
                                         const FiniteTraces::Trace &tr, 
                                         int ind,
-                                        set<const tesla::Expression *> exprs) 
+                                        set<const tesla::Expression *> exprs)
 {
   //errs() << "seq\n";
 
@@ -121,15 +150,6 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
   // A sequence with no expressions can be successfully matched if none of the
   // expressions we care about match in the future
   if(ex.expression_size() == 0) {
-    for(auto expr : exprs) {
-      for(int i = ind + 1; i < tr.size(); i++) {
-        if(CheckState(*expr, tr, i).Successful()) {
-          //errs() << tesla::ProtoDump((google::protobuf::Message *)expr);
-          return CheckResult::Failed();
-        }
-      }
-    }
-
     return CheckResult::Success(0);
   }
 
@@ -151,7 +171,7 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
         *tail.add_expression() = ex.expression(i);
       }
 
-      auto ret = CheckSequence(tail, tr, i + res.Length(), exprs);
+      auto ret = CheckSequenceOnce(tail, tr, i + res.Length());
       if(ret.Successful()) {
         return CheckResult::Success(ret.Length() + res.Length());
       } else {
