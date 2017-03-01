@@ -122,17 +122,6 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
     return CheckResult::Failed();
   }
 
-  /* Handle lookahead failures here
-    for(auto expr : exprs) {
-      for(int i = ind + 1; i < tr.size(); i++) {
-        if(CheckState(*expr, tr, i).Successful()) {
-          //errs() << tesla::ProtoDump((google::protobuf::Message *)expr);
-          return CheckResult::Failed();
-        }
-      }
-    }
-  */
-
   return CheckResult::Success(len);
 }
 
