@@ -42,6 +42,7 @@ struct CheckResult {
 
     return ss.str();
   }
+
 private:
   size_t Length_;
   bool Successful_;
@@ -60,16 +61,16 @@ struct ModelChecker {
 
   void MarkIgnoredEvents(const tesla::Expression &ex, TaggedTrace &tr);
 
-  CheckResult CheckState(const tesla::Expression &ex, TaggedTrace, int);
-  CheckResult CheckBoolean(const tesla::BooleanExpr &ex, TaggedTrace, int);
-  CheckResult CheckSequence(const tesla::Sequence &ex, TaggedTrace, int);
-  CheckResult CheckSequenceOnce(const tesla::Sequence &ex, TaggedTrace, int, 
+  CheckResult CheckState(const tesla::Expression &ex, TaggedTrace &, int);
+  CheckResult CheckBoolean(const tesla::BooleanExpr &ex, TaggedTrace &, int);
+  CheckResult CheckSequence(const tesla::Sequence &ex, TaggedTrace &, int);
+  CheckResult CheckSequenceOnce(const tesla::Sequence &ex, TaggedTrace &, int, 
                                 set<const tesla::Expression *> = {});
-  CheckResult CheckNull(TaggedTrace, int);
-  CheckResult CheckAssertionSite(const tesla::AssertionSite &ex, TaggedTrace, int);
-  CheckResult CheckFunction(const tesla::FunctionEvent &ex, TaggedTrace, int);
-  CheckResult CheckFieldAssign(const tesla::FieldAssignment &ex, TaggedTrace, int);
-  CheckResult CheckSubAutomaton(const tesla::Automaton &ex, TaggedTrace, int);
+  CheckResult CheckNull(TaggedTrace &, int);
+  CheckResult CheckAssertionSite(const tesla::AssertionSite &ex, TaggedTrace &, int);
+  CheckResult CheckFunction(const tesla::FunctionEvent &ex, TaggedTrace &, int);
+  CheckResult CheckFieldAssign(const tesla::FieldAssignment &ex, TaggedTrace &, int);
+  CheckResult CheckSubAutomaton(const tesla::Automaton &ex, TaggedTrace &, int);
 
   static TaggedTrace tagged(const FiniteTraces::Trace);
 
