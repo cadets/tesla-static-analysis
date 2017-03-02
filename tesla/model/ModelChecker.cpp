@@ -20,6 +20,7 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
 
     auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
     auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
+    auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
 
     for(auto trace : boundedTraces) {
       auto ttr = tagged(trace);
@@ -32,6 +33,21 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
 
       errs() << "------------------\n";
       safe = safe && ch.Successful() && std::all_of(ttr.begin(), ttr.end(), 
+        [](pair<Event *, bool> p) { return p.second; }
+      );
+    }
+
+    for(auto trace : cyclicTraces) {
+      auto ttr = tagged(trace);
+      MarkIgnoredEvents(expr, ttr);
+      CheckState(expr, ttr, 0);
+      
+      for(auto ev : ttr) {
+        errs() << (ev.second ? "✓" : "✗") << " " <<  ev.first->GraphViz() << '\n';
+      }
+
+      errs() << "------------------\n";
+      safe = safe && std::all_of(ttr.begin(), ttr.end(), 
         [](pair<Event *, bool> p) { return p.second; }
       );
     }
