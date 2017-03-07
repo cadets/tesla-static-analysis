@@ -25,23 +25,48 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     for(auto trace : boundedTraces) {
       auto ch = CheckState(expr, trace, 0);
 
+      for(auto ev : trace) {
+        errs() << ev->GraphViz() << '\n';
+      }
+
+      errs() << "Not checked: " << ch.mapping.size() << '\n';
+      for(int i = 0; i < trace.size(); i++) {
+        if(ch.mapping.find(i) == ch.mapping.end()) {
+          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
+        }
+      }
+      errs() << "Checked: " << ch.mapping.size() << '\n';
+      for(int i = 0; i < trace.size(); i++) {
+        if(ch.mapping.find(i) != ch.mapping.end()) {
+          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
+        }
+      }
+
       errs() << "------------------\n";
-      safe = safe && ch.Successful() && std::all_of(trace.begin(), trace.end(), 
-        [](Event *e) { return true; }
-      );
+      safe = safe && ch.Successful();
     }
 
     for(auto trace : cyclicTraces) {
-      CheckState(expr, trace, 0);
+      auto ch = CheckState(expr, trace, 0);
       
-      /*for(auto ev : ttr) {
-        errs() << (ev.second ? "✓" : "✗") << " " <<  ev.first->GraphViz() << '\n';
-      }*/
+      for(auto ev : trace) {
+        errs() << ev->GraphViz() << '\n';
+      }
+
+      errs() << "Not checked: " << ch.mapping.size() << '\n';
+      for(int i = 0; i < trace.size(); i++) {
+        if(ch.mapping.find(i) == ch.mapping.end()) {
+          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
+        }
+      }
+      errs() << "Checked: " << ch.mapping.size() << '\n';
+      for(int i = 0; i < trace.size(); i++) {
+        if(ch.mapping.find(i) != ch.mapping.end()) {
+          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
+        }
+      }
 
       errs() << "------------------\n";
-      safe = safe && std::all_of(trace.begin(), trace.end(), 
-        [](Event *e) { return true; }
-      );
     }
     
     if(safe) {
@@ -85,108 +110,77 @@ CheckResult ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTr
 CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &tr, int ind) {
   //errs() << "bool\n";
 
-  vector<bool> results;
-  for(int i = 0; i < ex.expression_size(); i++) {
-    results.push_back(CheckState(ex.expression(i), tr, ind).Successful());
-  }
-
-  std::function<bool(bool, bool)> reducer;
   switch(ex.operation()) {
     case tesla::BooleanExpr_Operation_BE_Or:
-      reducer = [](bool x, bool y) { return x || y; };
+      assert(false && "Or not implemented...");
       break;
     case tesla::BooleanExpr_Operation_BE_Xor:
-      reducer = [](bool x, bool y) { return x ^ y; };
+      for(int i = 0; i < ex.expression_size(); i++) {
+        auto res = CheckState(ex.expression(i), tr, ind);
+        if(res.Successful()) {
+          return res;
+        }
+      }
       break;
     case tesla::BooleanExpr_Operation_BE_And:
-      reducer = [](bool x, bool y) { return x && y; };
+      assert(false && "And not implemented...");
       break;
   }
 
-  if(results.empty()) {
-    return CheckResult::Success(ind, 0);
-  }
-
-  return std::accumulate(results.begin(), results.end(), results[0], reducer) ?
-    CheckResult::Success(ind, 0) : CheckResult::Failed();
+  return CheckResult::Failed();
 }
 
 CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex, 
                                         const FiniteTraces::Trace &tr, 
                                         int ind)
 {
-  int min = ex.minreps();
-  int max = ex.maxreps();
-  int count = 0;
-  int len = 0;
-  int index = ind;
-
-  for(; count < max; count++) {
-    auto res = CheckSequenceOnce(ex, tr, index);
-
-    if(res.Successful()) {
-      len += res.Length();
-      index += res.Length();
-    } else {
-      break;
-    }
-  }
-
-  if(count < min) {
-    return CheckResult::Failed();
-  }
-
-  return CheckResult::Success(ind, len);
+  return CheckSequenceOnce(ex, tr, ind);
 }
 
-/**
- * Because sequences can have an arbi, int indary number of events in them, we need to
- * separate it out into a head / tail (if possible), then check the splits
- * appropriately. Also need to work out a way of extending to allow for reps to
- * be included - currently ignored (!)
- *
+/*
  * I *think* that sequences should be the sole way to handle recursing through
  * the graph - a one event sequence is equivalent to something like X[P] in LTL,
  * whereas every other type should just be checked at the current state.
  */
 CheckResult ModelChecker::CheckSequenceOnce(const tesla::Sequence &ex, 
                                             const FiniteTraces::Trace &tr, 
-                                            int ind,
-                                            set<const tesla::Expression *> exprs)
+                                            int ind, bool mustComplete)
 {
-  //errs() << "seq\n";
+  //errs() << "(*) seq [" << ex.expression_size() << "] at: " << ind << '\n';
+  
+  map<int, tesla::Expression *> mapping;
+  
+  int seqInd = 0;
+  int len = 0;
+  for(int i = ind; i < tr.size(); ) {
+    if(seqInd >= ex.expression_size()) {
+      return CheckResult::Success(ind, len, mapping);
+    }
 
-  // Don't go off the end of the trace
-  if(ind >= tr.size()) {
-    return CheckResult::Failed();
-  }
-
-  // A sequence with no expressions can be successfully matched if none of the
-  // expressions we care about match in the future
-  if(ex.expression_size() == 0) {
-    return CheckResult::Success(ind, 0);
-  }
-
-  auto head = ex.expression(0);
-  for(int i = ind; i < tr.size(); i++) {
-    auto res = CheckState(head, tr, i);
-
+    auto res = CheckState(ex.expression(seqInd), tr, i);
+    
     if(res.Successful()) {
-      auto tail = tesla::Sequence{};
-      for(int i = 1; i < ex.expression_size(); i++) {
-        *tail.add_expression() = ex.expression(i);
+      for(auto pair : res.mapping) {
+        mapping[pair.first] = pair.second;
       }
 
-      auto ret = CheckSequenceOnce(tail, tr, i + res.Length());
-      if(ret.Successful()) {
-        return CheckResult::Success(ind, ret.Length() + res.Length());
-      } else {
-        return ret;
-      }
+      seqInd++;
+      len = i + res.Length() - ind;
+      i += res.Length();
+    } else {
+      i++;
     }
   }
 
-  return CheckResult::Failed();
+  for(auto pair : mapping) {
+    errs() << pair.first << " ";
+  }
+
+  if(mustComplete) {
+    return CheckResult::Failed(mapping);
+  } else {
+    return CheckResult::Success(ind, len, mapping);
+  }
 }
 
 /**
@@ -211,7 +205,7 @@ CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, con
       auto expr = new tesla::Expression;
       *expr->mutable_assertsite() = ex;
       expr->set_type(tesla::Expression_Type_ASSERTION_SITE);
-      success.mapping[tr[ind]] = expr;
+      success.mapping[ind] = expr;
 
       return success;
     }
@@ -236,7 +230,7 @@ CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex,
   auto expr = new tesla::Expression;
   *expr->mutable_function() = ex;
   expr->set_type(tesla::Expression_Type_FUNCTION);
-  success.mapping[tr[ind]] = expr;
+  success.mapping[ind] = expr;
 
   if(auto ent = dyn_cast<EntryEvent>(tr[ind])) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
@@ -271,5 +265,12 @@ CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, con
  * expression at the current state.
  */
 CheckResult ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
-  return CheckState(ex.getAssertion().expression(), tr, ind);
+  errs() << "Entering " << tesla::ShortName(ex.getAssertion().identifier()) << " at " << ind << '\n';
+  auto ret = CheckState(ex.getAssertion().expression(), tr, ind);
+  if(ret.Successful()) {
+    errs() << "Leaving " << tesla::ShortName(ex.getAssertion().identifier()) << ", length " << ret.Length() << '\n';
+  } else {
+    errs() << "Leaving " << tesla::ShortName(ex.getAssertion().identifier()) << ", fail" << '\n';
+  }
+  return ret;
 }

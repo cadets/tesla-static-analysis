@@ -42,8 +42,16 @@ struct CheckResult {
     return CheckResult(0, 0, false);
   }
 
+  static CheckResult Failed(map<int, tesla::Expression *> m) {
+    return CheckResult(0, 0, false, m);
+  }
+
   static CheckResult Success(size_t i, size_t len) {
     return CheckResult(len, i, true);
+  }
+
+  static CheckResult Success(size_t i, size_t len, map<int, tesla::Expression *> m) {
+    return CheckResult(len, i, true, m);
   }
 
   string str() const {
@@ -58,14 +66,17 @@ struct CheckResult {
     return ss.str();
   }
 
-  map<Event *, tesla::Expression *> mapping;
+  map<int, tesla::Expression *> mapping;
 private:
   size_t Length_;
   size_t Start_;
   bool Successful_;
 
+  CheckResult(size_t len, size_t st, bool suc, map<int, tesla::Expression *> m) :
+    mapping(m), Length_(len), Start_(st), Successful_(suc) {}
+
   CheckResult(size_t len, size_t st, bool suc) :
-    Length_(len), Start_(st), Successful_(suc) {}
+    CheckResult(len, st, suc, {}) {}
 };
 
 struct ModelChecker {
@@ -77,8 +88,8 @@ struct ModelChecker {
   CheckResult CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &, int);
   CheckResult CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &, int);
   CheckResult CheckSequence(const tesla::Sequence &ex, const FiniteTraces::Trace &, int);
-  CheckResult CheckSequenceOnce(const tesla::Sequence &ex, const FiniteTraces::Trace &, int, 
-                                set<const tesla::Expression *> = {});
+  CheckResult CheckSequenceOnce(const tesla::Sequence &ex, const FiniteTraces::Trace &, int,
+                                bool mustComplete = true);
   CheckResult CheckNull(const FiniteTraces::Trace &, int);
   CheckResult CheckAssertionSite(const tesla::AssertionSite &ex, const FiniteTraces::Trace &, int);
   CheckResult CheckFunction(const tesla::FunctionEvent &ex, const FiniteTraces::Trace &, int);
