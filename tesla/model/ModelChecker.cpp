@@ -206,7 +206,14 @@ CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, con
 
   if(auto ae = dyn_cast<AssertEvent>(tr[ind])) {
     if(ex.location() == ae->Location()) {
-      return CheckResult::Success(ind, 1);
+      auto success = CheckResult::Success(ind, 1);
+      
+      auto expr = new tesla::Expression;
+      *expr->mutable_assertsite() = ex;
+      expr->set_type(tesla::Expression_Type_ASSERTION_SITE);
+      success.mapping[tr[ind]] = expr;
+
+      return success;
     }
   }
 
@@ -225,10 +232,16 @@ CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex,
   //errs() << "func\n";
   auto modFn = Mod->getFunction(ex.function().name());
 
+  auto success = CheckResult::Success(ind, 1);
+  auto expr = new tesla::Expression;
+  *expr->mutable_function() = ex;
+  expr->set_type(tesla::Expression_Type_FUNCTION);
+  success.mapping[tr[ind]] = expr;
+
   if(auto ent = dyn_cast<EntryEvent>(tr[ind])) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
       if(modFn && ent->Func && modFn == ent->Func) {
-        return CheckResult::Success(ind, 1);
+        return success;
       }
     }
   }
@@ -236,7 +249,7 @@ CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex,
   if(auto exit = dyn_cast<ExitEvent>(tr[ind])) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
       if(modFn && exit->Func && modFn == exit->Func) {
-        return CheckResult::Success(ind, 1);
+        return success;
       }
     }
   }
@@ -258,6 +271,5 @@ CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, con
  * expression at the current state.
  */
 CheckResult ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
-  auto ret = CheckState(ex.getAssertion().expression(), tr, ind);
-  return ret;
+  return CheckState(ex.getAssertion().expression(), tr, ind);
 }
