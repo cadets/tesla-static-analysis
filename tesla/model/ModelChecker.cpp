@@ -134,11 +134,11 @@ CheckResult ModelChecker::CheckBoolean(const tesla::BooleanExpr &ex, ModelChecke
   }
 
   if(results.empty()) {
-    return CheckResult::Success(0);
+    return CheckResult::Success(ind, 0);
   }
 
   return std::accumulate(results.begin(), results.end(), results[0], reducer) ?
-    CheckResult::Success(0) : CheckResult::Failed();
+    CheckResult::Success(ind, 0) : CheckResult::Failed();
 }
 
 CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex, 
@@ -166,7 +166,7 @@ CheckResult ModelChecker::CheckSequence(const tesla::Sequence &ex,
     return CheckResult::Failed();
   }
 
-  return CheckResult::Success(len);
+  return CheckResult::Success(ind, len);
 }
 
 /**
@@ -194,7 +194,7 @@ CheckResult ModelChecker::CheckSequenceOnce(const tesla::Sequence &ex,
   // A sequence with no expressions can be successfully matched if none of the
   // expressions we care about match in the future
   if(ex.expression_size() == 0) {
-    return CheckResult::Success(0);
+    return CheckResult::Success(ind, 0);
   }
 
   auto head = ex.expression(0);
@@ -209,7 +209,7 @@ CheckResult ModelChecker::CheckSequenceOnce(const tesla::Sequence &ex,
 
       auto ret = CheckSequenceOnce(tail, tr, i + res.Length());
       if(ret.Successful()) {
-        return CheckResult::Success(ret.Length() + res.Length());
+        return CheckResult::Success(ind, ret.Length() + res.Length());
       } else {
         return ret;
       }
@@ -224,7 +224,7 @@ CheckResult ModelChecker::CheckSequenceOnce(const tesla::Sequence &ex,
  */
 CheckResult ModelChecker::CheckNull(ModelChecker::TaggedTrace &tr, int ind) {
   //errs() << "null\n";
-  return CheckResult::Success(0);
+  return CheckResult::Success(ind, 0);
 }
 
 /**
@@ -237,7 +237,7 @@ CheckResult ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Mod
   if(auto ae = dyn_cast<AssertEvent>(tr[ind].first)) {
     if(ex.location() == ae->Location()) {
       tr[ind].second = true;
-      return CheckResult::Success(1);
+      return CheckResult::Success(ind, 1);
     }
   }
 
@@ -260,7 +260,7 @@ CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex,
     if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
       if(modFn && ent->Func && modFn == ent->Func) {
         tr[ind].second = true;
-        return CheckResult::Success(1);
+        return CheckResult::Success(ind, 1);
       }
     }
   }
@@ -269,7 +269,7 @@ CheckResult ModelChecker::CheckFunction(const tesla::FunctionEvent &ex,
     if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
       if(modFn && exit->Func && modFn == exit->Func) {
         tr[ind].second = true;
-        return CheckResult::Success(1);
+        return CheckResult::Success(ind, 1);
       }
     }
   }
