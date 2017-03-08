@@ -1,5 +1,6 @@
 set(SERVER_SRCS
   server.c
+  server_handler.c
   protocol.c
 )
 

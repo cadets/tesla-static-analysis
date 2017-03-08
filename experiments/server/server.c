@@ -9,6 +9,7 @@
 #include <unistd.h>
 
 #include "protocol.h"
+#include "server_handler.h"
 
 struct thread_args {
   int fd;
@@ -16,6 +17,7 @@ struct thread_args {
 
 void *write_to_fd(void *data) {
   struct thread_args *args = (struct thread_args *)data;
+  handle_connection(args->fd);
   pthread_exit(0);
 }
 
