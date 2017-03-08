@@ -1,12 +1,23 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netinet/in.h>
+#include <pthread.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "protocol.h"
+
+struct thread_args {
+  int fd;
+};
+
+void *write_to_fd(void *data) {
+  struct thread_args *args = (struct thread_args *)data;
+  pthread_exit(0);
+}
 
 int main(int argc, char **argv) {
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -37,6 +48,11 @@ int main(int argc, char **argv) {
     if(conn < 0) {
       printf("Not accepted: %s\n", strerror(errno));
     }
+
+    struct thread_args args = { conn };
+    pthread_t tid;
+
+    pthread_create(&tid, NULL, write_to_fd, &args);
   }
 
   return 0;
