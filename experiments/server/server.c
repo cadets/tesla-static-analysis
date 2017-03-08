@@ -10,6 +10,11 @@
 
 int main(int argc, char **argv) {
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+  int reuse = 1;
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
+  setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse));
+
   struct sockaddr_in serv_addr = {
     .sin_family = AF_INET,
     .sin_port = htons(8080),
@@ -32,10 +37,6 @@ int main(int argc, char **argv) {
     if(conn < 0) {
       printf("Not accepted: %s\n", strerror(errno));
     }
-
-    char buf[256];
-    int n = read(conn, buf, 256);
-    printf("%s", buf);
   }
 
   return 0;
