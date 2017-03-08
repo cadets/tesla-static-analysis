@@ -1,6 +1,13 @@
-set(SRCS
-  main.c
+set(SERVER_SRCS
+  server.c
   protocol.c
 )
 
-add_tesla_executable("${SRCS}" server TRUE)
+
+set(CLIENT_SRCS
+  client.c
+  protocol.c
+)
+
+add_tesla_executable("${SERVER_SRCS}" server TRUE)
+add_tesla_executable("${CLIENT_SRCS}" client TRUE)
