@@ -4,6 +4,7 @@
 
 #include "Debug.h"
 #include "ModelChecker.h"
+#include "ModelGenerator.h"
 #include "SequenceExpressions.h"
 
 using std::map;
@@ -15,6 +16,13 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   for(auto use : Manifest->RootAutomata()) {
     auto automaton = Manifest->FindAutomaton(use->identifier());
     auto expr = automaton->getAssertion().expression();
+
+    auto Gen = ModelGenerator(expr, Manifest);
+    auto n = Gen.next();
+    for(auto ex : n) {
+      errs() << tesla::ProtoDump((google::protobuf::Message *)ex);
+      errs() << "*******************\n";
+    }
     
     auto safe = true; 
 
@@ -29,48 +37,8 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
         errs() << ev->GraphViz() << '\n';
       }
 
-      errs() << "Not checked: " << ch.mapping.size() << '\n';
-      for(int i = 0; i < trace.size(); i++) {
-        if(ch.mapping.find(i) == ch.mapping.end()) {
-          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
-        }
-      }
-      errs() << "Checked: " << ch.mapping.size() << '\n';
-      for(int i = 0; i < trace.size(); i++) {
-        if(ch.mapping.find(i) != ch.mapping.end()) {
-          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
-        }
-      }
-
       errs() << "------------------\n";
       safe = safe && ch.Successful();
-    }
-
-    for(auto trace : cyclicTraces) {
-      auto ch = CheckState(expr, trace, 0);
-      
-      for(auto ev : trace) {
-        errs() << ev->GraphViz() << '\n';
-      }
-
-      errs() << "Not checked: " << ch.mapping.size() << '\n';
-      for(int i = 0; i < trace.size(); i++) {
-        if(ch.mapping.find(i) == ch.mapping.end()) {
-          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
-        }
-      }
-      errs() << "Checked: " << ch.mapping.size() << '\n';
-      for(int i = 0; i < trace.size(); i++) {
-        if(ch.mapping.find(i) != ch.mapping.end()) {
-          errs() << "  " << i << ":" << trace[i]->GraphViz() << '\n';
-        }
-      }
-
-      errs() << "------------------\n";
-    }
-    
-    if(safe) {
-      safeUses.insert(use);
     }
   }
 
@@ -265,12 +233,5 @@ CheckResult ModelChecker::CheckFieldAssign(const tesla::FieldAssignment &ex, con
  * expression at the current state.
  */
 CheckResult ModelChecker::CheckSubAutomaton(const tesla::Automaton &ex, const FiniteTraces::Trace &tr, int ind) {
-  errs() << "Entering " << tesla::ShortName(ex.getAssertion().identifier()) << " at " << ind << '\n';
-  auto ret = CheckState(ex.getAssertion().expression(), tr, ind);
-  if(ret.Successful()) {
-    errs() << "Leaving " << tesla::ShortName(ex.getAssertion().identifier()) << ", length " << ret.Length() << '\n';
-  } else {
-    errs() << "Leaving " << tesla::ShortName(ex.getAssertion().identifier()) << ", fail" << '\n';
-  }
-  return ret;
+  return CheckState(ex.getAssertion().expression(), tr, ind);
 }

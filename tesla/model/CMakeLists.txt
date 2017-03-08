@@ -10,6 +10,7 @@ add_llvm_executable(tesla-model
   ModelChecker.cpp
   FiniteTraces.cpp
   SequenceExpressions.cpp
+  ModelGenerator.cpp
 )
 
 target_link_libraries(tesla-model
