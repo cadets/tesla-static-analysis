@@ -8,8 +8,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "client_handler.h"
 #include "protocol.h"
+#include "protocol_impl.h"
 
 void usage(char *me) {
   fprintf(stderr, "usage: %s server port\n", me);

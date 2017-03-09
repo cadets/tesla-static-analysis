@@ -23,7 +23,11 @@ void to_buf(struct packet p, uint8_t *buf);
 int send_packet(int fd, struct packet p);
 struct packet next_packet(int fd);
 
+uint16_t packets_for_bytes(uint16_t n_bytes);
+
 char *packet_kind_name(enum packet_kind k);
 char *packet_string(struct packet p);
+
+void handle_packet(struct packet p, void *state);
 
 #endif
