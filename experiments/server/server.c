@@ -10,6 +10,9 @@
 
 #include "protocol.h"
 #include "protocol_impl.h"
+#include "server_lock.h"
+
+pthread_mutex_t lock;
 
 struct thread_args {
   int fd;
@@ -22,6 +25,8 @@ void *write_to_fd(void *data) {
 }
 
 int main(int argc, char **argv) {
+  pthread_mutex_init(&lock, NULL);
+
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
   int reuse = 1;
@@ -56,6 +61,8 @@ int main(int argc, char **argv) {
 
     pthread_create(&tid, NULL, write_to_fd, &args);
   }
+
+  pthread_mutex_destroy(&lock);
 
   return 0;
 }

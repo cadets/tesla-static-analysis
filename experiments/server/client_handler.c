@@ -98,7 +98,7 @@ void handle_done(void *state) {
 
 void get_data(uint16_t i, uint8_t *buf) {
   for(int i = 0; i < 5; i++) {
-    buf[i] = i;
+    buf[i] = 76+i;
   }
 }
 

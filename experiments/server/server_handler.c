@@ -1,8 +1,12 @@
+#include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "protocol_impl.h"
+#include "server_lock.h"
+
+pthread_mutex_t lock;
 
 struct server_state {
   int fd;
@@ -28,6 +32,18 @@ void handle_connection(int fd) {
   while(state->active) {
     handle_packet(next_packet(fd), state);
   }
+
+  pthread_mutex_lock(&lock);
+
+  FILE *log = fopen("server.log", "a");
+  if(log) {
+    fprintf(log, "%d:", fd);
+    fwrite(state->data_buf, 1, state->data_buf_len, log);
+    fprintf(log, ":\n");
+  }
+  fclose(log);
+
+  pthread_mutex_unlock(&lock);
 
   free(state->data_buf);
   free(state);
