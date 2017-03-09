@@ -1,10 +1,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "protocol_impl.h"
 
-void get_data(uint16_t i, uint8_t *buf);
+void get_data(uint16_t sn, uint8_t *buf, void *state);
 void finish(void *);
 
 struct client_state {
@@ -12,6 +13,9 @@ struct client_state {
   bool active; 
   uint16_t max_sn;
   uint16_t next;
+
+  char *data_buf;
+  size_t data_buf_len;
 };
 
 struct client_state *init_state(int fd, uint16_t bytes) {
@@ -20,11 +24,19 @@ struct client_state *init_state(int fd, uint16_t bytes) {
   state->active = true;
   state->max_sn = packets_for_bytes(bytes);
   state->next = 0;
+
+  state->data_buf_len = ((bytes+4) / 5) * 5;
+  state->data_buf = malloc(state->data_buf_len);
   return state;
 }
 
 void handle_connection(int fd) {
-  struct client_state *state = init_state(fd, 56);
+  char input[8192];
+  int len = strlen(fgets(input, 8192, stdin));
+
+  struct client_state *state = init_state(fd, len);
+
+  strcpy(state->data_buf, input);
 
   struct packet req = {
     .kind = PK_REQUEST,
@@ -50,7 +62,7 @@ void handle_permit(uint16_t n, void *state) {
   printf("Received permission for %d packets\n", n);
 
   uint8_t buf[5];
-  get_data(cst->next, buf);
+  get_data(cst->next, buf, state);
 
   struct packet first = {
     .kind = PK_DATA,
@@ -82,7 +94,7 @@ void handle_ack(uint16_t sn, void *state) {
   }
 
   uint8_t buf[5];
-  get_data(cst->next, buf);
+  get_data(cst->next, buf, state);
 
   struct packet next = {
     .kind = PK_DATA,
@@ -96,9 +108,16 @@ void handle_done(void *state) {
   finish(state);
 }
 
-void get_data(uint16_t i, uint8_t *buf) {
+void get_data(uint16_t sn, uint8_t *buf, void *state) {
+  struct client_state *cst = (struct client_state *)state;
+
   for(int i = 0; i < 5; i++) {
-    buf[i] = 76+i;
+    size_t index = (sn*5) + i;
+    if(index >= cst->data_buf_len) {
+      buf[i] = 0;
+    } else {
+      buf[i] = cst->data_buf[index];
+    }
   }
 }
 

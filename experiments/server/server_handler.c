@@ -37,9 +37,7 @@ void handle_connection(int fd) {
 
   FILE *log = fopen("server.log", "a");
   if(log) {
-    fprintf(log, "%d:", fd);
     fwrite(state->data_buf, 1, state->data_buf_len, log);
-    fprintf(log, ":\n");
   }
   fclose(log);
 
