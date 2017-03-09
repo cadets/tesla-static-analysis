@@ -9,4 +9,7 @@ void handle_connection(int fd);
 
 uint16_t get_request(int fd);
 
+void permit(int fd, uint16_t n);
+void done(int fd);
+
 #endif
