@@ -18,6 +18,7 @@ struct packet {
 };
 
 struct packet from_buf(uint8_t *buf);
+void to_buf(struct packet p, uint8_t *buf);
 
 char *packet_kind_name(enum packet_kind k);
 char *packet_string(struct packet p);

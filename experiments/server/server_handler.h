@@ -9,4 +9,6 @@ void handle_connection(int fd);
 
 struct packet next_packet(int fd);
 
+uint16_t get_request(int fd);
+
 #endif

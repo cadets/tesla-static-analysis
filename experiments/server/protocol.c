@@ -18,6 +18,17 @@ struct packet from_buf(uint8_t *buf) {
   return p;
 }
 
+void to_buf(struct packet p, uint8_t *buf) {
+  buf[0] = p.kind;
+
+  buf[1] = p.seq_no >> 8;
+  buf[2] = p.seq_no & 0xff;
+
+  for(int i = 0; i < 5; i++) {
+    buf[i + 3] = p.data[i];
+  }
+}
+
 char *packet_kind_name(enum packet_kind k) {
   static char *names[5] = {
     "REQUEST",

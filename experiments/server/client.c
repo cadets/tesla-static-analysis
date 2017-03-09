@@ -6,6 +6,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <unistd.h>
+
+#include "protocol.h"
 
 void usage(char *me) {
   fprintf(stderr, "usage: %s server port\n", me);
@@ -42,6 +45,18 @@ int connect_to(struct hostent *server, long port) {
   return sockfd;
 }
 
+int send_packet(int fd, struct packet p) {
+  uint8_t buf[8];
+  to_buf(p, buf);
+  int w = write(fd, buf, 8);
+
+  if(w != 8) {
+    fprintf(stderr, "Couldn't send whole packet (%d / %d bytes)\n", w, 8);
+  }
+
+  return w;
+}
+
 int main(int argc, char **argv) {
   if(argc != 3) {
     usage(argv[0]);
@@ -64,6 +79,13 @@ int main(int argc, char **argv) {
   if(sockfd < 0) {
     return 4;
   }
+
+  struct packet p = {
+    .kind = PK_REQUEST,
+    .seq_no = 300,
+    .data = { 0, 0, 0, 0, 0 }
+  };
+  send_packet(sockfd, p);
 
   return 0;
 }
