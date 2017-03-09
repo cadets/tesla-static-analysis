@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "client_handler.h"
 #include "protocol.h"
 
 void usage(char *me) {
@@ -68,12 +69,7 @@ int main(int argc, char **argv) {
     return 4;
   }
 
-  struct packet p = {
-    .kind = PK_REQUEST,
-    .seq_no = 300,
-    .data = { 0, 0, 0, 0, 0 }
-  };
-  send_packet(sockfd, p);
+  handle_connection(sockfd);
 
   return 0;
 }

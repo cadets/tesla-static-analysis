@@ -7,6 +7,7 @@ set(SERVER_SRCS
 
 set(CLIENT_SRCS
   client.c
+  client_handler.c
   protocol.c
 )
 
