@@ -16,6 +16,10 @@ void handle_connection(int fd) {
   for(uint16_t i = 0; i < allowed; i++) {
     printf("%d\n", i);
     data(fd, i);
+
+    if(receive_ack(fd, i) < 0) {
+      return;
+    }
   }
 }
 
@@ -71,4 +75,18 @@ void data(int fd, uint16_t packet_i) {
   };
 
   send_packet(fd, data);
+}
+
+int receive_ack(int fd, uint16_t packet_i) {
+  struct packet ack = next_packet(fd);
+
+  if(ack.kind != PK_ACK) {
+    return -1;
+  }
+
+  if(ack.seq_no != packet_i) {
+    return -1;
+  }
+
+  return (int)ack.seq_no;
 }

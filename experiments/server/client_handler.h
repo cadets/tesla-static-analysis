@@ -15,4 +15,6 @@ void get_packet_data(uint16_t packet_i, uint8_t *buf);
 
 void data(int fd, uint16_t packet_i);
 
+int receive_ack(int fd, uint16_t packet_i);
+
 #endif

@@ -13,6 +13,18 @@ void handle_connection(int fd) {
     done(fd);
     return;
   }
+
+  for(uint16_t i = 0; i < n_packets; i++) {
+    uint8_t buf[5];
+    int sn = get_data(fd, buf);
+
+    if(sn != (int)i) {
+      done(fd);
+      return;
+    }
+
+    ack(fd, sn);
+  }
 }
 
 uint16_t get_request(int fd) {
@@ -41,4 +53,27 @@ void done(int fd) {
     .data = { 0 }
   };
   send_packet(fd, done);
+}
+
+int get_data(int fd, uint8_t *buf) {
+  struct packet data = next_packet(fd);
+
+  if(data.kind != PK_DATA) {
+    return -1;
+  }
+
+  for(int i = 0; i < 5; i++) {
+    buf[i] = data.data[i];
+  }
+
+  return data.seq_no;
+}
+
+void ack(int fd, uint16_t seq_no) {
+  struct packet ack = {
+    .kind = PK_ACK,
+    .seq_no = seq_no,
+    .data = { 0 }
+  };
+  send_packet(fd, ack);
 }
