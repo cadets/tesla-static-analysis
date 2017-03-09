@@ -45,18 +45,6 @@ int connect_to(struct hostent *server, long port) {
   return sockfd;
 }
 
-int send_packet(int fd, struct packet p) {
-  uint8_t buf[8];
-  to_buf(p, buf);
-  int w = write(fd, buf, 8);
-
-  if(w != 8) {
-    fprintf(stderr, "Couldn't send whole packet (%d / %d bytes)\n", w, 8);
-  }
-
-  return w;
-}
-
 int main(int argc, char **argv) {
   if(argc != 3) {
     usage(argv[0]);

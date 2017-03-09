@@ -20,6 +20,9 @@ struct packet {
 struct packet from_buf(uint8_t *buf);
 void to_buf(struct packet p, uint8_t *buf);
 
+int send_packet(int fd, struct packet p);
+struct packet next_packet(int fd);
+
 char *packet_kind_name(enum packet_kind k);
 char *packet_string(struct packet p);
 

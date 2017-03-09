@@ -1,5 +1,10 @@
 #include <assert.h>
+#include <errno.h>
 #include <stdio.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <sys/select.h>
+#include <unistd.h>
 
 #include "protocol.h"
 
@@ -27,6 +32,46 @@ void to_buf(struct packet p, uint8_t *buf) {
   for(int i = 0; i < 5; i++) {
     buf[i + 3] = p.data[i];
   }
+}
+
+int send_packet(int fd, struct packet p) {
+  uint8_t buf[8];
+  to_buf(p, buf);
+  int w = write(fd, buf, 8);
+
+  if(w != 8) {
+    fprintf(stderr, "Couldn't send whole packet (%d / %d bytes)\n", w, 8);
+  }
+
+  return w;
+}
+
+struct packet next_packet(int fd) {
+  uint8_t buf[8];
+
+  fd_set readset;
+  int result;
+  do {
+    FD_ZERO(&readset);
+    FD_SET(fd, &readset);
+    result = select(fd + 1, &readset, NULL, NULL, NULL);
+  } while(result == -1 && errno == EINTR);
+
+  if(result > 0) {
+    if(FD_ISSET(fd, &readset)) {
+      int to_read = 8;
+      int n_read = 0;
+
+      while(n_read < to_read) {
+        int n = read(fd, buf + n_read, to_read - n_read);
+        n_read += n;
+      }
+    }
+  } else if(result < 0) {
+    printf("Error on select(): %s", strerror(errno));
+  }
+
+  return from_buf(buf);
 }
 
 char *packet_kind_name(enum packet_kind k) {
