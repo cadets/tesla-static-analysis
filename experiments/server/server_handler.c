@@ -9,6 +9,9 @@
 
 pthread_mutex_t lock;
 
+void lock_file() { pthread_mutex_lock(&lock); }
+void unlock_file() { pthread_mutex_unlock(&lock); }
+
 #ifdef TESLA
 
 #include "tesla-macros.h"
@@ -44,6 +47,12 @@ void expect_request(state *st) {
     st->n_packets = p.seq_no;
     st->buffer = calloc(p.seq_no*5, sizeof(uint8_t));
 
+    lock_file();
+    FILE *log = fopen("server.log", "a");
+    fprintf(log, "Received a request for %d packets\n", p.seq_no);
+    fclose(log);
+    unlock_file();
+
     send_packet(st->socket, permit_packet(p.seq_no));
     expect_data(st);
   } else {
@@ -60,9 +69,18 @@ void expect_data(state *st) {
         error(st, "Out of sequence");
       }
 
+      lock_file();
+      FILE *log = fopen("server.log", "a");
+      fprintf(log, "Received data packet: [%d,%d] ", st->socket, i);
+      
       for(int j = 0; j < 5; j++) {
         st->buffer[(i*5)+j] = p.data[j];
+        fprintf(log, "%d ", p.data[j]);
       }
+
+      fprintf(log, "\n");
+      fclose(log);
+      unlock_file();
 
       struct packet ack = {
         .kind = PK_ACK,
@@ -89,24 +107,6 @@ void expect_done(state *st) {
 }
 
 void success(state *st) {
-  pthread_mutex_lock(&lock);
-
-  for(int i = 0; i < st->n_packets*5; i++) {
-    FILE *log = fopen("server.log", "a");
-    if(log) {
-      fprintf(log, "%d:", st->buffer[i]);
-      fclose(log);
-    }
-  }
-
-  FILE *log = fopen("server.log", "a");
-  if(log) {
-    fprintf(log, "\n");
-    fclose(log);
-  }
-
-  pthread_mutex_unlock(&lock);
-  
   struct packet done = {
     .kind = PK_DONE,
     .seq_no = 0,
