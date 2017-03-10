@@ -31,6 +31,7 @@ void handle_connection(int fd) {
 
   expect_request(st);
 
+  free(st->buffer);
   free(st);
 }
 
@@ -39,6 +40,8 @@ void expect_request(state *st) {
 
   if(p.kind == PK_REQUEST) {
     st->n_packets = p.seq_no;
+    st->buffer = calloc(p.seq_no*5, sizeof(uint8_t));
+
     send_packet(st->socket, permit_packet(p.seq_no));
     expect_data(st);
   } else {
@@ -53,6 +56,10 @@ void expect_data(state *st) {
     if(p.kind == PK_DATA) {
       if(p.seq_no != i) {
         error(st, "Out of sequence");
+      }
+
+      for(int j = 0; j < 5; j++) {
+        st->buffer[(i*5)+j] = p.data[j];
       }
 
       struct packet ack = {

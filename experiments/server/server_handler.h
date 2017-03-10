@@ -6,6 +6,7 @@
 typedef struct state_st {
   int socket;
   uint16_t n_packets;
+  uint8_t *buffer;
 } state;
 
 struct packet permit_packet(uint16_t n);
