@@ -7,6 +7,8 @@
 #include "server_handler.h"
 #include "server_lock.h"
 
+pthread_mutex_t lock;
+
 #ifdef TESLA
 
 #include "tesla-macros.h"
@@ -87,6 +89,31 @@ void expect_done(state *st) {
 }
 
 void success(state *st) {
+  pthread_mutex_lock(&lock);
+
+  for(int i = 0; i < st->n_packets*5; i++) {
+    FILE *log = fopen("server.log", "a");
+    if(log) {
+      fprintf(log, "%d:", st->buffer[i]);
+      fclose(log);
+    }
+  }
+
+  FILE *log = fopen("server.log", "a");
+  if(log) {
+    fprintf(log, "\n");
+    fclose(log);
+  }
+
+  pthread_mutex_unlock(&lock);
+  
+  struct packet done = {
+    .kind = PK_DONE,
+    .seq_no = 0,
+    .data = { 0 }
+  };
+  send_packet(st->socket, done);
+
   printf("Successful connection! [%d]\n", st->socket);
 }
 

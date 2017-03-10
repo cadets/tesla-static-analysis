@@ -10,6 +10,7 @@ typedef struct client_state {
 
 void expect_permit(state *st);
 void expect_ack(state *st);
+void expect_done(state *st);
 void error(state *st, char *message);
 
 struct packet data_packet(state *st, uint16_t sn);

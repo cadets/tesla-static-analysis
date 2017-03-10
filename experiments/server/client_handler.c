@@ -8,7 +8,7 @@
 void handle_connection(int fd) {
   state *st = calloc(1, sizeof(*st));
   st->socket = fd;
-  st->n_packets = 50;
+  st->n_packets = 8192;
 
   struct packet p = {
     .kind = PK_REQUEST,
@@ -37,7 +37,7 @@ void expect_permit(state *st) {
 }
 
 void expect_ack(state *st) {
-  for(uint16_t i = 1; i < st->n_packets; i++) {
+  for(uint16_t i = 1; i <= st->n_packets; i++) {
     struct packet p = next_packet(st->socket);
 
     if(p.kind == PK_ACK) {
@@ -45,11 +45,24 @@ void expect_ack(state *st) {
         error(st, "Out of sequence ACK");
       }
 
-      send_packet(st->socket, data_packet(st, i));
+      if(i < st->n_packets) {
+        send_packet(st->socket, data_packet(st, i));
+      }
     }
   }
 
   send_packet(st->socket, done_packet());
+
+  expect_done(st);
+}
+
+void expect_done(state *st) {
+  struct packet p = next_packet(st->socket);
+
+  if(p.kind != PK_DONE) {
+    printf("%s\n", packet_string(p));
+    error(st, "Not a done packet");
+  }
 }
 
 struct packet data_packet(state *st, uint16_t sn) {
