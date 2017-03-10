@@ -4,12 +4,16 @@
 #include <pthread.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include "protocol.h"
 #include "protocol_impl.h"
+#include "server_lock.h"
+
+pthread_mutex_t lock;
 
 struct thread_args {
   int fd;
@@ -18,10 +22,13 @@ struct thread_args {
 void *write_to_fd(void *data) {
   struct thread_args *args = (struct thread_args *)data;
   handle_connection(args->fd);
+  free(args);
   pthread_exit(0);
 }
 
 int main(int argc, char **argv) {
+  pthread_mutex_init(&lock, NULL);
+
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
   int reuse = 1;
@@ -51,11 +58,16 @@ int main(int argc, char **argv) {
       printf("Not accepted: %s\n", strerror(errno));
     }
 
-    struct thread_args args = { conn };
-    pthread_t tid;
+    printf("Connection arrived: %d\n", conn);
 
-    pthread_create(&tid, NULL, write_to_fd, &args);
+    struct thread_args *args = malloc(sizeof(*args));
+    args->fd = conn;
+
+    pthread_t tid;
+    pthread_create(&tid, NULL, write_to_fd, args);
   }
+
+  pthread_mutex_destroy(&lock);
 
   return 0;
 }

@@ -1,114 +1,97 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "protocol_impl.h"
-
-void get_data(uint16_t i, uint8_t *buf);
-void finish(void *);
-
-struct client_state {
-  int fd;
-  bool active; 
-  uint16_t max_sn;
-  uint16_t next;
-};
-
-struct client_state *init_state(int fd, uint16_t bytes) {
-  struct client_state *state = malloc(sizeof(*state));
-  state->fd = fd;
-  state->active = true;
-  state->max_sn = packets_for_bytes(bytes);
-  state->next = 0;
-  return state;
-}
+#include "client_handler.h"
 
 void handle_connection(int fd) {
-  struct client_state *state = init_state(fd, 56);
+  state *st = calloc(1, sizeof(*st));
+  st->socket = fd;
+  st->n_packets = 5000;
 
-  struct packet req = {
+  struct packet p = {
     .kind = PK_REQUEST,
-    .seq_no = state->max_sn,
+    .seq_no = st->n_packets,
     .data = { 0 }
   };
+  send_packet(fd, p);
 
-  send_packet(fd, req);
+  expect_permit(st);
+}
 
-  while(state->active) {
-    handle_packet(next_packet(fd), state);
+void expect_permit(state *st) {
+  struct packet p = next_packet(st->socket);
+
+  if(p.kind == PK_PERMIT) {
+    if(p.seq_no != st->n_packets) {
+      error(st, "Permission for wrong number of packets");
+    }
+
+    send_packet(st->socket, data_packet(st, 0));
+
+    expect_ack(st);
+  } else {
+    error(st, "Not a permit packet");
   }
 }
 
-void handle_request(uint16_t n, void *state) {
-  struct client_state *cst = (struct client_state *)state;
-  cst->active = false;
+void expect_ack(state *st) {
+  for(uint16_t i = 1; i <= st->n_packets; i++) {
+    struct packet p = next_packet(st->socket);
+
+    if(p.kind == PK_ACK) {
+      if(p.seq_no != (i-1)) {
+        error(st, "Out of sequence ACK");
+      }
+
+      if(i < st->n_packets) {
+        send_packet(st->socket, data_packet(st, i));
+      }
+    }
+  }
+
+  send_packet(st->socket, done_packet());
+
+  expect_done(st);
 }
 
-void handle_permit(uint16_t n, void *state) {
-  struct client_state *cst = (struct client_state *)state;
+void expect_done(state *st) {
+  struct packet p = next_packet(st->socket);
 
-  printf("Received permission for %d packets\n", n);
+  if(p.kind != PK_DONE) {
+    printf("%s\n", packet_string(p));
+    error(st, "Not a done packet");
+  }
+}
 
-  uint8_t buf[5];
-  get_data(cst->next, buf);
-
-  struct packet first = {
+struct packet data_packet(state *st, uint16_t sn) {
+  struct packet dp = {
     .kind = PK_DATA,
-    .seq_no = cst->next,
-    .data = { buf[0], buf[1], buf[2], buf[3], buf[4] }
+    .seq_no = sn,
+    .data = { 0 }
   };
-  send_packet(cst->fd, first);
+  get_data(st, sn, dp.data);
+
+  return dp;
 }
 
-void handle_data(uint8_t *data, uint16_t sn, void *state) {
-  finish(state);
-}
-
-void handle_ack(uint16_t sn, void *state) {
-  struct client_state *cst = (struct client_state *)state;
-
-  if(sn != cst->next) {
-    printf("Incorrect acknowledgement (got: %d, wanted: %d)\n", sn, cst->next);
-    return;
-  }
-
-  printf("Acknowledged data packet %d\n", sn);
-
-  cst->next++;
-  
-  if(cst->next == cst->max_sn) {
-    finish(state);
-    return;
-  }
-
-  uint8_t buf[5];
-  get_data(cst->next, buf);
-
-  struct packet next = {
-    .kind = PK_DATA,
-    .seq_no = cst->next,
-    .data = { buf[0], buf[1], buf[2], buf[3], buf[4] }
-  };
-  send_packet(cst->fd, next);
-}
-
-void handle_done(void *state) {
-  finish(state);
-}
-
-void get_data(uint16_t i, uint8_t *buf) {
-  for(int i = 0; i < 5; i++) {
-    buf[i] = 0;
-  }
-}
-
-void finish(void *state) {
-  struct client_state *cst = (struct client_state *)state;
+struct packet done_packet(void) {
   struct packet done = {
     .kind = PK_DONE,
     .seq_no = 0,
     .data = { 0 }
   };
-  send_packet(cst->fd, done);
-  cst->active = false;
+  return done;
+}
+
+void get_data(state *st, uint16_t sn, uint8_t *buf) {
+  for(int i = 0; i < 5; i++) {
+    buf[i] = (uint8_t)i;
+  }
+}
+
+void error(state *st, char *message) {
+  fprintf(stderr, "Client exiting with reason: %s\n", message);
+  exit(1);
 }

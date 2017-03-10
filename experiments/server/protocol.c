@@ -75,26 +75,6 @@ struct packet next_packet(int fd) {
   return from_buf(buf);
 }
 
-void handle_packet(struct packet p, void *state) {
-  switch(p.kind) {
-    case PK_REQUEST:
-      handle_request(p.seq_no, state);
-      break;
-    case PK_PERMIT:
-      handle_permit(p.seq_no, state);
-      break;
-    case PK_DATA:
-      handle_data(p.data, p.seq_no, state);
-      break;
-    case PK_ACK:
-      handle_ack(p.seq_no, state);
-      break;
-    case PK_DONE:
-      handle_done(state);
-      break;
-  }
-}
-
 uint16_t packets_for_bytes(uint16_t n_bytes) {
   uint16_t n_whole = n_bytes / 5;
   uint16_t partial = (n_bytes % 5 == 0 ? 0 : 1);

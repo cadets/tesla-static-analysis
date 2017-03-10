@@ -13,6 +13,7 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
   set(TESLA_INCLUDE "-I/home/test/tesla_install/include")
 
   set(CMAKE_C_FLAGS "-g ${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS "-DTESLA ${CMAKE_C_FLAGS}")
   string(REPLACE " " ";" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
   set(TESLA_FILES)
   set(LL_FILES)
