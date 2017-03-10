@@ -5,8 +5,10 @@
 
 typedef struct state_st {
   int socket;
-  size_t n_packets;
+  uint16_t n_packets;
 } state;
+
+struct packet permit_packet(uint16_t n);
 
 void expect_request(state *st);
 void expect_data(state *st);

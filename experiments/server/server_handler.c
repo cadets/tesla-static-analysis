@@ -10,6 +10,8 @@
 #ifdef TESLA
 #include "tesla-macros.h"
 
+void *write_to_fd(void *data);
+
 #define HANDLER() \
   TESLA_WITHIN(write_to_fd, TSEQUENCE( \
     call(handle_connection), \
@@ -36,10 +38,13 @@ void handle_connection(int fd) {
 }
 
 void expect_request(state *st) {
+  HANDLER();
+
   struct packet p = next_packet(st->socket);
 
   if(p.kind == PK_REQUEST) {
     st->n_packets = p.seq_no;
+    send_packet(st->socket, permit_packet(p.seq_no));
     expect_data(st);
   } else {
     error(st, "Not a request");
@@ -47,13 +52,20 @@ void expect_request(state *st) {
 }
 
 void expect_data(state *st) {
-  for(size_t i = 0; i < st->n_packets; i++) {
+  for(uint16_t i = 0; i < st->n_packets; i++) {
     struct packet p = next_packet(st->socket);
 
     if(p.kind == PK_DATA) {
       if(p.seq_no != i) {
         error(st, "Out of sequence");
       }
+
+      struct packet ack = {
+        .kind = PK_ACK,
+        .seq_no = i,
+        .data = { 0 }
+      };
+      send_packet(st->socket, ack);
     } else {
       error(st, "Not a data packet");
     }
@@ -79,4 +91,14 @@ void success(state *st) {
 void error(state *st, char *message) {
   fprintf(stderr, "Server thread exiting with error: %s\n", message);
   pthread_exit(0);
+}
+
+struct packet permit_packet(uint16_t n) {
+  struct packet p = {
+    .kind = PK_PERMIT,
+    .seq_no = n,
+    .data = { 0 }
+  };
+
+  return p;
 }
