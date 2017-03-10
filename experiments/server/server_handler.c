@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,7 +7,27 @@
 #include "protocol_impl.h"
 #include "server_lock.h"
 
+#ifdef TESLA
+#include "tesla-macros.h"
+
+#define HANDLER() \
+  TESLA_WITHIN(write_to_fd, TSEQUENCE( \
+    call(handle_connection), \
+    TESLA_ASSERTION_SITE, \
+    returnfrom(handle_connection) \
+  ))
+
+#define REPEATED_HANDLER() \
+  TESLA_WITHIN(write_to_fd, TSEQUENCE( \
+    call(handle_connection), \
+    REPEAT(1, ANY_REP, TESLA_ASSERTION_SITE), \
+    returnfrom(handle_connection) \
+  ))
+#endif
+
 pthread_mutex_t lock;
+void handle_connection(int fd);
+void *write_to_fd(void *data);
 
 struct server_state {
   int fd;
@@ -18,7 +39,7 @@ struct server_state {
 };
 
 struct server_state *init_state(int fd) {
-  struct server_state *state = malloc(sizeof(*state));
+  struct server_state *state = calloc(1, sizeof(*state));
   state->fd = fd;
   state->active = true;
   state->next = 0;
@@ -35,25 +56,31 @@ void handle_connection(int fd) {
 
   pthread_mutex_lock(&lock);
 
-  FILE *log = fopen("server.log", "a");
-  if(log) {
-    fwrite(state->data_buf, 1, state->data_buf_len, log);
+  for(size_t i = 0; i < state->data_buf_len; i++) {
+    FILE *log = fopen("server.log", "a");
+    if(log) {
+      fwrite(state->data_buf+i, 1, 1, log);
+      fclose(log);
+    }
   }
-  fclose(log);
 
   pthread_mutex_unlock(&lock);
 
   free(state->data_buf);
   free(state);
+
+  printf("Wrote data to log\n");
 }
 
 void handle_request(uint16_t n, void *state) {
+  HANDLER();
+
   struct server_state *sst = (struct server_state *)state;
 
   printf("Received request to send %d packets\n", n);
 
   sst->data_buf_len = n*5;
-  sst->data_buf = malloc(sizeof(uint8_t) * sst->data_buf_len);
+  sst->data_buf = calloc(sst->data_buf_len, sizeof(uint8_t));
 
   struct packet permit = {
     .kind = PK_PERMIT,
@@ -64,11 +91,15 @@ void handle_request(uint16_t n, void *state) {
 }
 
 void handle_permit(uint16_t n, void *state) {
+  HANDLER();
+
   struct server_state *sst = (struct server_state *)state;
   sst->active = false;
 }
 
 void handle_data(uint8_t *data, uint16_t sn, void *state) {
+  REPEATED_HANDLER();
+
   struct server_state *sst = (struct server_state *)state;
 
   if(sn != sst->next) {
@@ -95,11 +126,15 @@ void handle_data(uint8_t *data, uint16_t sn, void *state) {
 }
 
 void handle_ack(uint16_t sn, void *state) {
+  HANDLER();
+
   struct server_state *sst = (struct server_state *)state;
   sst->active = false;
 }
 
 void handle_done(void *state) {
+  HANDLER();
+
   struct server_state *sst = (struct server_state *)state;
   sst->active = false;
 }
