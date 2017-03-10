@@ -8,7 +8,7 @@
 void handle_connection(int fd) {
   state *st = calloc(1, sizeof(*st));
   st->socket = fd;
-  st->n_packets = 8192;
+  st->n_packets = 40000;
 
   struct packet p = {
     .kind = PK_REQUEST,
