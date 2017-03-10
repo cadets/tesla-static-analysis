@@ -8,6 +8,7 @@
 #include "server_lock.h"
 
 #ifdef TESLA
+
 #include "tesla-macros.h"
 
 void *write_to_fd(void *data);
@@ -19,12 +20,6 @@ void *write_to_fd(void *data);
     returnfrom(handle_connection) \
   ))
 
-#define REPEATED_HANDLER() \
-  TESLA_WITHIN(write_to_fd, TSEQUENCE( \
-    call(handle_connection), \
-    REPEAT(1, ANY_REP, TESLA_ASSERTION_SITE), \
-    returnfrom(handle_connection) \
-  ))
 #endif
 
 void handle_connection(int fd) {
@@ -35,11 +30,11 @@ void handle_connection(int fd) {
   st->n_packets = 0;
 
   expect_request(st);
+
+  free(st);
 }
 
 void expect_request(state *st) {
-  HANDLER();
-
   struct packet p = next_packet(st->socket);
 
   if(p.kind == PK_REQUEST) {

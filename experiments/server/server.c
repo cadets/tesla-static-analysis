@@ -22,6 +22,7 @@ struct thread_args {
 void *write_to_fd(void *data) {
   struct thread_args *args = (struct thread_args *)data;
   handle_connection(args->fd);
+  free(args);
   pthread_exit(0);
 }
 
