@@ -28,6 +28,7 @@ void *write_to_fd(void *data);
 #endif
 
 void handle_connection(int fd) {
+#ifdef USE_TESLA
   TESLA_WITHIN(write_to_fd,
     TSEQUENCE(
       TESLA_ASSERTION_SITE,
@@ -38,6 +39,7 @@ void handle_connection(int fd) {
       returnfrom(handle_connection)
     )
   );
+#endif
 
   printf("Starting connection [%d]\n", fd);
 
@@ -52,6 +54,7 @@ void handle_connection(int fd) {
 }
 
 void expect_request(state *st) {
+#ifdef USE_TESLA
   tesla_handle_only();
 
   TESLA_WITHIN(write_to_fd,
@@ -64,6 +67,7 @@ void expect_request(state *st) {
       returnfrom(expect_request)
     )
   );
+#endif
 
   struct packet p = next_packet(st->socket);
 
@@ -85,7 +89,18 @@ void expect_request(state *st) {
 }
 
 void expect_data(state *st) {
+#ifdef USE_TESLA
   tesla_handle_only();
+
+  TESLA_WITHIN(write_to_fd,
+    TSEQUENCE(
+      call(expect_data),
+      TESLA_ASSERTION_SITE,
+      call(expect_done) || call(error),
+      returnfrom(expect_data)
+    )
+  );
+#endif
 
   for(uint16_t i = 0; i < st->n_packets; i++) {
     struct packet p = next_packet(st->socket);
@@ -123,7 +138,18 @@ void expect_data(state *st) {
 }
 
 void expect_done(state *st) {
+#ifdef USE_TESLA
   tesla_handle_only();
+
+  TESLA_WITHIN(write_to_fd,
+    TSEQUENCE(
+      call(expect_done),
+      TESLA_ASSERTION_SITE,
+      call(success) || call(error),
+      returnfrom(expect_done)
+    )
+  );
+#endif
 
   struct packet p = next_packet(st->socket);
 
@@ -135,7 +161,9 @@ void expect_done(state *st) {
 }
 
 void success(state *st) {
+#ifdef USE_TESLA
   tesla_handle_only();
+#endif
 
   struct packet done = {
     .kind = PK_DONE,
@@ -148,7 +176,9 @@ void success(state *st) {
 }
 
 void error(state *st, char *message) {
+#ifdef USE_TESLA
   tesla_handle_only();
+#endif
 
   fprintf(stderr, "Server thread exiting with error: %s\n", message);
   pthread_exit(0);
