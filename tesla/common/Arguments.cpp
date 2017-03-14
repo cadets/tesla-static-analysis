@@ -133,9 +133,23 @@ void tesla::ParseAssertionLocation(
   GlobalVariable *NameVar =
     dyn_cast<GlobalVariable>(Call->getOperand(1)->stripPointerCasts());
 
-  ConstantDataArray *A;
-  if (!NameVar ||
-      !(A = dyn_cast_or_null<ConstantDataArray>(NameVar->getInitializer()))) {
+
+  if(!NameVar) {
+    panic("No named constant for filename - unable to parse");
+  }
+
+  string fn;
+
+  if(auto sty = dyn_cast<ConstantStruct>(NameVar->getInitializer())) {
+    fn = "";
+    for(auto i = 0; i < sty->getNumOperands(); i++) {
+      if(auto cda = dyn_cast<ConstantDataArray>(sty->getOperand(i))) {
+        fn += cda->getAsString();
+      }
+    }
+  } else if (auto A = dyn_cast_or_null<ConstantDataArray>(NameVar->getInitializer())) {
+    fn = A->getAsString();
+  } else {
     Call->dump();
     panic("unable to parse filename from TESLA assertion");
   }
@@ -145,7 +159,6 @@ void tesla::ParseAssertionLocation(
   // comparing an in-memory location with one loaded from disk, the comparison
   // will fail due to the extra character. Here we check for it and remove it
   // before doing anything else.
-  auto fn = A->getAsString();
   if(fn[fn.size()- 1] == '\0') {
     fn = fn.substr(0, fn.size() - 1);
   }
