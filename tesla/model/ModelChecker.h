@@ -30,6 +30,8 @@ struct ModelChecker {
   bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *);
   bool CheckFunction(const tesla::FunctionEvent &ex, Event *);
 
+  FiniteTraces::Trace filteredTrace(const FiniteTraces::Trace &tr, const tesla::Expression ex);
+
   EventGraph *Graph;
   Module *Mod;
   tesla::Manifest *Manifest;

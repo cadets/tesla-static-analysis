@@ -24,14 +24,14 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
     auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
 
-    auto subExprs = SubExpressions(*Manifest).Get(expr);
-
     auto safe = true; 
 
     for(auto trace : boundedTraces) {
+      auto filt = filteredTrace(trace, expr);
+
       auto exists = false;
       for(auto model : n) {
-        exists = exists || CheckAgainst(trace, model);
+        exists = exists || CheckAgainst(filt, model);
       }
       safe = safe && exists;
     }
@@ -46,21 +46,75 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
 
 bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
   if(tr.size() != mod.size()) {
-    errs() << "Differently sized trace and model: " << tr.size() << " " << mod.size() << '\n';
     return false;
+  }
+
+  auto match = true;
+  for(auto i = 0; i < tr.size(); i++) {
+    match = match && CheckState(*mod[i], tr[i]);
+  }
+  return match;
+}
+
+bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event) {
+   switch(ex.type()) {
+    case tesla::Expression_Type_ASSERTION_SITE:
+      return CheckAssertionSite(ex.assertsite(), event);
+
+    case tesla::Expression_Type_FUNCTION:
+      return CheckFunction(ex.function(), event);
+
+    default:
+      assert(false && "This should not happen");
+      return false;
+  }
+}
+
+bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *event) {
+  if(auto ae = dyn_cast<AssertEvent>(event)) {
+    if(ex.location() == ae->Location()) {
+      return true;
+    }
   }
 
   return false;
 }
 
-bool ModelChecker::CheckState(const tesla::Expression &ex, Event *) {
+bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
+  auto modFn = Mod->getFunction(ex.function().name());
+
+  if(auto ent = dyn_cast<EntryEvent>(event)) {
+    if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
+      if(modFn && ent->Func && modFn == ent->Func) {
+        return true;
+      }
+    }
+  }
+
+  if(auto exit = dyn_cast<ExitEvent>(event)) {
+    if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
+      if(modFn && exit->Func && modFn == exit->Func) {
+        return true;
+      }
+    }
+  }
+
   return false;
 }
 
-bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *) {
-  return false;
-}
+FiniteTraces::Trace ModelChecker::filteredTrace(const FiniteTraces::Trace &tr, const tesla::Expression ex) {
+  auto subExprs = SubExpressions(*Manifest).Get(ex);
 
-bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *) {
-  return false;
+  FiniteTraces::Trace filt;
+
+  for(auto ev : tr) {
+    for(auto sub : subExprs) {
+      if(CheckState(*sub, ev)) {
+        filt.push_back(ev);
+        break;
+      }
+    }
+  }
+
+  return filt;
 }
