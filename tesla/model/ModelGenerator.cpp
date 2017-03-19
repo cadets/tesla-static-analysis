@@ -1,9 +1,6 @@
 #include "Debug.h"
 #include "ModelGenerator.h"
 
-#include <llvm/Support/raw_ostream.h>
-
-using llvm::errs;
 
 set<ModelGenerator::Model> ModelGenerator::ofLength(size_t length) {
   return fromExpression(Expr, length);
@@ -58,14 +55,13 @@ set<ModelGenerator::Model> ModelGenerator::fromSequence(const Sequence &ex, size
   }
 
   auto head = ex.expression(index);
-
   auto hes = fromExpression(head, length);
-
-  auto tes = fromSequence(ex, length, index+1);
 
   set<ModelGenerator::Model> ret;
 
   for(auto he : hes) {
+    auto tes = fromSequence(ex, length - he.size(), index+1);
+    
     for(auto te : tes) {
       ModelGenerator::Model cat;
       for(auto hev : he) {
@@ -76,8 +72,17 @@ set<ModelGenerator::Model> ModelGenerator::fromSequence(const Sequence &ex, size
         cat.push_back(tev);
       }
 
-      if(cat.size() <= length) {
-        ret.insert(cat);
+      if(cat.size() <= length && !cat.empty()) {
+        auto once = cat;
+        auto rep_bound = length / cat.size();
+
+        for(auto i = ex.minreps(); i <= ex.maxreps() && i <= rep_bound; i++) {
+          ModelGenerator::Model repd;
+          for(int j = 0; j < i; j++) {
+            std::copy(once.begin(), once.end(), std::back_inserter(repd));
+          }
+          ret.insert(repd);
+        }
       }
     }
   }
