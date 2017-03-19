@@ -27,18 +27,23 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
 
     for(auto trace : boundedTraces) {
-      auto ch = CheckState(expr, trace, 0);
-
-      for(auto ev : trace) {
-        errs() << ev->GraphViz() << '\n';
+      auto exists = false;
+      for(auto model : n) {
+        exists = exists || CheckAgainst(trace, model);
       }
+      safe = safe && exists;
+    }
 
-      errs() << "------------------\n";
-      safe = safe && ch.Successful();
+    if(safe) {
+      safeUses.insert(use);
     }
   }
 
   return safeUses;
+}
+
+bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
+  return false;
 }
 
 CheckResult ModelChecker::CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &tr, int ind) {

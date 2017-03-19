@@ -11,6 +11,7 @@
 
 #include "EventGraph.h"
 #include "FiniteTraces.h"
+#include "ModelGenerator.h"
 
 using std::map;
 using std::pair;
@@ -84,6 +85,7 @@ struct ModelChecker {
     Graph(gr), Mod(mod), Manifest(man), Bound(bound), Depth(d) {}
 
   set<const tesla::Usage *> SafeUsages();
+  bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
 
   CheckResult CheckState(const tesla::Expression &ex, const FiniteTraces::Trace &, int);
   CheckResult CheckBoolean(const tesla::BooleanExpr &ex, const FiniteTraces::Trace &, int);
