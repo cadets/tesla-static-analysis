@@ -43,6 +43,11 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
 }
 
 bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
+  if(tr.size() != mod.size()) {
+    errs() << "Differently sized trace and model: " << tr.size() << " " << mod.size() << '\n';
+    return false;
+  }
+
   return false;
 }
 
