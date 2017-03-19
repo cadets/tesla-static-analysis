@@ -18,10 +18,13 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
     auto expr = automaton->getAssertion().expression();
 
     auto Gen = ModelGenerator(expr, Manifest);
-    auto n = Gen.next();
-    for(auto ex : n) {
-      errs() << tesla::ProtoDump((google::protobuf::Message *)ex);
-      errs() << "*******************\n";
+    auto n = Gen.ofLength(20);
+    for(auto v : n) {
+      for(auto ex : v) {
+        errs() << tesla::ProtoDump((google::protobuf::Message *)ex);
+        errs() << "*******************\n";
+      }
+      errs() << ":::::::::::::::::::::\n";
     }
     
     auto safe = true; 

@@ -6,28 +6,27 @@
 #include "tesla.pb.h"
 
 #include <vector>
+#include <set>
 
 using std::vector;
+using std::set;
 using namespace tesla;
 
 struct ModelGenerator {
+  using Model = vector<Expression *>;
   ModelGenerator(Expression &e, Manifest *man) :
     Man(man), Expr(e) {}
 
-  /**
-   * Should maybe return empty vector as the sentinel value that indicates there
-   * are no more values left to return.
-   */
-  vector<Expression *> next(); 
-
+  set<Model> ofLength(size_t length);
 private:
-  vector<Expression *> fromExpression(const Expression &ex);
-  vector<Expression *> fromSequence(const Sequence &ex);
-  vector<Expression *> fromBoolean(const BooleanExpr &ex);
-  vector<Expression *> fromAssertionSite(const AssertionSite &ex);
-  vector<Expression *> fromFunction(const FunctionEvent &ex);
-  vector<Expression *> fromFieldAssign(const FieldAssignment &ex);
-  vector<Expression *> fromSubAutomaton(const Automaton &ex);
+  set<Model> fromExpression(const Expression &ex, size_t length);
+  set<Model> fromSequence(const Sequence &ex, size_t length);
+  set<Model> fromSequence(const Sequence &ex, size_t length, size_t index);
+  set<Model> fromBoolean(const BooleanExpr &ex, size_t length);
+  set<Model> fromAssertionSite(const AssertionSite &ex, size_t length);
+  set<Model> fromFunction(const FunctionEvent &ex, size_t length);
+  set<Model> fromFieldAssign(const FieldAssignment &ex, size_t length);
+  set<Model> fromSubAutomaton(const Automaton &ex, size_t length);
 
   Manifest *Man;
   Expression &Expr;
