@@ -23,7 +23,10 @@ struct ModelChecker {
   ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man, Function *bound, int d) :
     Graph(gr), Mod(mod), Manifest(man), Bound(bound), Depth(d) {}
 
+  bool IsUsageSafe(const tesla::Usage *use);
   set<const tesla::Usage *> SafeUsages();
+
+private:
   bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
 
   bool CheckState(const tesla::Expression &ex, Event *);
