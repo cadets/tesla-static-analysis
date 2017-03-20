@@ -27,6 +27,21 @@ ManifestFilename(cl::Positional, cl::desc("manifest"), cl::Required);
 static cl::opt<std::string>
 BitcodeFilename(cl::Positional, cl::desc("bitcode"), cl::Required);
 
+static cl::OptionCategory PassCat("Pass selection flags",
+                                  "These flags control which manifest passes are run");
+
+static cl::opt<bool>
+EnableAcqRelPass("acqrel", cl::desc("Run hand-coded acquire-release pass"),
+                 cl::init(false), cl::cat(PassCat));
+
+static cl::opt<bool>
+EnableCallSeqPass("callseq", cl::desc("Run obsolete call sequence pass"),
+                  cl::init(false), cl::cat(PassCat));
+
+static cl::opt<bool>
+EnableModelChecker("modelcheck", cl::desc("Run model checker pass"),
+                   cl::init(false), cl::cat(PassCat));
+
 static cl::opt<std::string>
 OutputFilename("o", cl::desc("Specify output filename"), 
                cl::value_desc("filename"), cl::init("-"));
@@ -53,8 +68,13 @@ int main(int argc, char **argv) {
   }
 
   tesla::ManifestPassManager PM(std::move(Manifest), std::move(Mod));
-  PM.addPass(new tesla::AcquireReleasePass);
-  PM.addPass(new tesla::CallSequencePass);
+  
+  if(EnableAcqRelPass) PM.addPass(new tesla::AcquireReleasePass);
+  if(EnableCallSeqPass) PM.addPass(new tesla::CallSequencePass);
+  
+  if(EnableModelChecker) {
+    errs() << "Model checker not yet integrated\n";
+  }
 
   PM.runPasses();
   if(!PM.Manifest) {
