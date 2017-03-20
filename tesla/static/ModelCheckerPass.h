@@ -1,7 +1,10 @@
 #ifndef MODEL_CHECKER_PASS_H
 #define MODEL_CHECKER_PASS_H
 
+#include "Debug.h"
 #include "ManifestPass.h"
+
+#include <llvm/Support/raw_ostream.h>
 
 using std::unique_ptr;
 using std::set;
