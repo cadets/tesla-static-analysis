@@ -5,6 +5,8 @@
 #include "ManifestPassManager.h"
 #include "tesla.pb.h"
 
+#include "ModelChecker.h"
+
 #include <google/protobuf/text_format.h>
 
 #include <llvm/IR/LLVMContext.h>
