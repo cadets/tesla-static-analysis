@@ -27,7 +27,7 @@ struct ModelChecker {
   set<const tesla::Usage *> SafeUsages();
 
 private:
-  bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
+  bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle=false);
 
   bool CheckState(const tesla::Expression &ex, Event *);
   bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *);

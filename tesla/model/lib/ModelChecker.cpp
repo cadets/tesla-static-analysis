@@ -15,7 +15,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto expr = automaton->getAssertion().expression();
 
   auto Gen = ModelGenerator(expr, Manifest);
-  auto n = Gen.ofLength(Depth + 1);
+  auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
 
   auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
   auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
@@ -29,6 +29,16 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
     auto exists = false;
     for(auto model : n) {
       exists = exists || CheckAgainst(filt, model);
+    }
+    safe = safe && exists;
+  }
+
+  for(auto trace : cyclicTraces) {
+    auto filt = filteredTrace(trace, expr);
+
+    auto exists = false;
+    for(auto model : n) {
+      exists = exists || CheckAgainst(filt, model, true);
     }
     safe = safe && exists;
   }
@@ -48,9 +58,15 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   return safeUses;
 }
 
-bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
-  if(tr.size() != mod.size()) {
-    return false;
+bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle) {
+  if(!cycle) {
+    if(tr.size() != mod.size()) {
+      return false;
+    }
+  } else {
+    if(tr.size() > mod.size()) {
+      return false;
+    }
   }
 
   auto match = true;
