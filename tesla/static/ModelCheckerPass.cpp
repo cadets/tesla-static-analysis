@@ -32,8 +32,8 @@ bool ModelCheckerPass::CheckUsage(Manifest &Man, llvm::Module &Mo, const Usage *
   auto funcName = use->beginning().function().function().name();
   auto fn = Mo.getFunction(funcName);
 
-  auto eg = EventGraph::ModuleGraph(&Mo, fn, 64);
-  auto mc = ModelChecker(eg, &Mo, &Man, fn, 1000);
+  auto eg = EventGraph::ModuleGraph(&Mo, fn, UnrollDepth);
+  auto mc = ModelChecker(eg, &Mo, &Man, fn, TraceBound);
   return mc.IsUsageSafe(use);
 }
 

@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
   
   if(EnableAcqRelPass) PM.addPass(new tesla::AcquireReleasePass);
   if(EnableCallSeqPass) PM.addPass(new tesla::CallSequencePass);
-  if(EnableModelChecker) PM.addPass(new tesla::ModelCheckerPass);
+  if(EnableModelChecker) PM.addPass(new tesla::ModelCheckerPass(32, 100));
 
   PM.runPasses();
   if(!PM.Manifest) {
