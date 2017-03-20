@@ -4,6 +4,7 @@
 #include <llvm/Support/Casting.h>
 
 #include <string>
+#include <vector>
 
 /**
  * Abstract class that represents an inferred condition.
@@ -28,6 +29,8 @@ public:
   ConditionKind getKind() const { return Kind; }
 
   Condition(ConditionKind K) : Kind(K) {}
+
+  virtual Condition *Simplified() const = 0;
   virtual std::string str() const = 0;
 };
 
@@ -56,21 +59,37 @@ struct Branch : public Condition {
 };
 
 /**
+ * Logical operation over several conditions.
+ */
+struct LogicalOp : public Condition {
+  LogicalOp(Condition K) : Condition(K) {}
+
+  void addOperand(Condition *C) { operands.push_back(C); }
+
+  static bool classof(const Condition *C) {
+    return C->getKind() >= CK_And && C->getKind() <= CK_Or;
+  }
+
+protected:
+  std::vector<Condition *> operands;
+};
+
+/**
  * Logical and of several conditions.
  */
-struct And : public Condition {
-  And() : Condition(CK_And) {}
+struct And : public LogicalOp {
+  And() : LogicalOp(CK_And) {}
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
-  }
+  };
 };
 
 /**
  * Logical or of several conditions.
  */
-struct Or : public Condition {
-  Or() : Condition(CK_Or) {}
+struct Or : public LogicalOp {
+  Or() : LogicalOp(CK_Or) {}
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;
