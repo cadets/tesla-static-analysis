@@ -10,6 +10,7 @@ add_llvm_library(TeslaModel
   FiniteTraces.cpp
   SequenceExpressions.cpp
   ModelGenerator.cpp
+  Inference.cpp
 )
 
 target_link_libraries(TeslaModel
