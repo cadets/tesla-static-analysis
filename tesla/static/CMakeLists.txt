@@ -9,6 +9,7 @@ add_llvm_executable(tesla-static
   ManifestPassManager.cpp
   AcquireReleasePass.cpp
   CallSequencePass.cpp
+  ModelCheckerPass.cpp
   AcquireReleaseCheck.cpp
   ControlPath.cpp
   Analysis.cpp
@@ -27,8 +28,9 @@ add_llvm_executable(tesla-static
 
 target_link_libraries(tesla-static
   TeslaCommon
+  TeslaModel
 )
 
-include_directories("${CMAKE_SOURCE_DIR}/../include")
+include_directories("${CMAKE_SOURCE_DIR}/tesla/model/include")
 
 install(TARGETS tesla-static DESTINATION bin)

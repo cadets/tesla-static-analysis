@@ -10,33 +10,37 @@
 using std::map;
 using std::vector;
 
+bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
+  auto automaton = Manifest->FindAutomaton(use->identifier());
+  auto expr = automaton->getAssertion().expression();
+
+  auto Gen = ModelGenerator(expr, Manifest);
+  auto n = Gen.ofLength(Depth + 1);
+
+  auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
+  auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
+  auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
+
+  auto safe = true; 
+
+  for(auto trace : boundedTraces) {
+    auto filt = filteredTrace(trace, expr);
+
+    auto exists = false;
+    for(auto model : n) {
+      exists = exists || CheckAgainst(filt, model);
+    }
+    safe = safe && exists;
+  }
+
+  return safe;
+}
+
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
   set<const tesla::Usage *> safeUses;
 
   for(auto use : Manifest->RootAutomata()) {
-    auto automaton = Manifest->FindAutomaton(use->identifier());
-    auto expr = automaton->getAssertion().expression();
-
-    auto Gen = ModelGenerator(expr, Manifest);
-    auto n = Gen.ofLength(Depth + 1);
-
-    auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
-    auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
-    auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
-
-    auto safe = true; 
-
-    for(auto trace : boundedTraces) {
-      auto filt = filteredTrace(trace, expr);
-
-      auto exists = false;
-      for(auto model : n) {
-        exists = exists || CheckAgainst(filt, model);
-      }
-      safe = safe && exists;
-    }
-
-    if(safe) {
+    if(IsUsageSafe(use)) {
       safeUses.insert(use);
     }
   }
