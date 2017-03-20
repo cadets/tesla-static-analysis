@@ -1,5 +1,6 @@
 #include "AcquireReleasePass.h"
 #include "CallSequencePass.h"
+#include "ModelCheckerPass.h"
 #include "Debug.h"
 #include "Manifest.h"
 #include "ManifestPassManager.h"
@@ -71,10 +72,7 @@ int main(int argc, char **argv) {
   
   if(EnableAcqRelPass) PM.addPass(new tesla::AcquireReleasePass);
   if(EnableCallSeqPass) PM.addPass(new tesla::CallSequencePass);
-  
-  if(EnableModelChecker) {
-    errs() << "Model checker not yet integrated\n";
-  }
+  if(EnableModelChecker) PM.addPass(new tesla::ModelCheckerPass);
 
   PM.runPasses();
   if(!PM.Manifest) {

@@ -9,6 +9,7 @@ add_llvm_executable(tesla-static
   ManifestPassManager.cpp
   AcquireReleasePass.cpp
   CallSequencePass.cpp
+  ModelCheckerPass.cpp
   AcquireReleaseCheck.cpp
   ControlPath.cpp
   Analysis.cpp
