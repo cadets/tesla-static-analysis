@@ -43,6 +43,17 @@ static cl::opt<bool>
 EnableModelChecker("modelcheck", cl::desc("Run model checker pass"),
                    cl::init(false), cl::cat(PassCat));
 
+static cl::OptionCategory ModelCat("Model checker options",
+                                   "These flags control the model checker if it is run");
+
+static cl::opt<int>
+UnrollDepth("unroll", cl::desc("Event graph recursion depth (default=32)"),
+            cl::init(32), cl::cat(ModelCat));
+
+static cl::opt<int>
+TraceBound("bound", cl::desc("Finite model checking bound (default=500)"),
+            cl::init(500), cl::cat(ModelCat));
+
 static cl::opt<std::string>
 OutputFilename("o", cl::desc("Specify output filename"), 
                cl::value_desc("filename"), cl::init("-"));
@@ -72,7 +83,7 @@ int main(int argc, char **argv) {
   
   if(EnableAcqRelPass) PM.addPass(new tesla::AcquireReleasePass);
   if(EnableCallSeqPass) PM.addPass(new tesla::CallSequencePass);
-  if(EnableModelChecker) PM.addPass(new tesla::ModelCheckerPass(32, 100));
+  if(EnableModelChecker) PM.addPass(new tesla::ModelCheckerPass(UnrollDepth, TraceBound));
 
   PM.runPasses();
   if(!PM.Manifest) {
