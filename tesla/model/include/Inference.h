@@ -46,6 +46,8 @@ public:
  */
 struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}
+  
+  Condition *Simplified() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_ConstTrue;
@@ -62,6 +64,8 @@ struct ConstTrue : public Condition {
 struct Branch : public Condition {
   Branch(Value *v, bool c) : 
     Condition(CK_Branch), value(v), constraint(c) {}
+
+  Condition *Simplified() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Branch;
@@ -83,8 +87,12 @@ private:
  * Logical operation over several conditions.
  */
 struct LogicalOp : public Condition {
+  template<class InputIt>
+  LogicalOp(InputIt first, InputIt last, ConditionKind K) :
+    Condition(K), operands(first, last) {}
+
   LogicalOp(std::initializer_list<Condition *> il, ConditionKind K) :
-    Condition(K), operands(il) {}
+    LogicalOp(il.begin(), il.end(), K) {}
 
   LogicalOp(ConditionKind K) :
     LogicalOp({}, K) {}
@@ -103,8 +111,12 @@ protected:
  * Logical and of several conditions.
  */
 struct And : public LogicalOp {
+  template<class InputIt>
+  And(InputIt first, InputIt last) :
+    LogicalOp(first, last, CK_And) {}
+
   And(std::initializer_list<Condition *> il) : 
-    LogicalOp(il, CK_And) {}
+    And(il.begin(), il.end()) {}
 
   And() : And({}) {}
 
@@ -136,8 +148,12 @@ struct And : public LogicalOp {
  * Logical or of several conditions.
  */
 struct Or : public LogicalOp {
+  template<class InputIt>
+  Or(InputIt first, InputIt last) :
+    LogicalOp(first, last, CK_Or) {}
+
   Or(std::initializer_list<Condition *> il) : 
-    LogicalOp(il, CK_Or) {}
+    Or(il.begin(), il.end()) {}
 
   Or() : Or({}) {}
 
