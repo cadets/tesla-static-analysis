@@ -41,6 +41,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   }
 
   auto &entry = f->getEntryBlock();
+  for(int i = 0; i < 3; i++) {
   for(auto& bb : *f) {
     if(&bb == &entry) { continue; }
 
@@ -53,6 +54,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
       cond = new Or{cond, new And{bc, ret[*it]}};
     }
     ret[&bb] = new And{current, cond};
+  }
   }
 
   for(auto pair : ret) {
@@ -159,6 +161,9 @@ Condition *Or::Simplified() const {
     }
   }
 
+  if(flat.size() == 1) {
+    return flat[0];
+  }
   return new Or(flat.begin(), flat.end());
 }
 
@@ -182,13 +187,13 @@ const std::string And::str() const {
   if(operands.empty()) {
     os << "true[&]";
   } else {
-    os << "(";
+    os << "[";
     for(auto it = operands.begin(); it != operands.end() - 1; it++) {
       os << (*it)->str();
       os << " & ";
     }
     os << (*(operands.end() - 1))->str();
-    os << ")";
+    os << "]";
   }
 
   return out; 
