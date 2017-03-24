@@ -5,6 +5,7 @@
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/raw_ostream.h>
 
+#include <initializer_list>
 #include <string>
 #include <vector>
 
@@ -82,7 +83,11 @@ private:
  * Logical operation over several conditions.
  */
 struct LogicalOp : public Condition {
-  LogicalOp(Condition K) : Condition(K) {}
+  LogicalOp(std::initializer_list<Condition *> il, ConditionKind K) :
+    Condition(K), operands(il) {}
+
+  LogicalOp(ConditionKind K) :
+    LogicalOp({}, K) {}
 
   void addOperand(Condition *C) { operands.push_back(C); }
 
@@ -98,7 +103,10 @@ protected:
  * Logical and of several conditions.
  */
 struct And : public LogicalOp {
-  And() : LogicalOp(CK_And) {}
+  And(std::initializer_list<Condition *> il) : 
+    LogicalOp(il, CK_And) {}
+
+  And() : And({}) {}
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
@@ -128,7 +136,10 @@ struct And : public LogicalOp {
  * Logical or of several conditions.
  */
 struct Or : public LogicalOp {
-  Or() : LogicalOp(CK_Or) {}
+  Or(std::initializer_list<Condition *> il) : 
+    LogicalOp(il, CK_Or) {}
+
+  Or() : Or({}) {}
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;
