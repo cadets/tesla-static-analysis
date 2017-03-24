@@ -10,11 +10,41 @@ Condition *Branch::Simplified() const {
   return new Branch(*this);
 }
 
-// Currently, these are not simplified at all. At some point soon I will
-// implement a way of simplifying them down depending on their subexpressions.
-// This will do the work of simplifying and flattening as far as is possible.
+/*
+ * To simplify boolean AND, the steps are:
+ *  - recursively simplify all subexpressions
+ *  - flatten sub-ANDs
+ *  - if all subexpressions are const true, then const true
+ */
 Condition *And::Simplified() const {
-  return new And(*this);
+  std::vector<Condition *> recs;
+
+  // recursively simplify 
+  for(auto op : operands) {
+    recs.push_back(op->Simplified());
+  }
+
+  // flatten AND subexpressions
+  std::vector<Condition *> flat;
+  for(auto c : recs) {
+    if(auto andc = dyn_cast<And>(c)) {
+      flat.insert(flat.end(), andc->operands.begin(), andc->operands.end());
+    } else {
+      flat.push_back(c);
+    }
+  }
+
+  bool ctrue = std::all_of(recs.begin(), recs.end(),
+    [=](Condition *c) {
+      return isa<ConstTrue>(c);
+    }
+  );
+
+  if(ctrue) {
+    return new ConstTrue;
+  }
+
+  return new And(flat.begin(), flat.end());
 }
 
 /*
