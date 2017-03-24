@@ -1,10 +1,14 @@
 #ifndef INFERENCE_H
 #define INFERENCE_H
 
+#include <llvm/IR/Value.h>
 #include <llvm/Support/Casting.h>
+#include <llvm/Support/raw_ostream.h>
 
 #include <string>
 #include <vector>
+
+using namespace llvm;
 
 /**
  * Abstract class that represents an inferred condition.
@@ -31,7 +35,7 @@ public:
   Condition(ConditionKind K) : Kind(K) {}
 
   virtual Condition *Simplified() const = 0;
-  virtual std::string str() const = 0;
+  virtual const std::string str() const = 0;
 };
 
 /**
@@ -45,17 +49,33 @@ struct ConstTrue : public Condition {
   static bool classof(const Condition *C) {
     return C->getKind() == CK_ConstTrue;
   }
+
+  const std::string str() const {
+    return "true";
+  }
 };
 
 /**
  * A condition that constrains an LLVM value to a constant true / false.
  */
 struct Branch : public Condition {
-  Branch() : Condition(CK_Branch) {}
+  Branch(Value *v, bool c) : 
+    Condition(CK_Branch), value(v), constraint(c) {}
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Branch;
   }
+
+  const std::string str() const {
+    std::string out;
+    raw_string_ostream os(out);
+    os << value << "=" << (constraint ? "true" : "false");
+    return out;
+  }
+
+private:
+  Value *value;
+  bool constraint;
 };
 
 /**
@@ -83,6 +103,25 @@ struct And : public LogicalOp {
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
   };
+
+  const std::string str() const {
+    std::string out;
+    raw_string_ostream os(out);
+
+    if(operands.empty()) {
+      os << "true[&]";
+    } else {
+      os << "(";
+      for(auto it = operands.begin(); it != operands.end() - 1; it++) {
+        os << (*it)->str();
+        os << " & ";
+      }
+      os << (*(operands.end() - 1))->str();
+      os << ")";
+    }
+
+    return out; 
+  }
 };
 
 /**
@@ -93,6 +132,25 @@ struct Or : public LogicalOp {
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;
+  }
+
+  const std::string str() const {
+    std::string out;
+    raw_string_ostream os(out);
+
+    if(operands.empty()) {
+      os << "false[|]";
+    } else {
+      os << "(";
+      for(auto it = operands.begin(); it != operands.end() - 1; it++) {
+        os << (*it)->str();
+        os << " | ";
+      }
+      os << (*(operands.end() - 1))->str();
+      os << ")";
+    }
+
+    return out; 
   }
 };
 
