@@ -1,5 +1,17 @@
 #include "Inference.h"
 
+/** Compute Strongest Inferences **/
+
+std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) {
+  std::map<BasicBlock *, Condition *> ret;
+
+  for(auto& bb : *f) {
+    ret[&bb] = new ConstTrue;
+  }
+
+  return ret;
+}
+
 /** Simplifying Conditions **/
 
 Condition *ConstTrue::Simplified() const {

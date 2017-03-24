@@ -1,11 +1,14 @@
 #ifndef INFERENCE_H
 #define INFERENCE_H
 
+#include <llvm/IR/BasicBlock.h>
+#include <llvm/IR/Function.h>
 #include <llvm/IR/Value.h>
 #include <llvm/Support/Casting.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <initializer_list>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -37,6 +40,8 @@ public:
 
   virtual Condition *Simplified() const = 0;
   virtual const std::string str() const = 0;
+
+  static std::map<BasicBlock *, Condition *> StrongestInferences(Function *f);
 };
 
 /**
