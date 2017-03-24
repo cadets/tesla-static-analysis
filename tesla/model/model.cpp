@@ -12,6 +12,7 @@
 #include "EventGraph.h"
 #include "FiniteTraces.h"
 #include "GraphTransforms.h"
+#include "Inference.h"
 #include "Manifest.h"
 #include "ModelChecker.h"
 
@@ -63,6 +64,16 @@ int main(int argc, char **argv) {
   auto mc = ModelChecker(eg, Mod.get(), Manifest.get(), fn, FMCBound);
   for(auto safe : mc.SafeUsages()) {
     errs() << "safe: " << tesla::ShortName(safe->identifier()) << '\n';
+  }
+
+  for(auto &f : *Mod) {
+    errs() << f.getName().str() << "\n\n";
+    auto infs = Condition::StrongestInferences(&f);
+    for(auto pair : infs) {
+      errs() << "###\tconds: " << pair.second->str() << "\t###";
+      pair.first->print(errs());
+      errs() << '\n';
+    }
   }
   
   return 0;
