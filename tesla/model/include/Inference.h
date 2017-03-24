@@ -48,13 +48,10 @@ struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}
   
   Condition *Simplified() const override;
+  const std::string str() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_ConstTrue;
-  }
-
-  const std::string str() const {
-    return "true";
   }
 };
 
@@ -66,16 +63,10 @@ struct Branch : public Condition {
     Condition(CK_Branch), value(v), constraint(c) {}
 
   Condition *Simplified() const override;
+  const std::string str() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Branch;
-  }
-
-  const std::string str() const {
-    std::string out;
-    raw_string_ostream os(out);
-    os << value << "=" << (constraint ? "true" : "false");
-    return out;
   }
 
 private:
@@ -120,28 +111,12 @@ struct And : public LogicalOp {
 
   And() : And({}) {}
 
+  Condition *Simplified() const override;
+  const std::string str() const override;
+
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
   };
-
-  const std::string str() const {
-    std::string out;
-    raw_string_ostream os(out);
-
-    if(operands.empty()) {
-      os << "true[&]";
-    } else {
-      os << "(";
-      for(auto it = operands.begin(); it != operands.end() - 1; it++) {
-        os << (*it)->str();
-        os << " & ";
-      }
-      os << (*(operands.end() - 1))->str();
-      os << ")";
-    }
-
-    return out; 
-  }
 };
 
 /**
@@ -157,27 +132,11 @@ struct Or : public LogicalOp {
 
   Or() : Or({}) {}
 
+  Condition *Simplified() const override;
+  const std::string str() const override;
+
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;
-  }
-
-  const std::string str() const {
-    std::string out;
-    raw_string_ostream os(out);
-
-    if(operands.empty()) {
-      os << "false[|]";
-    } else {
-      os << "(";
-      for(auto it = operands.begin(); it != operands.end() - 1; it++) {
-        os << (*it)->str();
-        os << " | ";
-      }
-      os << (*(operands.end() - 1))->str();
-      os << ")";
-    }
-
-    return out; 
   }
 };
 
