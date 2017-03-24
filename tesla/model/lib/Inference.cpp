@@ -44,20 +44,20 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   for(auto& bb : *f) {
     if(&bb == &entry) { continue; }
 
-    auto cond = new Or{};
+    auto current = ret[&bb];
+    auto cond = new Or;
     for(auto it = pred_begin(&bb); it != pred_end(&bb); it++) {
       auto bc = BranchCondition(*it, &bb);
       assert(bc && "Branch condition must not be null!");
 
-      cond = new Or{cond, bc};
+      cond = new Or{cond, new And{bc, ret[*it]}};
     }
-    ret[&bb] = cond;
+    ret[&bb] = new And{current, cond};
   }
 
   for(auto pair : ret) {
     ret[pair.first] = pair.second->Simplified();
   }
-
   return ret;
 }
 
@@ -78,6 +78,10 @@ Condition *Branch::Simplified() const {
  *  - if all subexpressions are const true, then const true
  */
 Condition *And::Simplified() const {
+  if(operands.size() == 1) {
+    return operands[0];
+  }
+
   std::vector<Condition *> recs;
 
   // recursively simplify 
@@ -91,7 +95,9 @@ Condition *And::Simplified() const {
     if(auto andc = dyn_cast<And>(c)) {
       flat.insert(flat.end(), andc->operands.begin(), andc->operands.end());
     } else {
-      flat.push_back(c);
+      if(!isa<ConstTrue>(c)) {
+        flat.push_back(c);
+      }
     }
   }
 
@@ -105,6 +111,9 @@ Condition *And::Simplified() const {
     return new ConstTrue;
   }
 
+  if(flat.size() == 1) {
+    return flat[0];
+  }
   return new And(flat.begin(), flat.end());
 }
 
@@ -117,6 +126,10 @@ Condition *And::Simplified() const {
  *    top level (flattening).
  */
 Condition *Or::Simplified() const {
+  if(operands.size() == 1) {
+    return operands[0];
+  }
+
   std::vector<Condition *> recs;
 
   // recursively simplify subconditions
