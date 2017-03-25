@@ -24,7 +24,7 @@ Currently building TESLA from source is a fairly involved task that is currently
 only known to work reliably on FreeBSD 11. In the future I aim to improve the
 portability of TESLA so that it can be built and installed more easily by users.
 
-## Install LLVM
+## Install LLVM
 
 TESLA depends on LLVM 3.4, both for building from source and when using the
 TESLA workflow to compile programs with instrumentation added. To install these:
@@ -40,7 +40,7 @@ command (you may need to modify your `PATH` to do this):
 llvm-config34 --libdir
 ```
 
-## Build TESLA
+## Build TESLA
 
 Once LLVM is installed, TESLA can be built from source:
 
@@ -71,7 +71,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/some/sensible/path .
 ninja install
 ```
 
-## Options
+## Options
 
 My research project into static analysis for TESLA produced a set of experiments
 and investigations that can be built as part of the TESLA source tree. These are
