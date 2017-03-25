@@ -58,7 +58,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
     }
 
     auto aop = new And{current, cond};
-    ret[&bb] = aop->CNF()->Flattened();
+    ret[&bb] = aop->CNF()->Simplified();
   }
   }
 
@@ -177,6 +177,62 @@ And *And::Product(std::vector<And *> ands) {
   }
 
   return new And{ors.begin(), ors.end()};
+}
+
+Condition *And::Simplified() {
+  auto flat = FlattenAnd();
+
+  std::vector<Condition *> simples;
+  for(auto c : flat->operands) {
+    auto simp = c->Simplified();
+    if(!isa<ConstTrue>(simp)) {
+      simples.push_back(simp);
+    }
+  }
+
+  if(simples.empty()) {
+    return new ConstTrue;
+  }
+
+  return new And{simples.begin(), simples.end()};
+}
+
+Condition *Or::Simplified() {
+  auto flat = FlattenOr();
+
+  std::vector<Condition *> simples;
+  for(auto c : flat->operands) {
+    simples.push_back(c->Simplified());
+  }
+
+  bool anyTrue = std::any_of(simples.begin(), simples.end(),
+    [=](Condition *c) {
+      return isa<ConstTrue>(c);
+    }
+  );
+  
+  if(anyTrue) {
+    return new ConstTrue;
+  }
+
+  for(auto s : simples) {
+    auto dup = std::any_of(simples.begin(), simples.end(),
+      [=](Condition *c) {
+        if(auto sb = dyn_cast<Branch>(s)) {
+          if(auto cb = dyn_cast<Branch>(c)) {
+            return (cb->value == sb->value) && (cb->constraint ^ sb->constraint);
+          }
+        }
+        return false;
+      }
+    );
+
+    if(dup) {
+      return new ConstTrue;
+    }
+  }
+
+  return new Or{simples.begin(), simples.end()};
 }
 
 /** Printing Conditions **/

@@ -41,6 +41,7 @@ public:
   virtual std::string str() const = 0;
   virtual Condition *Flattened() { return this; }
   virtual Condition *CNF() { return this; }
+  virtual Condition *Simplified() { return this; }
 
   static std::map<BasicBlock *, Condition *> StrongestInferences(Function *f);
   static Condition *BranchCondition(BasicBlock *pred, BasicBlock *succ);
@@ -74,7 +75,6 @@ struct Branch : public Condition {
     return C->getKind() == CK_Branch;
   }
 
-private:
   Value *value;
   bool constraint;
 };
@@ -129,6 +129,7 @@ struct And : public LogicalOp {
     return FlattenAnd(); 
   }
   Condition *CNF() override;
+  Condition *Simplified() override;
 
   static And *Product(std::vector<And *> ands);
 
@@ -162,6 +163,7 @@ struct Or : public LogicalOp {
     return FlattenOr(); 
   }
   Condition *CNF() override;
+  Condition *Simplified() override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;
