@@ -98,6 +98,14 @@ Or *Or::FlattenOr() {
   return new Or(newOps.begin(), newOps.end());
 }
 
+Condition *And::CNF() {
+  return this;
+}
+
+Condition *Or::CNF() {
+  return this;
+}
+
 /** Printing Conditions **/
 
 std::string ConstTrue::str() const {
