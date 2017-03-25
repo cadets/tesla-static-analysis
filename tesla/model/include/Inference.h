@@ -122,7 +122,12 @@ struct And : public LogicalOp {
   std::string str() const override;
 
   And *FlattenAnd();
-  Condition *Flattened() override { return FlattenAnd(); }
+  Condition *Flattened() override { 
+    if(operands.size() == 1) {
+      return operands[0]->Flattened();
+    }
+    return FlattenAnd(); 
+  }
   Condition *CNF() override;
 
   static And *Product(std::vector<And *> ands);
@@ -150,7 +155,12 @@ struct Or : public LogicalOp {
   std::string str() const override;
 
   Or *FlattenOr();
-  Condition *Flattened() override { return FlattenOr(); }
+  Condition *Flattened() override { 
+    if(operands.size() == 1) {
+      return operands[0]->Flattened();
+    }
+    return FlattenOr(); 
+  }
   Condition *CNF() override;
 
   static bool classof(const Condition *C) {

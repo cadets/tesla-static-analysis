@@ -3,6 +3,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/CFG.h>
 
+#include "CartesianProduct.h"
 #include "Inference.h"
 
 /** Compute Strongest Inferences **/
@@ -57,7 +58,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
     }
 
     auto aop = new And{current, cond};
-    ret[&bb] = aop->CNF();
+    ret[&bb] = aop->CNF()->Flattened();
   }
   }
 
@@ -73,7 +74,7 @@ And *And::FlattenAnd() {
     if(auto ao = dyn_cast<And>(op)) {
       auto flat = ao->FlattenAnd();
       for(auto fo : flat->operands) {
-        newOps.push_back(fo);
+        newOps.push_back(fo->Flattened());
       }
     } else {
       newOps.push_back(op);
@@ -90,7 +91,7 @@ Or *Or::FlattenOr() {
     if(auto ao = dyn_cast<Or>(op)) {
       auto flat = ao->FlattenOr();
       for(auto fo : flat->operands) {
-        newOps.push_back(fo);
+        newOps.push_back(fo->Flattened());
       }
     } else {
       newOps.push_back(op);
@@ -152,12 +153,30 @@ Condition *Or::CNF() {
   // As well as this, we need to OR each member of the cartesian product with
   // the root expressions found.
 
-
-  return this;
+  auto rootor = new Or{roots.begin(), roots.end()};
+  auto prod = And::Product(ands);
+  auto dist = new Or{rootor, prod};
+  
+  return dist->Flattened();
 }
 
+// turn a vector of ANDs [a&b, c&d&e] (that are implicitly ORed together) into
+// the inside-out version [a|c, a|d, ..., b|e]
 And *And::Product(std::vector<And *> ands) {
-  return nullptr;
+  vector<vector<Condition *>> conds;
+
+  for(auto a : ands) {
+    conds.push_back(a->operands);
+  }
+
+  auto cart = tesla::CartesianProduct(conds);
+
+  vector<Or *> ors;
+  for(auto t : cart) {
+    ors.push_back(new Or{t.begin(), t.end()});
+  }
+
+  return new And{ors.begin(), ors.end()};
 }
 
 /** Printing Conditions **/
