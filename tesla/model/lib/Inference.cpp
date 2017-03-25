@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/CFG.h>
 
@@ -55,7 +57,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
     }
 
     auto aop = new And{current, cond};
-    ret[&bb] = aop->FlattenAnd();
+    ret[&bb] = aop->CNF();
   }
   }
 
@@ -99,11 +101,63 @@ Or *Or::FlattenOr() {
 }
 
 Condition *And::CNF() {
-  return this;
+  auto flat = FlattenAnd();
+  std::vector<Condition *> inCNF;
+
+  for(auto op : flat->operands) {
+    inCNF.push_back(op->CNF()->Flattened());
+  }
+
+  return new And{inCNF.begin(), inCNF.end()};
 }
 
 Condition *Or::CNF() {
+  auto flat = FlattenOr();
+
+  // it is possible that an OR condition is already a clause, in which case it
+  // is already in CNF (i.e. it can be included in an AND at the top level)
+  bool isClause = std::none_of(flat->operands.begin(), flat->operands.end(),
+    [=](Condition *c) {
+      return isa<And>(c);
+    }
+  );
+
+  if(isClause) {
+    return flat;
+  }
+
+  // otherwise, there is an AND nested inside the OR expression. If this is the
+  // case, then we need to partition the AND and root subexpressions of the
+  // flattened AND
+  
+  std::vector<And *> ands;
+  std::vector<Condition *> roots;
+
+  std::for_each(flat->operands.begin(), flat->operands.end(),
+    [&](Condition *c) {
+      assert(!isa<Or>(c) && "Flattening OR is broken");
+      if(auto a = dyn_cast<And>(c)) {
+        ands.push_back(a->FlattenAnd());
+      } else {
+        roots.push_back(c);
+      }
+    }
+  );
+
+  // now that we have separated the ANDs and roots, we need to generate a
+  // cartesian product over the operands of all the AND subexpressions
+  // identified. This product is itself an AND over a set of ORs, with each OR
+  // having one member from each AND. The total number of these is the product
+  // of the number of operands in each AND.
+  // As well as this, we need to OR each member of the cartesian product with
+  // the root expressions found.
+
+
   return this;
+}
+
+And *And::Product(std::vector<And *> ands) {
+  return nullptr;
 }
 
 /** Printing Conditions **/

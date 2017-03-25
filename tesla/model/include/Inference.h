@@ -106,7 +106,10 @@ protected:
 /**
  * Logical and of several conditions.
  */
+struct Or;
 struct And : public LogicalOp {
+  friend struct Or;
+
   template<class InputIt>
   And(InputIt first, InputIt last) :
     LogicalOp(first, last, CK_And) {}
@@ -122,6 +125,8 @@ struct And : public LogicalOp {
   Condition *Flattened() override { return FlattenAnd(); }
   Condition *CNF() override;
 
+  static And *Product(std::vector<And *> ands);
+
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
   };
@@ -131,6 +136,8 @@ struct And : public LogicalOp {
  * Logical or of several conditions.
  */
 struct Or : public LogicalOp {
+  friend struct And;
+
   template<class InputIt>
   Or(InputIt first, InputIt last) :
     LogicalOp(first, last, CK_Or) {}
