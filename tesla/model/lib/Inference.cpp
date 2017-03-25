@@ -41,7 +41,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   }
 
   auto &entry = f->getEntryBlock();
-  for(int i = 0; i < 3; i++) {
+  for(int i = 0; i < 2; i++) {
   for(auto& bb : *f) {
     if(&bb == &entry) { continue; }
 
@@ -53,11 +53,49 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
 
       cond = new Or{cond, new And{bc, ret[*it]}};
     }
-    ret[&bb] = new And{current, cond};
+
+    auto aop = new And{current, cond};
+    ret[&bb] = aop->FlattenAnd();
   }
   }
 
   return ret;
+}
+
+/** Conversion to CNF & Flattening **/
+
+And *And::FlattenAnd() {
+  std::vector<Condition *> newOps;
+
+  for(auto op : operands) {
+    if(auto ao = dyn_cast<And>(op)) {
+      auto flat = ao->FlattenAnd();
+      for(auto fo : flat->operands) {
+        newOps.push_back(fo);
+      }
+    } else {
+      newOps.push_back(op);
+    }
+  }
+
+  return new And(newOps.begin(), newOps.end());
+}
+
+Or *Or::FlattenOr() {
+  std::vector<Condition *> newOps;
+
+  for(auto op : operands) {
+    if(auto ao = dyn_cast<Or>(op)) {
+      auto flat = ao->FlattenOr();
+      for(auto fo : flat->operands) {
+        newOps.push_back(fo);
+      }
+    } else {
+      newOps.push_back(op);
+    }
+  }
+
+  return new Or(newOps.begin(), newOps.end());
 }
 
 /** Printing Conditions **/

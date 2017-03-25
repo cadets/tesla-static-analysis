@@ -116,6 +116,8 @@ struct And : public LogicalOp {
 
   std::string str() const override;
 
+  And *FlattenAnd();
+
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
   };
@@ -135,6 +137,8 @@ struct Or : public LogicalOp {
   Or() : Or({}) {}
 
   std::string str() const override;
+
+  Or *FlattenOr();
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;
