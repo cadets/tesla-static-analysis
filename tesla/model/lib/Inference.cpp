@@ -1,6 +1,9 @@
+#include <numeric>
+
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/CFG.h>
 
+#include "CartesianProduct.h"
 #include "Inference.h"
 
 /** Compute Strongest Inferences **/
@@ -41,6 +44,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   }
 
   auto &entry = f->getEntryBlock();
+  for(int i = 0; i < 2; i++) {
   for(auto& bb : *f) {
     if(&bb == &entry) { continue; }
 
@@ -52,149 +56,162 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
 
       cond = new Or{cond, new And{bc, ret[*it]}};
     }
-    ret[&bb] = new And{current, cond};
+
+    auto aop = new And{current, cond};
+    ret[&bb] = aop->CNF()->Flattened();
+  }
   }
 
-  for(auto pair : ret) {
-    ret[pair.first] = pair.second->Simplified();
-  }
   return ret;
 }
 
-/** Simplifying Conditions **/
+/** Conversion to CNF & Flattening **/
 
-Condition *ConstTrue::Simplified() const {
-  return new ConstTrue;
-}
+And *And::FlattenAnd() {
+  std::vector<Condition *> newOps;
 
-Condition *Branch::Simplified() const {
-  return new Branch(*this);
-}
-
-/*
- * To simplify boolean AND, the steps are:
- *  - recursively simplify all subexpressions
- *  - flatten sub-ANDs
- *  - if all subexpressions are const true, then const true
- */
-Condition *And::Simplified() const {
-  if(operands.size() == 1) {
-    return operands[0];
-  }
-
-  std::vector<Condition *> recs;
-
-  // recursively simplify 
   for(auto op : operands) {
-    recs.push_back(op->Simplified());
+    if(auto ao = dyn_cast<And>(op)) {
+      auto flat = ao->FlattenAnd();
+      for(auto fo : flat->operands) {
+        newOps.push_back(fo->Flattened());
+      }
+    } else {
+      newOps.push_back(op);
+    }
   }
 
-  // flatten AND subexpressions
-  std::vector<Condition *> flat;
-  for(auto c : recs) {
-    if(auto andc = dyn_cast<And>(c)) {
-      flat.insert(flat.end(), andc->operands.begin(), andc->operands.end());
+  return new And(newOps.begin(), newOps.end());
+}
+
+Or *Or::FlattenOr() {
+  std::vector<Condition *> newOps;
+
+  for(auto op : operands) {
+    if(auto ao = dyn_cast<Or>(op)) {
+      auto flat = ao->FlattenOr();
+      for(auto fo : flat->operands) {
+        newOps.push_back(fo->Flattened());
+      }
     } else {
-      if(!isa<ConstTrue>(c)) {
-        flat.push_back(c);
+      newOps.push_back(op);
+    }
+  }
+
+  return new Or(newOps.begin(), newOps.end());
+}
+
+Condition *And::CNF() {
+  auto flat = FlattenAnd();
+  std::vector<Condition *> inCNF;
+
+  for(auto op : flat->operands) {
+    inCNF.push_back(op->CNF()->Flattened());
+  }
+
+  return new And{inCNF.begin(), inCNF.end()};
+}
+
+Condition *Or::CNF() {
+  auto flat = FlattenOr();
+
+  // it is possible that an OR condition is already a clause, in which case it
+  // is already in CNF (i.e. it can be included in an AND at the top level)
+  bool isClause = std::none_of(flat->operands.begin(), flat->operands.end(),
+    [=](Condition *c) {
+      return isa<And>(c);
+    }
+  );
+
+  if(isClause) {
+    return flat;
+  }
+
+  // otherwise, there is an AND nested inside the OR expression. If this is the
+  // case, then we need to partition the AND and root subexpressions of the
+  // flattened AND
+  
+  std::vector<And *> ands;
+  std::vector<Condition *> roots;
+
+  std::for_each(flat->operands.begin(), flat->operands.end(),
+    [&](Condition *c) {
+      assert(!isa<Or>(c) && "Flattening OR is broken");
+      if(auto a = dyn_cast<And>(c)) {
+        ands.push_back(a->FlattenAnd());
+      } else {
+        roots.push_back(c);
       }
     }
-  }
-
-  bool ctrue = std::all_of(recs.begin(), recs.end(),
-    [=](Condition *c) {
-      return isa<ConstTrue>(c);
-    }
   );
 
-  if(ctrue) {
-    return new ConstTrue;
-  }
+  // now that we have separated the ANDs and roots, we need to generate a
+  // cartesian product over the operands of all the AND subexpressions
+  // identified. This product is itself an AND over a set of ORs, with each OR
+  // having one member from each AND. The total number of these is the product
+  // of the number of operands in each AND.
+  // As well as this, we need to OR each member of the cartesian product with
+  // the root expressions found.
 
-  if(flat.size() == 1) {
-    return flat[0];
-  }
-  return new And(flat.begin(), flat.end());
+  auto rootor = new Or{roots.begin(), roots.end()};
+  auto prod = And::Product(ands);
+  auto dist = new Or{rootor, prod};
+  
+  return dist->Flattened();
 }
 
-/*
- * To simplify a boolean OR, the steps are:
- *  - recursively simplify each subcondition
- *  - once that's done, if any subconditions are const true, then the simplified
- *    condition is itself const true.
- *  - otherwise, if any subconditions are an OR themselves, pull them up to the
- *    top level (flattening).
- */
-Condition *Or::Simplified() const {
-  if(operands.size() == 1) {
-    return operands[0];
+// turn a vector of ANDs [a&b, c&d&e] (that are implicitly ORed together) into
+// the inside-out version [a|c, a|d, ..., b|e]
+And *And::Product(std::vector<And *> ands) {
+  vector<vector<Condition *>> conds;
+
+  for(auto a : ands) {
+    conds.push_back(a->operands);
   }
 
-  std::vector<Condition *> recs;
+  auto cart = tesla::CartesianProduct(conds);
 
-  // recursively simplify subconditions
-  for(auto op : operands) {
-    recs.push_back(op->Simplified());
+  vector<Or *> ors;
+  for(auto t : cart) {
+    ors.push_back(new Or{t.begin(), t.end()});
   }
 
-  // check for any constant-true subexpressions
-  bool ctrue = std::any_of(recs.begin(), recs.end(),
-    [=](Condition *c) {
-      return isa<ConstTrue>(c);
-    }
-  );
-
-  if(ctrue) {
-    return new ConstTrue;
-  }
-
-  // flatten OR subexpressions
-  std::vector<Condition *> flat;
-  
-  for(auto c : recs) {
-    if(auto orc = dyn_cast<Or>(c)) {
-      flat.insert(flat.end(), orc->operands.begin(), orc->operands.end());
-    } else {
-      flat.push_back(c);
-    }
-  }
-
-  return new Or(flat.begin(), flat.end());
+  return new And{ors.begin(), ors.end()};
 }
 
 /** Printing Conditions **/
 
-const std::string ConstTrue::str() const {
+std::string ConstTrue::str() const {
   return "true";
 }
 
-const std::string Branch::str() const {
+std::string Branch::str() const {
   std::string out;
   raw_string_ostream os(out);
   os << value << "=" << (constraint ? "true" : "false");
   return out;
 }
 
-const std::string And::str() const {
+std::string And::str() const {
   std::string out;
   raw_string_ostream os(out);
 
   if(operands.empty()) {
     os << "true[&]";
   } else {
-    os << "(";
+    os << "[";
     for(auto it = operands.begin(); it != operands.end() - 1; it++) {
       os << (*it)->str();
       os << " & ";
     }
     os << (*(operands.end() - 1))->str();
-    os << ")";
+    os << "]";
   }
 
   return out; 
 }
 
-const std::string Or::str() const {
+std::string Or::str() const {
   std::string out;
   raw_string_ostream os(out);
 
