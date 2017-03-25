@@ -38,8 +38,7 @@ public:
 
   Condition(ConditionKind K) : Kind(K) {}
 
-  virtual Condition *Simplified() const = 0;
-  virtual const std::string str() const = 0;
+  virtual std::string str() const = 0;
 
   static std::map<BasicBlock *, Condition *> StrongestInferences(Function *f);
   static Condition *BranchCondition(BasicBlock *pred, BasicBlock *succ);
@@ -53,8 +52,7 @@ public:
 struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}
   
-  Condition *Simplified() const override;
-  const std::string str() const override;
+  std::string str() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_ConstTrue;
@@ -68,8 +66,7 @@ struct Branch : public Condition {
   Branch(Value *v, bool c) : 
     Condition(CK_Branch), value(v), constraint(c) {}
 
-  Condition *Simplified() const override;
-  const std::string str() const override;
+  std::string str() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Branch;
@@ -117,8 +114,7 @@ struct And : public LogicalOp {
 
   And() : And({}) {}
 
-  Condition *Simplified() const override;
-  const std::string str() const override;
+  std::string str() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
@@ -138,8 +134,7 @@ struct Or : public LogicalOp {
 
   Or() : Or({}) {}
 
-  Condition *Simplified() const override;
-  const std::string str() const override;
+  std::string str() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;
