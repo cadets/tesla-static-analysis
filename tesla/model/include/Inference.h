@@ -41,6 +41,9 @@ public:
   virtual std::string str() const = 0;
   virtual Condition *Flattened() { return this; }
   virtual Condition *CNF() { return this; }
+  virtual Condition *Simplified() { return this; }
+
+  virtual bool Equal(Condition *other) const = 0;
 
   static std::map<BasicBlock *, Condition *> StrongestInferences(Function *f);
   static Condition *BranchCondition(BasicBlock *pred, BasicBlock *succ);
@@ -56,6 +59,8 @@ struct ConstTrue : public Condition {
   
   std::string str() const override;
 
+  bool Equal(Condition *other) const override;
+
   static bool classof(const Condition *C) {
     return C->getKind() == CK_ConstTrue;
   }
@@ -70,9 +75,13 @@ struct Branch : public Condition {
 
   std::string str() const override;
 
+  bool Equal(Condition *other) const override;
+
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Branch;
   }
+
+  bool Opposite(Branch *other) const;
 
 private:
   Value *value;
@@ -129,6 +138,9 @@ struct And : public LogicalOp {
     return FlattenAnd(); 
   }
   Condition *CNF() override;
+  Condition *Simplified() override;
+
+  bool Equal(Condition *other) const override;
 
   static And *Product(std::vector<And *> ands);
 
@@ -162,6 +174,9 @@ struct Or : public LogicalOp {
     return FlattenOr(); 
   }
   Condition *CNF() override;
+  Condition *Simplified() override;
+
+  bool Equal(Condition *other) const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_Or;

@@ -49,7 +49,7 @@ vector<vector<T>> CartesianProduct(vector<vector<T>> in) {
     auto reset = pairs.end() - 1;
     reset->second++;
 
-    while(reset->second == reset->first.size()) {
+    while(reset->second == reset->first.size() && reset != pairs.begin()) {
       reset->second = 0;
       reset--;
       reset->second++;
