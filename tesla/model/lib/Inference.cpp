@@ -44,7 +44,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   }
 
   auto &entry = f->getEntryBlock();
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < 5; i++) {
   for(auto& bb : *f) {
     if(&bb == &entry) { continue; }
 
@@ -156,7 +156,7 @@ Condition *Or::CNF() {
   auto rootor = new Or{roots.begin(), roots.end()};
   auto prod = And::Product(ands);
   auto dist = new Or{rootor, prod};
-  
+
   return dist->Flattened();
 }
 
@@ -194,7 +194,20 @@ Condition *And::Simplified() {
     return new ConstTrue;
   }
 
-  return new And{simples.begin(), simples.end()};
+  std::vector<Condition *> dedup;
+  for(auto s : simples) {
+    auto dup = std::find_if(dedup.begin(), dedup.end(),
+      [=](Condition *c) {
+        return s->Equal(c);
+      }
+    );
+
+    if(dup == dedup.end()) {
+      dedup.push_back(s);
+    }
+  }
+
+  return new And{dedup.begin(), dedup.end()};
 }
 
 Condition *Or::Simplified() {
@@ -220,7 +233,7 @@ Condition *Or::Simplified() {
       [=](Condition *c) {
         if(auto sb = dyn_cast<Branch>(s)) {
           if(auto cb = dyn_cast<Branch>(c)) {
-            return (cb->value == sb->value) && (cb->constraint ^ sb->constraint);
+            return cb->Opposite(sb);
           }
         }
         return false;
@@ -232,7 +245,61 @@ Condition *Or::Simplified() {
     }
   }
 
-  return new Or{simples.begin(), simples.end()};
+  return (new Or{simples.begin(), simples.end()})->Flattened();
+}
+
+/** Equality of Conditions **/
+
+bool ConstTrue::Equal(Condition *other) const {
+  return isa<ConstTrue>(other);
+}
+
+bool Branch::Equal(Condition *other) const {
+  if(auto ob = dyn_cast<Branch>(other)) {
+    return (value == ob->value) && (constraint == ob->constraint);
+  }
+
+  return false;
+}
+
+bool And::Equal(Condition *other) const {
+  if(!isa<And>(other)) {
+    return false;
+  }
+  auto a_other = cast<And>(other);
+
+  if(operands.size() != a_other->operands.size()) {
+    return false;
+  }
+
+  bool allEq = true;
+  for(auto i = 0; i < operands.size(); i++) {
+    allEq = allEq && operands[i]->Equal(a_other->operands[i]);
+  }
+
+  return allEq;
+}
+
+bool Or::Equal(Condition *other) const {
+  if(!isa<Or>(other)) {
+    return false;
+  }
+  auto o_other = cast<Or>(other);
+
+  if(operands.size() != o_other->operands.size()) {
+    return false;
+  }
+
+  bool allEq = true;
+  for(auto i = 0; i < operands.size(); i++) {
+    allEq = allEq && operands[i]->Equal(o_other->operands[i]);
+  }
+
+  return allEq;
+}
+
+bool Branch::Opposite(Branch *other) const {
+  return (value == other->value) && (constraint ^ other->constraint);
 }
 
 /** Printing Conditions **/
@@ -275,6 +342,7 @@ std::string Or::str() const {
     os << "false[|]";
   } else {
     os << "(";
+    // print in reverse order to make the accidental sequencing clearer.
     for(auto it = operands.begin(); it != operands.end() - 1; it++) {
       os << (*it)->str();
       os << " | ";
