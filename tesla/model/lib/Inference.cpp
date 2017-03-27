@@ -114,6 +114,40 @@ bool Or::Eval() const {
   );
 }
 
+/** Restricting Conditions **/
+
+Condition *ConstTrue::Restricted(Branch b, Condition *replace) const {
+  return new ConstTrue(*this);
+}
+
+Condition *Branch::Restricted(Branch b, Condition *replace) const {
+  if(b == *this) {
+    return replace;
+  }
+
+  return new Branch(*this);
+}
+
+Condition *And::Restricted(Branch b, Condition *replace) const {
+  std::vector<Condition *> newOps;
+  
+  for(auto op : operands) {
+    newOps.push_back(op->Restricted(b, replace));
+  }
+
+  return new And{newOps.begin(), newOps.end()};
+}
+
+Condition *Or::Restricted(Branch b, Condition *replace) const {
+  std::vector<Condition *> newOps;
+  
+  for(auto op : operands) {
+    newOps.push_back(op->Restricted(b, replace));
+  }
+
+  return new Or{newOps.begin(), newOps.end()};
+}
+
 /** Equality of Conditions **/
 
 bool ConstFalse::Equal(Condition *other) const {
@@ -126,7 +160,7 @@ bool ConstTrue::Equal(Condition *other) const {
 
 bool Branch::Equal(Condition *other) const {
   if(auto ob = dyn_cast<Branch>(other)) {
-    return (value == ob->value) && (constraint == ob->constraint);
+    return *this == *ob;
   }
 
   return false;

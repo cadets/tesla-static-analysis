@@ -46,6 +46,7 @@ public:
   virtual std::set<Branch> Branches() const = 0;
   bool IsConstant() const { return Branches().empty(); }
   virtual bool Eval() const = 0;
+  virtual Condition *Restricted(Branch b, Condition *replace) const = 0;
 
   virtual std::string str() const = 0;
   virtual bool Equal(Condition *other) const = 0;
@@ -62,6 +63,7 @@ struct ConstFalse : public Condition {
 
   std::set<Branch> Branches() const override { return {}; }
   bool Eval() const override { return false; }
+  Condition *Restricted(Branch b, Condition *replace) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -79,6 +81,7 @@ struct ConstTrue : public Condition {
 
   std::set<Branch> Branches() const override { return {}; }
   bool Eval() const override { return true; }
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
   
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -97,6 +100,7 @@ struct Branch : public Condition {
 
   std::set<Branch> Branches() const override { return {*this}; }
   bool Eval() const override;
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -110,6 +114,10 @@ struct Branch : public Condition {
   // Define this so that we can put Branches into a std::set
   bool operator <(const Branch& other) const {
     return (value < other.value) && (constraint < other.constraint);
+  }
+
+  bool operator ==(const Branch& other) const {
+    return (value == other.value) && (constraint == other.constraint);
   }
 private:
   Value *value;
@@ -130,7 +138,7 @@ struct LogicalOp : public Condition {
   LogicalOp(ConditionKind K) :
     LogicalOp({}, K) {}
 
-  std::set<Branch> Branches() const override;
+  virtual std::set<Branch> Branches() const override;
 
   static bool classof(const Condition *C) {
     return C->getKind() >= CK_And && C->getKind() <= CK_Or;
@@ -154,6 +162,7 @@ struct And : public LogicalOp {
   And() : And({}) {}
 
   bool Eval() const override;
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -179,6 +188,7 @@ struct Or : public LogicalOp {
   Or() : Or({}) {}
 
   bool Eval() const override;
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
