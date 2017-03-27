@@ -40,8 +40,6 @@ public:
   Condition(ConditionKind K) : Kind(K) {}
 
   virtual std::string str() const = 0;
-  virtual Condition *Flattened() { return this; }
-  virtual Condition *CNF() { return this; }
   virtual Condition *Simplified() { return this; }
 
   virtual bool Equal(Condition *other) const = 0;
@@ -116,8 +114,6 @@ struct LogicalOp : public Condition {
   LogicalOp(ConditionKind K) :
     LogicalOp({}, K) {}
 
-  void addOperand(Condition *C) { operands.push_back(C); }
-
   static bool classof(const Condition *C) {
     return C->getKind() >= CK_And && C->getKind() <= CK_Or;
   }
@@ -129,10 +125,7 @@ protected:
 /**
  * Logical and of several conditions.
  */
-struct Or;
 struct And : public LogicalOp {
-  friend struct Or;
-
   template<class InputIt>
   And(InputIt first, InputIt last) :
     LogicalOp(first, last, CK_And) {}
@@ -143,20 +136,7 @@ struct And : public LogicalOp {
   And() : And({}) {}
 
   std::string str() const override;
-
-  And *FlattenAnd();
-  Condition *Flattened() override { 
-    if(operands.size() == 1) {
-      return operands[0]->Flattened();
-    }
-    return FlattenAnd(); 
-  }
-  Condition *CNF() override;
-  Condition *Simplified() override;
-
   bool Equal(Condition *other) const override;
-
-  static And *Product(std::vector<And *> ands);
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
@@ -179,17 +159,6 @@ struct Or : public LogicalOp {
   Or() : Or({}) {}
 
   std::string str() const override;
-
-  Or *FlattenOr();
-  Condition *Flattened() override { 
-    if(operands.size() == 1) {
-      return operands[0]->Flattened();
-    }
-    return FlattenOr(); 
-  }
-  Condition *CNF() override;
-  Condition *Simplified() override;
-
   bool Equal(Condition *other) const override;
 
   static bool classof(const Condition *C) {
