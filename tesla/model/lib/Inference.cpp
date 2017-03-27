@@ -1,4 +1,5 @@
 #include <numeric>
+#include <queue>
 
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/CFG.h>
@@ -38,28 +39,43 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   }
 
   std::map<BasicBlock *, Condition *> ret;
+  auto &entry = f->getEntryBlock();
 
+  // Initialise the mapping between blocks and conditions - we know we can
+  // always get to the entry block, so there's no inference to be made there. We
+  // don't know anything about any other blocks, so we give them the strongest
+  // possible inference and weaken based on later information.
   for(auto& bb : *f) {
-    ret[&bb] = new ConstTrue;
+    if(&bb == &entry) {
+      ret[&bb] = new ConstTrue;
+    } else {
+      ret[&bb] = new Or;
+    }
   }
 
-  auto &entry = f->getEntryBlock();
-  for(int i = 0; i < 5; i++) {
-  for(auto& bb : *f) {
-    if(&bb == &entry) { continue; }
+  std::queue<BasicBlock *> workQueue;
+  workQueue.push(&entry);
 
-    auto current = ret[&bb];
-    auto cond = new Or;
-    for(auto it = pred_begin(&bb); it != pred_end(&bb); it++) {
-      auto bc = BranchCondition(*it, &bb);
-      assert(bc && "Branch condition must not be null!");
+  int i = 0;
+  while(i < 10 && !workQueue.empty()) {
+    auto next = workQueue.front();
+    workQueue.pop();
 
-      cond = new Or{cond, new And{bc, ret[*it]}};
+    auto term = next->getTerminator();
+    for(auto i = 0; i < term->getNumSuccessors(); i++) {
+      auto succ = term->getSuccessor(i);
+
+      auto transition = new And{ret[next], BranchCondition(next, succ)};
+      auto newInf = new Or{ret[succ], transition};
+
+      ret[succ] = newInf->Simplified();
+
+      if(true) { // actually, if changes were made to succ's inference
+        workQueue.push(succ);
+      }
     }
 
-    auto aop = new And{current, cond};
-    ret[&bb] = aop->CNF()->Simplified();
-  }
+    i++;
   }
 
   return ret;
