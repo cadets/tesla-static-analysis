@@ -44,9 +44,11 @@ public:
 
   virtual Condition *Simplified() { return this; }
   virtual std::set<Branch> Branches() const = 0;
-  bool IsConstant() const { return Branches().empty(); }
+  virtual bool IsConstant() const = 0;
   virtual bool Eval() const = 0;
   virtual Condition *Restricted(Branch b, Condition *replace) const = 0;
+  Condition *SplitOn(Branch b) const;
+  Condition *Decomposed();
 
   virtual std::string str() const = 0;
   virtual bool Equal(Condition *other) const = 0;
@@ -62,8 +64,9 @@ struct ConstFalse : public Condition {
   ConstFalse() : Condition(CK_ConstFalse) {}
 
   std::set<Branch> Branches() const override { return {}; }
+  virtual bool IsConstant() const override { return true; }
   bool Eval() const override { return false; }
-  Condition *Restricted(Branch b, Condition *replace) const override;
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -80,6 +83,7 @@ struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}
 
   std::set<Branch> Branches() const override { return {}; }
+  virtual bool IsConstant() const override { return true; }
   bool Eval() const override { return true; }
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
   
@@ -98,7 +102,10 @@ struct Branch : public Condition {
   Branch(Value *v, bool c) : 
     Condition(CK_Branch), value(v), constraint(c) {}
 
+  Branch *Negated() const { return new Branch{value, !constraint}; }
+
   std::set<Branch> Branches() const override { return {*this}; }
+  virtual bool IsConstant() const override { return false; }
   bool Eval() const override;
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
 
@@ -139,6 +146,11 @@ struct LogicalOp : public Condition {
     LogicalOp({}, K) {}
 
   virtual std::set<Branch> Branches() const override;
+  virtual bool IsConstant() const override {
+    return std::all_of(operands.begin(), operands.end(),
+      [](Condition *c) { return c->IsConstant(); }
+    );
+  }
 
   static bool classof(const Condition *C) {
     return C->getKind() >= CK_And && C->getKind() <= CK_Or;

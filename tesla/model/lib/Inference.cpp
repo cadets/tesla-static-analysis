@@ -56,7 +56,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   workQueue.push(&entry);
 
   int i = 0;
-  while(i < 10 && !workQueue.empty()) {
+  while(i < 3 && !workQueue.empty()) {
     auto next = workQueue.front();
     workQueue.pop();
 
@@ -67,7 +67,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
       auto transition = new And{ret[next], BranchCondition(next, succ)};
       auto newInf = new Or{ret[succ], transition};
 
-      ret[succ] = newInf;
+      ret[succ] = newInf->Decomposed();
 
       if(true) { // actually, if changes were made to succ's inference
         workQueue.push(succ);
@@ -78,6 +78,29 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   }
 
   return ret;
+}
+
+/** Shannon Decomposition **/
+
+Condition *Condition::SplitOn(Branch b) const {
+  // should check for const-ness here and then eval - not possible with the
+  // current API without nasty try-catch. Should reimplement IsConst recursively
+  // without constructing a set
+  auto trueVal = Restricted(b, new ConstTrue);
+  auto falseVal = Restricted(b, new ConstFalse);
+
+  return new Or{
+    new And{new Branch(b), trueVal},
+    new And{b.Negated(), falseVal}
+  };
+}
+
+Condition *Condition::Decomposed() {
+  auto currentExpr = this;
+  for(auto b : Branches()) {
+    currentExpr = currentExpr->SplitOn(b);
+  }
+  return currentExpr;
 }
 
 std::set<Branch> LogicalOp::Branches() const {
@@ -115,6 +138,10 @@ bool Or::Eval() const {
 }
 
 /** Restricting Conditions **/
+
+Condition *ConstFalse::Restricted(Branch b, Condition *replace) const {
+  return new ConstFalse(*this);
+}
 
 Condition *ConstTrue::Restricted(Branch b, Condition *replace) const {
   return new ConstTrue(*this);
