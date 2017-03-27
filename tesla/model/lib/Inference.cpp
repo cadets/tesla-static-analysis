@@ -80,6 +80,18 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   return ret;
 }
 
+std::set<Branch> LogicalOp::Branches() const {
+  std::set<Branch> ret;
+
+  for(auto op : operands) {
+    for(auto br : op->Branches()) {
+      ret.insert(br);
+    }
+  }
+
+  return ret;
+}
+
 /** Equality of Conditions **/
 
 bool ConstFalse::Equal(Condition *other) const {
