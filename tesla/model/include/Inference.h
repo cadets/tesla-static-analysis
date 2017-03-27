@@ -24,6 +24,7 @@ using namespace llvm;
  */
 struct Condition {
   enum ConditionKind {
+    CK_ConstFalse,
     CK_ConstTrue,
     CK_Branch,
     CK_And,
@@ -50,9 +51,22 @@ public:
 };
 
 /**
+ * A condition that is always false.
+ */
+struct ConstFalse : public Condition {
+  ConstFalse() : Condition(CK_ConstFalse) {}
+
+  std::string str() const override;
+
+  bool Equal(Condition *other) const override;
+
+  static bool classof(const Condition *C) {
+    return C->getKind() == CK_ConstFalse;
+  }
+};
+
+/**
  * A condition representing constant `true`.
- *
- * As far as I can see, we don't need `false` for now as we have no negation.
  */
 struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}

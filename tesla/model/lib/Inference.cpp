@@ -266,6 +266,10 @@ Condition *Or::Simplified() {
 
 /** Equality of Conditions **/
 
+bool ConstFalse::Equal(Condition *other) const {
+  return isa<ConstFalse>(other);
+}
+
 bool ConstTrue::Equal(Condition *other) const {
   return isa<ConstTrue>(other);
 }
@@ -319,6 +323,10 @@ bool Branch::Opposite(Branch *other) const {
 }
 
 /** Printing Conditions **/
+
+std::string ConstFalse::str() const {
+  return "false";
+}
 
 std::string ConstTrue::str() const {
   return "true";
