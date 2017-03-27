@@ -87,7 +87,14 @@ Condition *Condition::SplitOn(Branch b) const {
   // current API without nasty try-catch. Should reimplement IsConst recursively
   // without constructing a set
   auto trueVal = Restricted(b, new ConstTrue);
+  if(trueVal->IsConstant()) {
+    trueVal = (trueVal->Eval() ? (Condition *)new ConstTrue : (Condition *)new ConstFalse);
+  }
+
   auto falseVal = Restricted(b, new ConstFalse);
+  if(falseVal->IsConstant()) {
+    falseVal = (falseVal->Eval() ? (Condition *)new ConstTrue : (Condition *)new ConstFalse);
+  }
 
   return new Or{
     new And{new Branch(b), trueVal},
