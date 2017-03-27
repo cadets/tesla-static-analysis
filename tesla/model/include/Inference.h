@@ -45,6 +45,7 @@ public:
   virtual Condition *Simplified() { return this; }
   virtual std::set<Branch> Branches() const = 0;
   bool IsConstant() const { return Branches().empty(); }
+  virtual bool Eval() const = 0;
 
   virtual std::string str() const = 0;
   virtual bool Equal(Condition *other) const = 0;
@@ -60,6 +61,7 @@ struct ConstFalse : public Condition {
   ConstFalse() : Condition(CK_ConstFalse) {}
 
   std::set<Branch> Branches() const override { return {}; }
+  bool Eval() const override { return false; }
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -76,6 +78,7 @@ struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}
 
   std::set<Branch> Branches() const override { return {}; }
+  bool Eval() const override { return true; }
   
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -93,6 +96,7 @@ struct Branch : public Condition {
     Condition(CK_Branch), value(v), constraint(c) {}
 
   std::set<Branch> Branches() const override { return {*this}; }
+  bool Eval() const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -149,6 +153,8 @@ struct And : public LogicalOp {
 
   And() : And({}) {}
 
+  bool Eval() const override;
+
   std::string str() const override;
   bool Equal(Condition *other) const override;
 
@@ -171,6 +177,8 @@ struct Or : public LogicalOp {
     Or(il.begin(), il.end()) {}
 
   Or() : Or({}) {}
+
+  bool Eval() const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;

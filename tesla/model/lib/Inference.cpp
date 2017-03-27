@@ -92,6 +92,28 @@ std::set<Branch> LogicalOp::Branches() const {
   return ret;
 }
 
+/** Evaluating Conditions **/
+
+bool Branch::Eval() const {
+  assert(false && "Can't evaluate a branch - expression not constant!");
+}
+
+bool And::Eval() const {
+  return std::all_of(operands.begin(), operands.end(),
+    [](Condition *op) {
+      return op->Eval();
+    }
+  );
+}
+
+bool Or::Eval() const {
+  return std::all_of(operands.begin(), operands.end(),
+    [](Condition *op) {
+      return op->Eval();
+    }
+  );
+}
+
 /** Equality of Conditions **/
 
 bool ConstFalse::Equal(Condition *other) const {
