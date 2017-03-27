@@ -42,7 +42,7 @@ public:
 
   Condition(ConditionKind K) : Kind(K) {}
 
-  virtual Condition *Simplified() { return this; }
+  virtual Condition *Simplified() const = 0;
   virtual std::set<Branch> Branches() const = 0;
   virtual bool IsConstant() const = 0;
   virtual bool Eval() const = 0;
@@ -63,6 +63,7 @@ public:
 struct ConstFalse : public Condition {
   ConstFalse() : Condition(CK_ConstFalse) {}
 
+  virtual Condition *Simplified() const override;
   std::set<Branch> Branches() const override { return {}; }
   virtual bool IsConstant() const override { return true; }
   bool Eval() const override { return false; }
@@ -82,6 +83,7 @@ struct ConstFalse : public Condition {
 struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}
 
+  virtual Condition *Simplified() const override;
   std::set<Branch> Branches() const override { return {}; }
   virtual bool IsConstant() const override { return true; }
   bool Eval() const override { return true; }
@@ -104,6 +106,7 @@ struct Branch : public Condition {
 
   Branch *Negated() const { return new Branch{value, !constraint}; }
 
+  virtual Condition *Simplified() const override;
   std::set<Branch> Branches() const override { return {*this}; }
   virtual bool IsConstant() const override { return false; }
   bool Eval() const override;
@@ -173,6 +176,7 @@ struct And : public LogicalOp {
 
   And() : And({}) {}
 
+  virtual Condition *Simplified() const override;
   bool Eval() const override;
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
 
@@ -199,6 +203,7 @@ struct Or : public LogicalOp {
 
   Or() : Or({}) {}
 
+  virtual Condition *Simplified() const override;
   bool Eval() const override;
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
 

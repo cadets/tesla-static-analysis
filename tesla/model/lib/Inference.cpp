@@ -56,7 +56,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   workQueue.push(&entry);
 
   int i = 0;
-  while(i < 3 && !workQueue.empty()) {
+  while(i < 7 && !workQueue.empty()) {
     auto next = workQueue.front();
     workQueue.pop();
 
@@ -66,8 +66,8 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
 
       auto transition = new And{ret[next], BranchCondition(next, succ)};
       auto newInf = new Or{ret[succ], transition};
-
-      ret[succ] = newInf->Decomposed();
+      
+      ret[succ] = newInf->Decomposed()->Simplified();
 
       if(true) { // actually, if changes were made to succ's inference
         workQueue.push(succ);
@@ -137,11 +137,119 @@ bool And::Eval() const {
 }
 
 bool Or::Eval() const {
-  return std::all_of(operands.begin(), operands.end(),
+  return std::any_of(operands.begin(), operands.end(),
     [](Condition *op) {
       return op->Eval();
     }
   );
+}
+
+/** Simplification **/
+
+Condition *ConstTrue::Simplified() const {
+  return new ConstTrue;
+}
+
+Condition *ConstFalse::Simplified() const {
+  return new ConstFalse;
+}
+
+Condition *Branch::Simplified() const {
+  return new Branch{*this};
+}
+
+Condition *And::Simplified() const {
+  if(IsConstant()) {
+    if(Eval()) {
+      return new ConstTrue;
+    } else {
+      return new ConstFalse;
+    }
+  }
+
+  std::vector<Condition *> simples;
+  for(auto op : operands) {
+    auto sop = op->Simplified();
+    if(!isa<ConstTrue>(sop)) {
+      simples.push_back(sop);
+    }
+  }
+
+  auto cfalse = std::any_of(simples.begin(), simples.end(),
+    [](Condition *c) { return isa<ConstFalse>(c); }
+  );
+
+  if(cfalse) {
+    return new ConstFalse;
+  }
+
+  std::vector<Condition *> dedup;
+  for(auto op : simples) {
+    auto prev = std::find_if(dedup.begin(), dedup.end(),
+      [=](Condition *c) {
+        return c->Equal(op);
+      }
+    );
+
+    if(prev == dedup.end()) {
+      dedup.push_back(op);
+    }
+  }
+
+  if(dedup.size() == 0) {
+    return new ConstTrue;
+  } else if(dedup.size() == 1) {
+    return dedup[0];
+  } else {
+    return new And{dedup.begin(), dedup.end()};
+  }
+}
+
+Condition *Or::Simplified() const {
+  if(IsConstant()) {
+    if(Eval()) {
+      return new ConstTrue;
+    } else {
+      return new ConstFalse;
+    }
+  }
+
+  std::vector<Condition *> simples;
+  for(auto op : operands) {
+    auto sop = op->Simplified();
+    if(!isa<ConstFalse>(sop)) {
+      simples.push_back(sop);
+    }
+  }
+
+  auto ctrue = std::any_of(simples.begin(), simples.end(),
+    [](Condition *c) { return isa<ConstTrue>(c); }
+  );
+
+  if(ctrue) {
+    return new ConstTrue;
+  }
+
+  std::vector<Condition *> dedup;
+  for(auto op : simples) {
+    auto prev = std::find_if(dedup.begin(), dedup.end(),
+      [=](Condition *c) {
+        return c->Equal(op);
+      }
+    );
+
+    if(prev == dedup.end()) {
+      dedup.push_back(op);
+    }
+  }
+
+  if(dedup.size() == 0) {
+    return new ConstFalse;
+  } else if(dedup.size() == 1) {
+    return dedup[0];
+  } else {
+    return new Or{dedup.begin(), dedup.end()};
+  }
 }
 
 /** Restricting Conditions **/
