@@ -232,11 +232,19 @@ Condition *Or::Simplified() const {
 /** Restricting Conditions **/
 
 Condition *ConstFalse::Restricted(Branch b, Condition *replace) const {
-  return new ConstFalse(*this);
+  return new ConstFalse;
+}
+
+Condition *ConstFalse::Restricted(Branch, Condition *, Condition *) const {
+  return new ConstFalse;
 }
 
 Condition *ConstTrue::Restricted(Branch b, Condition *replace) const {
-  return new ConstTrue(*this);
+  return new ConstTrue;
+}
+
+Condition *ConstTrue::Restricted(Branch, Condition *, Condition *) const {
+  return new ConstTrue;
 }
 
 Condition *Branch::Restricted(Branch b, Condition *replace) const {
@@ -247,24 +255,52 @@ Condition *Branch::Restricted(Branch b, Condition *replace) const {
   return new Branch(*this);
 }
 
-Condition *And::Restricted(Branch b, Condition *replace) const {
+Condition *Branch::Restricted(Branch b, Condition *tr, Condition *fr) const {
+  if(b == *this) {
+    return tr;
+  } else if(*b.Negated() == *this) {
+    return fr;
+  }
+
+  return new Branch(*this);
+}
+
+template<class C>
+Condition *LogicalOp::RestrictedLogic(Branch b, Condition *replace) const {
   std::vector<Condition *> newOps;
   
   for(auto op : operands) {
     newOps.push_back(op->Restricted(b, replace));
   }
 
-  return new And{newOps.begin(), newOps.end()};
+  return new C{newOps.begin(), newOps.end()};
+}
+
+template<class C>
+Condition *LogicalOp::RestrictedLogic(Branch b, Condition *tr, Condition *fr) const {
+  std::vector<Condition *> newOps;
+  
+  for(auto op : operands) {
+    newOps.push_back(op->Restricted(b, tr, fr));
+  }
+
+  return new C{newOps.begin(), newOps.end()};
+}
+
+Condition *And::Restricted(Branch b, Condition *replace) const {
+  return RestrictedLogic<And>(b, replace);
+}
+
+Condition *And::Restricted(Branch b, Condition *tr, Condition *fr) const {
+  return RestrictedLogic<And>(b, tr, fr);
 }
 
 Condition *Or::Restricted(Branch b, Condition *replace) const {
-  std::vector<Condition *> newOps;
-  
-  for(auto op : operands) {
-    newOps.push_back(op->Restricted(b, replace));
-  }
+  return RestrictedLogic<Or>(b, replace);
+}
 
-  return new Or{newOps.begin(), newOps.end()};
+Condition *Or::Restricted(Branch b, Condition *tr, Condition *fr) const {
+  return RestrictedLogic<Or>(b, tr, fr);
 }
 
 /** Equality of Conditions **/
