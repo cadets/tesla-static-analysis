@@ -8,6 +8,7 @@
 #include <map>
 #include <queue>
 
+#include "BackwardsSearch.h"
 #include "Debug.h"
 #include "EventGraph.h"
 #include "FiniteTraces.h"
@@ -76,6 +77,10 @@ int main(int argc, char **argv) {
 
       for(auto b : Implication::BoolValuesFrom(pair.second)) {
         errs() << "\t" << "implies " << b.str() << '\n';
+        if(auto then = BackwardsSearch::From(b)) {
+          errs() << "\t and then " << then->str() << '\n';
+          then->GetValue()->dump();
+        }
       }
 
       pair.first->print(errs());
