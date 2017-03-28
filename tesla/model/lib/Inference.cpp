@@ -56,7 +56,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   workQueue.push(&entry);
 
   int i = 0;
-  while(i < 7 && !workQueue.empty()) {
+  while(i < 70 && !workQueue.empty()) {
     auto next = workQueue.front();
     workQueue.pop();
 
