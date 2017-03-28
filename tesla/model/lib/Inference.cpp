@@ -1,9 +1,9 @@
 #include <numeric>
+#include <queue>
 
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/CFG.h>
 
-#include "CartesianProduct.h"
 #include "Inference.h"
 
 /** Compute Strongest Inferences **/
@@ -38,217 +38,240 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   }
 
   std::map<BasicBlock *, Condition *> ret;
+  auto &entry = f->getEntryBlock();
 
+  // Initialise the mapping between blocks and conditions - we know we can
+  // always get to the entry block, so there's no inference to be made there. We
+  // don't know anything about any other blocks, so we give them the strongest
+  // possible inference and weaken based on later information.
   for(auto& bb : *f) {
-    ret[&bb] = new ConstTrue;
+    if(&bb == &entry) {
+      ret[&bb] = new ConstTrue;
+    } else {
+      ret[&bb] = new Or;
+    }
   }
 
-  auto &entry = f->getEntryBlock();
-  for(int i = 0; i < 5; i++) {
-  for(auto& bb : *f) {
-    if(&bb == &entry) { continue; }
+  std::queue<BasicBlock *> workQueue;
+  workQueue.push(&entry);
 
-    auto current = ret[&bb];
-    auto cond = new Or;
-    for(auto it = pred_begin(&bb); it != pred_end(&bb); it++) {
-      auto bc = BranchCondition(*it, &bb);
-      assert(bc && "Branch condition must not be null!");
+  int i = 0;
+  while(i < 7 && !workQueue.empty()) {
+    auto next = workQueue.front();
+    workQueue.pop();
 
-      cond = new Or{cond, new And{bc, ret[*it]}};
+    auto term = next->getTerminator();
+    for(auto i = 0; i < term->getNumSuccessors(); i++) {
+      auto succ = term->getSuccessor(i);
+
+      auto transition = new And{ret[next], BranchCondition(next, succ)};
+      auto newInf = new Or{ret[succ], transition};
+      
+      ret[succ] = newInf->Decomposed()->Simplified();
+
+      if(true) { // actually, if changes were made to succ's inference
+        workQueue.push(succ);
+      }
     }
 
-    auto aop = new And{current, cond};
-    ret[&bb] = aop->CNF()->Simplified();
-  }
+    i++;
   }
 
   return ret;
 }
 
-/** Conversion to CNF & Flattening **/
+/** Shannon Decomposition **/
 
-And *And::FlattenAnd() {
-  std::vector<Condition *> newOps;
+Condition *Condition::SplitOn(Branch b) const {
+  // should check for const-ness here and then eval - not possible with the
+  // current API without nasty try-catch. Should reimplement IsConst recursively
+  // without constructing a set
+  auto trueVal = Restricted(b, new ConstTrue);
+  if(trueVal->IsConstant()) {
+    trueVal = (trueVal->Eval() ? (Condition *)new ConstTrue : (Condition *)new ConstFalse);
+  }
+
+  auto falseVal = Restricted(b, new ConstFalse);
+  if(falseVal->IsConstant()) {
+    falseVal = (falseVal->Eval() ? (Condition *)new ConstTrue : (Condition *)new ConstFalse);
+  }
+
+  return new Or{
+    new And{new Branch(b), trueVal},
+    new And{b.Negated(), falseVal}
+  };
+}
+
+Condition *Condition::Decomposed() {
+  auto currentExpr = this;
+  for(auto b : Branches()) {
+    currentExpr = currentExpr->SplitOn(b);
+  }
+  return currentExpr;
+}
+
+std::set<Branch> LogicalOp::Branches() const {
+  std::set<Branch> ret;
 
   for(auto op : operands) {
-    if(auto ao = dyn_cast<And>(op)) {
-      auto flat = ao->FlattenAnd();
-      for(auto fo : flat->operands) {
-        newOps.push_back(fo->Flattened());
-      }
-    } else {
-      newOps.push_back(op);
+    for(auto br : op->Branches()) {
+      ret.insert(br);
     }
   }
 
-  return new And(newOps.begin(), newOps.end());
+  return ret;
 }
 
-Or *Or::FlattenOr() {
-  std::vector<Condition *> newOps;
+/** Evaluating Conditions **/
 
-  for(auto op : operands) {
-    if(auto ao = dyn_cast<Or>(op)) {
-      auto flat = ao->FlattenOr();
-      for(auto fo : flat->operands) {
-        newOps.push_back(fo->Flattened());
-      }
-    } else {
-      newOps.push_back(op);
-    }
-  }
-
-  return new Or(newOps.begin(), newOps.end());
+bool Branch::Eval() const {
+  assert(false && "Can't evaluate a branch - expression not constant!");
 }
 
-Condition *And::CNF() {
-  auto flat = FlattenAnd();
-  std::vector<Condition *> inCNF;
-
-  for(auto op : flat->operands) {
-    inCNF.push_back(op->CNF()->Flattened());
-  }
-
-  return new And{inCNF.begin(), inCNF.end()};
-}
-
-Condition *Or::CNF() {
-  auto flat = FlattenOr();
-
-  // it is possible that an OR condition is already a clause, in which case it
-  // is already in CNF (i.e. it can be included in an AND at the top level)
-  bool isClause = std::none_of(flat->operands.begin(), flat->operands.end(),
-    [=](Condition *c) {
-      return isa<And>(c);
+bool And::Eval() const {
+  return std::all_of(operands.begin(), operands.end(),
+    [](Condition *op) {
+      return op->Eval();
     }
   );
+}
 
-  if(isClause) {
-    return flat;
-  }
-
-  // otherwise, there is an AND nested inside the OR expression. If this is the
-  // case, then we need to partition the AND and root subexpressions of the
-  // flattened AND
-  
-  std::vector<And *> ands;
-  std::vector<Condition *> roots;
-
-  std::for_each(flat->operands.begin(), flat->operands.end(),
-    [&](Condition *c) {
-      assert(!isa<Or>(c) && "Flattening OR is broken");
-      if(auto a = dyn_cast<And>(c)) {
-        ands.push_back(a->FlattenAnd());
-      } else {
-        roots.push_back(c);
-      }
+bool Or::Eval() const {
+  return std::any_of(operands.begin(), operands.end(),
+    [](Condition *op) {
+      return op->Eval();
     }
   );
-
-  // now that we have separated the ANDs and roots, we need to generate a
-  // cartesian product over the operands of all the AND subexpressions
-  // identified. This product is itself an AND over a set of ORs, with each OR
-  // having one member from each AND. The total number of these is the product
-  // of the number of operands in each AND.
-  // As well as this, we need to OR each member of the cartesian product with
-  // the root expressions found.
-
-  auto rootor = new Or{roots.begin(), roots.end()};
-  auto prod = And::Product(ands);
-  auto dist = new Or{rootor, prod};
-
-  return dist->Flattened();
 }
 
-// turn a vector of ANDs [a&b, c&d&e] (that are implicitly ORed together) into
-// the inside-out version [a|c, a|d, ..., b|e]
-And *And::Product(std::vector<And *> ands) {
-  vector<vector<Condition *>> conds;
+/** Simplification **/
 
-  for(auto a : ands) {
-    conds.push_back(a->operands);
-  }
-
-  auto cart = tesla::CartesianProduct(conds);
-
-  vector<Or *> ors;
-  for(auto t : cart) {
-    ors.push_back(new Or{t.begin(), t.end()});
-  }
-
-  return new And{ors.begin(), ors.end()};
+Condition *ConstTrue::Simplified() const {
+  return new ConstTrue;
 }
 
-Condition *And::Simplified() {
-  auto flat = FlattenAnd();
+Condition *ConstFalse::Simplified() const {
+  return new ConstFalse;
+}
+
+Condition *Branch::Simplified() const {
+  return new Branch{*this};
+}
+
+template<class C, class Zero, class Elim, class Match>
+Condition *LogicalOp::SimplifyLogic() const {
+  if(IsConstant()) {
+    if(Eval()) {
+      return new ConstTrue;
+    } else {
+      return new ConstFalse;
+    }
+  }
 
   std::vector<Condition *> simples;
-  for(auto c : flat->operands) {
-    auto simp = c->Simplified();
-    if(!isa<ConstTrue>(simp)) {
-      simples.push_back(simp);
+  for(auto op : operands) {
+    auto sop = op->Simplified();
+    if(!isa<Zero>(sop)) {
+      simples.push_back(sop);
     }
   }
 
-  if(simples.empty()) {
-    return new ConstTrue;
+  auto elim = std::any_of(simples.begin(), simples.end(),
+    [](Condition *c) { return isa<Elim>(c); }
+  );
+
+  if(elim) {
+    return new Elim;
   }
 
   std::vector<Condition *> dedup;
-  for(auto s : simples) {
-    auto dup = std::find_if(dedup.begin(), dedup.end(),
+  for(auto op : simples) {
+    auto prev = std::find_if(dedup.begin(), dedup.end(),
       [=](Condition *c) {
-        return s->Equal(c);
+        return c->Equal(op);
       }
     );
 
-    if(dup == dedup.end()) {
-      dedup.push_back(s);
+    if(prev == dedup.end()) {
+      dedup.push_back(op);
     }
   }
 
-  return new And{dedup.begin(), dedup.end()};
+  for(auto op : dedup) {
+    if(auto br = dyn_cast<Branch>(op)) {
+      auto dual = std::find_if(dedup.begin(), dedup.end(),
+        [=](Condition *c) {
+          auto ob = dyn_cast<Branch>(c);
+          return ob && br->Opposite(ob);
+        }
+      );
+
+      if(dual != dedup.end()) {
+        return new Match;
+      }
+    }
+  }
+
+  if(dedup.size() == 0) {
+    return new Zero;
+  } else if(dedup.size() == 1) {
+    return dedup[0];
+  } else {
+    return new C{dedup.begin(), dedup.end()};
+  }
 }
 
-Condition *Or::Simplified() {
-  auto flat = FlattenOr();
+Condition *And::Simplified() const {
+  return SimplifyLogic<And, ConstTrue, ConstFalse, ConstFalse>();
+}
 
-  std::vector<Condition *> simples;
-  for(auto c : flat->operands) {
-    simples.push_back(c->Simplified());
+Condition *Or::Simplified() const {
+  return SimplifyLogic<Or, ConstFalse, ConstTrue, ConstTrue>();
+}
+
+/** Restricting Conditions **/
+
+Condition *ConstFalse::Restricted(Branch b, Condition *replace) const {
+  return new ConstFalse(*this);
+}
+
+Condition *ConstTrue::Restricted(Branch b, Condition *replace) const {
+  return new ConstTrue(*this);
+}
+
+Condition *Branch::Restricted(Branch b, Condition *replace) const {
+  if(b == *this) {
+    return replace;
   }
 
-  bool anyTrue = std::any_of(simples.begin(), simples.end(),
-    [=](Condition *c) {
-      return isa<ConstTrue>(c);
-    }
-  );
+  return new Branch(*this);
+}
+
+Condition *And::Restricted(Branch b, Condition *replace) const {
+  std::vector<Condition *> newOps;
   
-  if(anyTrue) {
-    return new ConstTrue;
+  for(auto op : operands) {
+    newOps.push_back(op->Restricted(b, replace));
   }
 
-  for(auto s : simples) {
-    auto dup = std::any_of(simples.begin(), simples.end(),
-      [=](Condition *c) {
-        if(auto sb = dyn_cast<Branch>(s)) {
-          if(auto cb = dyn_cast<Branch>(c)) {
-            return cb->Opposite(sb);
-          }
-        }
-        return false;
-      }
-    );
+  return new And{newOps.begin(), newOps.end()};
+}
 
-    if(dup) {
-      return new ConstTrue;
-    }
+Condition *Or::Restricted(Branch b, Condition *replace) const {
+  std::vector<Condition *> newOps;
+  
+  for(auto op : operands) {
+    newOps.push_back(op->Restricted(b, replace));
   }
 
-  return (new Or{simples.begin(), simples.end()})->Flattened();
+  return new Or{newOps.begin(), newOps.end()};
 }
 
 /** Equality of Conditions **/
+
+bool ConstFalse::Equal(Condition *other) const {
+  return isa<ConstFalse>(other);
+}
 
 bool ConstTrue::Equal(Condition *other) const {
   return isa<ConstTrue>(other);
@@ -256,7 +279,7 @@ bool ConstTrue::Equal(Condition *other) const {
 
 bool Branch::Equal(Condition *other) const {
   if(auto ob = dyn_cast<Branch>(other)) {
-    return (value == ob->value) && (constraint == ob->constraint);
+    return *this == *ob;
   }
 
   return false;
@@ -303,6 +326,10 @@ bool Branch::Opposite(Branch *other) const {
 }
 
 /** Printing Conditions **/
+
+std::string ConstFalse::str() const {
+  return "false";
+}
 
 std::string ConstTrue::str() const {
   return "true";

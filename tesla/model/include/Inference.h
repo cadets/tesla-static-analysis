@@ -9,10 +9,13 @@
 
 #include <initializer_list>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
 using namespace llvm;
+
+struct Branch;
 
 /**
  * Abstract class that represents an inferred condition.
@@ -24,6 +27,7 @@ using namespace llvm;
  */
 struct Condition {
   enum ConditionKind {
+    CK_ConstFalse,
     CK_ConstTrue,
     CK_Branch,
     CK_And,
@@ -38,11 +42,15 @@ public:
 
   Condition(ConditionKind K) : Kind(K) {}
 
-  virtual std::string str() const = 0;
-  virtual Condition *Flattened() { return this; }
-  virtual Condition *CNF() { return this; }
-  virtual Condition *Simplified() { return this; }
+  virtual Condition *Simplified() const = 0;
+  virtual std::set<Branch> Branches() const = 0;
+  virtual bool IsConstant() const = 0;
+  virtual bool Eval() const = 0;
+  virtual Condition *Restricted(Branch b, Condition *replace) const = 0;
+  Condition *SplitOn(Branch b) const;
+  Condition *Decomposed();
 
+  virtual std::string str() const = 0;
   virtual bool Equal(Condition *other) const = 0;
 
   static std::map<BasicBlock *, Condition *> StrongestInferences(Function *f);
@@ -50,15 +58,38 @@ public:
 };
 
 /**
+ * A condition that is always false.
+ */
+struct ConstFalse : public Condition {
+  ConstFalse() : Condition(CK_ConstFalse) {}
+
+  virtual Condition *Simplified() const override;
+  std::set<Branch> Branches() const override { return {}; }
+  virtual bool IsConstant() const override { return true; }
+  bool Eval() const override { return false; }
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
+
+  std::string str() const override;
+  bool Equal(Condition *other) const override;
+
+  static bool classof(const Condition *C) {
+    return C->getKind() == CK_ConstFalse;
+  }
+};
+
+/**
  * A condition representing constant `true`.
- *
- * As far as I can see, we don't need `false` for now as we have no negation.
  */
 struct ConstTrue : public Condition {
   ConstTrue() : Condition(CK_ConstTrue) {}
+
+  virtual Condition *Simplified() const override;
+  std::set<Branch> Branches() const override { return {}; }
+  virtual bool IsConstant() const override { return true; }
+  bool Eval() const override { return true; }
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
   
   std::string str() const override;
-
   bool Equal(Condition *other) const override;
 
   static bool classof(const Condition *C) {
@@ -73,8 +104,15 @@ struct Branch : public Condition {
   Branch(Value *v, bool c) : 
     Condition(CK_Branch), value(v), constraint(c) {}
 
-  std::string str() const override;
+  Branch *Negated() const { return new Branch{value, !constraint}; }
 
+  virtual Condition *Simplified() const override;
+  std::set<Branch> Branches() const override { return {*this}; }
+  virtual bool IsConstant() const override { return false; }
+  bool Eval() const override;
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
+
+  std::string str() const override;
   bool Equal(Condition *other) const override;
 
   static bool classof(const Condition *C) {
@@ -83,6 +121,14 @@ struct Branch : public Condition {
 
   bool Opposite(Branch *other) const;
 
+  // Define this so that we can put Branches into a std::set
+  bool operator <(const Branch& other) const {
+    return (value < other.value) && (constraint < other.constraint);
+  }
+
+  bool operator ==(const Branch& other) const {
+    return (value == other.value) && (constraint == other.constraint);
+  }
 private:
   Value *value;
   bool constraint;
@@ -102,7 +148,15 @@ struct LogicalOp : public Condition {
   LogicalOp(ConditionKind K) :
     LogicalOp({}, K) {}
 
-  void addOperand(Condition *C) { operands.push_back(C); }
+  template<class C, class Zero, class Elim, class Match>
+  Condition *SimplifyLogic() const;
+
+  virtual std::set<Branch> Branches() const override;
+  virtual bool IsConstant() const override {
+    return std::all_of(operands.begin(), operands.end(),
+      [](Condition *c) { return c->IsConstant(); }
+    );
+  }
 
   static bool classof(const Condition *C) {
     return C->getKind() >= CK_And && C->getKind() <= CK_Or;
@@ -115,10 +169,7 @@ protected:
 /**
  * Logical and of several conditions.
  */
-struct Or;
 struct And : public LogicalOp {
-  friend struct Or;
-
   template<class InputIt>
   And(InputIt first, InputIt last) :
     LogicalOp(first, last, CK_And) {}
@@ -128,21 +179,12 @@ struct And : public LogicalOp {
 
   And() : And({}) {}
 
+  virtual Condition *Simplified() const override;
+  bool Eval() const override;
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
+
   std::string str() const override;
-
-  And *FlattenAnd();
-  Condition *Flattened() override { 
-    if(operands.size() == 1) {
-      return operands[0]->Flattened();
-    }
-    return FlattenAnd(); 
-  }
-  Condition *CNF() override;
-  Condition *Simplified() override;
-
   bool Equal(Condition *other) const override;
-
-  static And *Product(std::vector<And *> ands);
 
   static bool classof(const Condition *C) {
     return C->getKind() == CK_And;
@@ -164,18 +206,11 @@ struct Or : public LogicalOp {
 
   Or() : Or({}) {}
 
+  virtual Condition *Simplified() const override;
+  bool Eval() const override;
+  virtual Condition *Restricted(Branch b, Condition *replace) const override;
+
   std::string str() const override;
-
-  Or *FlattenOr();
-  Condition *Flattened() override { 
-    if(operands.size() == 1) {
-      return operands[0]->Flattened();
-    }
-    return FlattenOr(); 
-  }
-  Condition *CNF() override;
-  Condition *Simplified() override;
-
   bool Equal(Condition *other) const override;
 
   static bool classof(const Condition *C) {
