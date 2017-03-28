@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
       errs() << "--------------------\n\n";
       errs() << "###\tconds: " << pair.second->str() << "\t###\n";
 
-      for(auto b : Implication::BranchesFrom(pair.second)) {
+      for(auto b : Implication::BoolValuesFrom(pair.second)) {
         errs() << "\t" << "implies " << b.str() << '\n';
       }
 

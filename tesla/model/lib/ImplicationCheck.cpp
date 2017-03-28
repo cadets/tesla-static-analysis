@@ -1,12 +1,12 @@
 #include "ImplicationCheck.h"
 
-bool Implication::Check(Condition *c, Branch b) {
+bool Implication::Check(Condition *c, BoolValue b) {
   auto not_b = *b.Negated();
 
-  auto allBranches = c->Branches();
-  std::set<Branch> extras;
+  auto allBoolValues = c->BoolValues();
+  std::set<BoolValue> extras;
 
-  for(auto e : allBranches) {
+  for(auto e : allBoolValues) {
     if ((e != b) && (e != not_b)) {
       extras.insert(e);
     }
@@ -33,10 +33,10 @@ bool Implication::Check(Condition *c, Branch b) {
   );
 }
 
-std::set<Branch> Implication::BranchesFrom(Condition *c) {
-  std::set<Branch> ret;
+std::set<BoolValue> Implication::BoolValuesFrom(Condition *c) {
+  std::set<BoolValue> ret;
 
-  for(auto branch : c->Branches()) {
+  for(auto branch : c->BoolValues()) {
     if(Implication::Check(c, branch)) {
       ret.insert(branch);
     }
