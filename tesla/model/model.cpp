@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
     errs() << f.getName().str() << "\n\n";
     auto infs = Condition::StrongestInferences(&f);
     for(auto pair : infs) {
+      errs() << "--------------------\n\n";
       errs() << "###\tconds: " << pair.second->str() << "\t###\n";
 
       for(auto b : pair.second->Branches()) {
