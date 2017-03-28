@@ -148,6 +148,9 @@ struct LogicalOp : public Condition {
   LogicalOp(ConditionKind K) :
     LogicalOp({}, K) {}
 
+  template<class C, class Zero, class Elim, class Match>
+  Condition *SimplifyLogic() const;
+
   virtual std::set<Branch> Branches() const override;
   virtual bool IsConstant() const override {
     return std::all_of(operands.begin(), operands.end(),

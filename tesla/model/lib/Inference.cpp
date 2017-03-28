@@ -158,7 +158,8 @@ Condition *Branch::Simplified() const {
   return new Branch{*this};
 }
 
-Condition *And::Simplified() const {
+template<class C, class Zero, class Elim, class Match>
+Condition *LogicalOp::SimplifyLogic() const {
   if(IsConstant()) {
     if(Eval()) {
       return new ConstTrue;
@@ -170,17 +171,17 @@ Condition *And::Simplified() const {
   std::vector<Condition *> simples;
   for(auto op : operands) {
     auto sop = op->Simplified();
-    if(!isa<ConstTrue>(sop)) {
+    if(!isa<Zero>(sop)) {
       simples.push_back(sop);
     }
   }
 
-  auto cfalse = std::any_of(simples.begin(), simples.end(),
-    [](Condition *c) { return isa<ConstFalse>(c); }
+  auto elim = std::any_of(simples.begin(), simples.end(),
+    [](Condition *c) { return isa<Elim>(c); }
   );
 
-  if(cfalse) {
-    return new ConstFalse;
+  if(elim) {
+    return new Elim;
   }
 
   std::vector<Condition *> dedup;
@@ -197,59 +198,20 @@ Condition *And::Simplified() const {
   }
 
   if(dedup.size() == 0) {
-    return new ConstTrue;
+    return new Zero;
   } else if(dedup.size() == 1) {
     return dedup[0];
   } else {
-    return new And{dedup.begin(), dedup.end()};
+    return new C{dedup.begin(), dedup.end()};
   }
 }
 
+Condition *And::Simplified() const {
+  return SimplifyLogic<And, ConstTrue, ConstFalse, ConstFalse>();
+}
+
 Condition *Or::Simplified() const {
-  if(IsConstant()) {
-    if(Eval()) {
-      return new ConstTrue;
-    } else {
-      return new ConstFalse;
-    }
-  }
-
-  std::vector<Condition *> simples;
-  for(auto op : operands) {
-    auto sop = op->Simplified();
-    if(!isa<ConstFalse>(sop)) {
-      simples.push_back(sop);
-    }
-  }
-
-  auto ctrue = std::any_of(simples.begin(), simples.end(),
-    [](Condition *c) { return isa<ConstTrue>(c); }
-  );
-
-  if(ctrue) {
-    return new ConstTrue;
-  }
-
-  std::vector<Condition *> dedup;
-  for(auto op : simples) {
-    auto prev = std::find_if(dedup.begin(), dedup.end(),
-      [=](Condition *c) {
-        return c->Equal(op);
-      }
-    );
-
-    if(prev == dedup.end()) {
-      dedup.push_back(op);
-    }
-  }
-
-  if(dedup.size() == 0) {
-    return new ConstFalse;
-  } else if(dedup.size() == 1) {
-    return dedup[0];
-  } else {
-    return new Or{dedup.begin(), dedup.end()};
-  }
+  return SimplifyLogic<Or, ConstFalse, ConstTrue, ConstTrue>();
 }
 
 /** Restricting Conditions **/
