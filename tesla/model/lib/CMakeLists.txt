@@ -12,6 +12,7 @@ add_llvm_library(TeslaModel
   ModelGenerator.cpp
   Inference.cpp
   ImplicationCheck.cpp
+  BackwardsSearch.cpp
 )
 
 target_link_libraries(TeslaModel

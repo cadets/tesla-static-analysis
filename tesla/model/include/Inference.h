@@ -109,6 +109,9 @@ struct BoolValue : public Condition {
 
   BoolValue *Negated() const { return new BoolValue{value, !constraint}; }
 
+  Value *const GetValue() const { return value; }
+  bool GetConstraint() const { return constraint; }
+
   virtual Condition *Simplified() const override;
   std::set<BoolValue> BoolValues() const override { return {*this}; }
   virtual bool IsConstant() const override { return false; }
