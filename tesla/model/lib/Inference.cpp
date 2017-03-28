@@ -197,6 +197,21 @@ Condition *LogicalOp::SimplifyLogic() const {
     }
   }
 
+  for(auto op : dedup) {
+    if(auto br = dyn_cast<Branch>(op)) {
+      auto dual = std::find_if(dedup.begin(), dedup.end(),
+        [=](Condition *c) {
+          auto ob = dyn_cast<Branch>(c);
+          return ob && br->Opposite(ob);
+        }
+      );
+
+      if(dual != dedup.end()) {
+        return new Match;
+      }
+    }
+  }
+
   if(dedup.size() == 0) {
     return new Zero;
   } else if(dedup.size() == 1) {
