@@ -32,3 +32,15 @@ bool Implication::Check(Condition *c, Branch b) {
     }
   );
 }
+
+std::set<Branch> Implication::BranchesFrom(Condition *c) {
+  std::set<Branch> ret;
+
+  for(auto branch : c->Branches()) {
+    if(Implication::Check(c, branch)) {
+      ret.insert(branch);
+    }
+  }
+
+  return ret;
+}

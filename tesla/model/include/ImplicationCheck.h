@@ -1,6 +1,8 @@
 #ifndef IMPLICATION_CHECK_H
 #define IMPLICATION_CHECK_H
 
+#include <set>
+
 #include "Inference.h"
 
 namespace Implication {
@@ -16,6 +18,11 @@ namespace Implication {
  *    and check that every valuation then evals to false as well).
  */
 bool Check(Condition *c, Branch b);
+
+/**
+ * Generate the set of all implied branches for a particular condition.
+ */
+std::set<Branch> BranchesFrom(Condition *c);
 
 }
 

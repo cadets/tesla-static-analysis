@@ -74,9 +74,8 @@ int main(int argc, char **argv) {
       errs() << "--------------------\n\n";
       errs() << "###\tconds: " << pair.second->str() << "\t###\n";
 
-      for(auto b : pair.second->Branches()) {
-        auto imp = Implication::Check(pair.second, b);
-        errs() << "\t" << (imp ? "implies " : "does not imply ") << b.str() << '\n';
+      for(auto b : Implication::BranchesFrom(pair.second)) {
+        errs() << "\t" << "implies " << b.str() << '\n';
       }
 
       pair.first->print(errs());
