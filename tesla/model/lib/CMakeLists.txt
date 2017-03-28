@@ -11,6 +11,7 @@ add_llvm_library(TeslaModel
   SequenceExpressions.cpp
   ModelGenerator.cpp
   Inference.cpp
+  ImplicationCheck.cpp
 )
 
 target_link_libraries(TeslaModel
