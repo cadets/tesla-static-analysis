@@ -12,6 +12,7 @@
 #include "EventGraph.h"
 #include "FiniteTraces.h"
 #include "GraphTransforms.h"
+#include "ImplicationCheck.h"
 #include "Inference.h"
 #include "Manifest.h"
 #include "ModelChecker.h"
@@ -70,7 +71,13 @@ int main(int argc, char **argv) {
     errs() << f.getName().str() << "\n\n";
     auto infs = Condition::StrongestInferences(&f);
     for(auto pair : infs) {
-      errs() << "###\tconds: " << pair.second->str() << "\t###";
+      errs() << "--------------------\n\n";
+      errs() << "###\tconds: " << pair.second->str() << "\t###\n";
+
+      for(auto b : Implication::BranchesFrom(pair.second)) {
+        errs() << "\t" << "implies " << b.str() << '\n';
+      }
+
       pair.first->print(errs());
       errs() << '\n';
     }

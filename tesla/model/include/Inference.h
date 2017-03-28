@@ -47,6 +47,7 @@ public:
   virtual bool IsConstant() const = 0;
   virtual bool Eval() const = 0;
   virtual Condition *Restricted(Branch b, Condition *replace) const = 0;
+  virtual Condition *Restricted(Branch b, Condition *tr, Condition *fr) const = 0;
   Condition *SplitOn(Branch b) const;
   Condition *Decomposed();
 
@@ -68,6 +69,7 @@ struct ConstFalse : public Condition {
   virtual bool IsConstant() const override { return true; }
   bool Eval() const override { return false; }
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
+  virtual Condition *Restricted(Branch b, Condition *tr, Condition *fr) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -88,6 +90,7 @@ struct ConstTrue : public Condition {
   virtual bool IsConstant() const override { return true; }
   bool Eval() const override { return true; }
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
+  virtual Condition *Restricted(Branch b, Condition *tr, Condition *fr) const override;
   
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -111,6 +114,7 @@ struct Branch : public Condition {
   virtual bool IsConstant() const override { return false; }
   bool Eval() const override;
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
+  virtual Condition *Restricted(Branch b, Condition *tr, Condition *fr) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -123,11 +127,16 @@ struct Branch : public Condition {
 
   // Define this so that we can put Branches into a std::set
   bool operator <(const Branch& other) const {
-    return (value < other.value) && (constraint < other.constraint);
+    return (value < other.value) || 
+           (value == other.value && constraint < other.constraint);
   }
 
   bool operator ==(const Branch& other) const {
     return (value == other.value) && (constraint == other.constraint);
+  }
+
+  bool operator !=(const Branch& other) const {
+    return !(*this == other);
   }
 private:
   Value *value;
@@ -150,6 +159,12 @@ struct LogicalOp : public Condition {
 
   template<class C, class Zero, class Elim, class Match>
   Condition *SimplifyLogic() const;
+
+  template<class C>
+  Condition *RestrictedLogic(Branch b, Condition *rep) const;
+
+  template<class C>
+  Condition *RestrictedLogic(Branch b, Condition *tr, Condition *fr) const;
 
   virtual std::set<Branch> Branches() const override;
   virtual bool IsConstant() const override {
@@ -182,6 +197,7 @@ struct And : public LogicalOp {
   virtual Condition *Simplified() const override;
   bool Eval() const override;
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
+  virtual Condition *Restricted(Branch b, Condition *tr, Condition *fr) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
@@ -209,6 +225,7 @@ struct Or : public LogicalOp {
   virtual Condition *Simplified() const override;
   bool Eval() const override;
   virtual Condition *Restricted(Branch b, Condition *replace) const override;
+  virtual Condition *Restricted(Branch b, Condition *tr, Condition *fr) const override;
 
   std::string str() const override;
   bool Equal(Condition *other) const override;
