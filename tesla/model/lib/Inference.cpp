@@ -4,6 +4,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/CFG.h>
 
+#include "ImplicationCheck.h"
 #include "Inference.h"
 
 /** Compute Strongest Inferences **/
@@ -52,29 +53,34 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
     }
   }
 
-  std::queue<BasicBlock *> workQueue;
-  workQueue.push(&entry);
+  // now instead of a work queue we should be able to do an
+  // iterate-until-convergence properly. Nested loop - first repeating until no
+  // change, then inner loop over all basic blocks.
 
-  int i = 0;
-  while(i < 70 && !workQueue.empty()) {
+  std::queue<BasicBlock *> workQueue;
+  for(auto& bb : *f) {
+    workQueue.push(&bb);
+  }
+
+  while(!workQueue.empty()) {
     auto next = workQueue.front();
     workQueue.pop();
 
     auto term = next->getTerminator();
     for(auto i = 0; i < term->getNumSuccessors(); i++) {
       auto succ = term->getSuccessor(i);
+      auto oldInfs = Implication::BranchesFrom(ret[succ]);
 
       auto transition = new And{ret[next], BranchCondition(next, succ)};
       auto newInf = new Or{ret[succ], transition};
       
       ret[succ] = newInf->Decomposed()->Simplified();
+      auto newInfs = Implication::BranchesFrom(ret[succ]);
 
-      if(true) { // actually, if changes were made to succ's inference
+      if(newInfs != oldInfs) {
         workQueue.push(succ);
       }
     }
-
-    i++;
   }
 
   return ret;
