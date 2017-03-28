@@ -134,6 +134,10 @@ struct Branch : public Condition {
   bool operator ==(const Branch& other) const {
     return (value == other.value) && (constraint == other.constraint);
   }
+
+  bool operator !=(const Branch& other) const {
+    return !(*this == other);
+  }
 private:
   Value *value;
   bool constraint;
