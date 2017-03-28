@@ -1,5 +1,5 @@
 #include "ImplicationCheck.h"
 
-bool Implication::Check(Condition *c, Branch *b) {
+bool Implication::Check(Condition *c, Branch b) {
   return false;
 }

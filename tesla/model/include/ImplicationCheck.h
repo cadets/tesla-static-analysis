@@ -15,7 +15,7 @@ namespace Implication {
  *    and checking on all the possible valuations generated (i.e. set b to false
  *    and check that every valuation then evals to false as well).
  */
-bool Check(Condition *c, Branch *b);
+bool Check(Condition *c, Branch b);
 
 }
 

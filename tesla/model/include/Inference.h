@@ -127,7 +127,8 @@ struct Branch : public Condition {
 
   // Define this so that we can put Branches into a std::set
   bool operator <(const Branch& other) const {
-    return (value < other.value) && (constraint < other.constraint);
+    return (value < other.value) || 
+           (value == other.value && constraint < other.constraint);
   }
 
   bool operator ==(const Branch& other) const {
