@@ -25,9 +25,9 @@ Condition *Condition::BranchCondition(BasicBlock *pred, BasicBlock *succ) {
   auto falseBB = term->getSuccessor(1);
 
   if(succ == trueBB) {
-    return new Branch(val, true);
+    return new BoolValue(val, true);
   } else if(succ == falseBB) {
-    return new Branch(val, false);
+    return new BoolValue(val, false);
   }
 
   assert(false && "Successor not actually a successor");
@@ -69,13 +69,13 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
     auto term = next->getTerminator();
     for(auto i = 0; i < term->getNumSuccessors(); i++) {
       auto succ = term->getSuccessor(i);
-      auto oldInfs = Implication::BranchesFrom(ret[succ]);
+      auto oldInfs = Implication::BoolValuesFrom(ret[succ]);
 
       auto transition = new And{ret[next], BranchCondition(next, succ)};
       auto newInf = new Or{ret[succ], transition};
       
       ret[succ] = newInf->Decomposed()->Simplified();
-      auto newInfs = Implication::BranchesFrom(ret[succ]);
+      auto newInfs = Implication::BoolValuesFrom(ret[succ]);
 
       if(newInfs != oldInfs) {
         workQueue.push(succ);
@@ -88,7 +88,7 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
 
 /** Shannon Decomposition **/
 
-Condition *Condition::SplitOn(Branch b) const {
+Condition *Condition::SplitOn(BoolValue b) const {
   // should check for const-ness here and then eval - not possible with the
   // current API without nasty try-catch. Should reimplement IsConst recursively
   // without constructing a set
@@ -103,24 +103,24 @@ Condition *Condition::SplitOn(Branch b) const {
   }
 
   return new Or{
-    new And{new Branch(b), trueVal},
+    new And{new BoolValue(b), trueVal},
     new And{b.Negated(), falseVal}
   };
 }
 
 Condition *Condition::Decomposed() {
   auto currentExpr = this;
-  for(auto b : Branches()) {
+  for(auto b : BoolValues()) {
     currentExpr = currentExpr->SplitOn(b);
   }
   return currentExpr;
 }
 
-std::set<Branch> LogicalOp::Branches() const {
-  std::set<Branch> ret;
+std::set<BoolValue> LogicalOp::BoolValues() const {
+  std::set<BoolValue> ret;
 
   for(auto op : operands) {
-    for(auto br : op->Branches()) {
+    for(auto br : op->BoolValues()) {
       ret.insert(br);
     }
   }
@@ -130,7 +130,7 @@ std::set<Branch> LogicalOp::Branches() const {
 
 /** Evaluating Conditions **/
 
-bool Branch::Eval() const {
+bool BoolValue::Eval() const {
   assert(false && "Can't evaluate a branch - expression not constant!");
 }
 
@@ -160,8 +160,8 @@ Condition *ConstFalse::Simplified() const {
   return new ConstFalse;
 }
 
-Condition *Branch::Simplified() const {
-  return new Branch{*this};
+Condition *BoolValue::Simplified() const {
+  return new BoolValue{*this};
 }
 
 template<class C, class Zero, class Elim, class Match>
@@ -204,10 +204,10 @@ Condition *LogicalOp::SimplifyLogic() const {
   }
 
   for(auto op : dedup) {
-    if(auto br = dyn_cast<Branch>(op)) {
+    if(auto br = dyn_cast<BoolValue>(op)) {
       auto dual = std::find_if(dedup.begin(), dedup.end(),
         [=](Condition *c) {
-          auto ob = dyn_cast<Branch>(c);
+          auto ob = dyn_cast<BoolValue>(c);
           return ob && br->Opposite(ob);
         }
       );
@@ -237,42 +237,42 @@ Condition *Or::Simplified() const {
 
 /** Restricting Conditions **/
 
-Condition *ConstFalse::Restricted(Branch b, Condition *replace) const {
+Condition *ConstFalse::Restricted(BoolValue b, Condition *replace) const {
   return new ConstFalse;
 }
 
-Condition *ConstFalse::Restricted(Branch, Condition *, Condition *) const {
+Condition *ConstFalse::Restricted(BoolValue, Condition *, Condition *) const {
   return new ConstFalse;
 }
 
-Condition *ConstTrue::Restricted(Branch b, Condition *replace) const {
+Condition *ConstTrue::Restricted(BoolValue b, Condition *replace) const {
   return new ConstTrue;
 }
 
-Condition *ConstTrue::Restricted(Branch, Condition *, Condition *) const {
+Condition *ConstTrue::Restricted(BoolValue, Condition *, Condition *) const {
   return new ConstTrue;
 }
 
-Condition *Branch::Restricted(Branch b, Condition *replace) const {
+Condition *BoolValue::Restricted(BoolValue b, Condition *replace) const {
   if(b == *this) {
     return replace;
   }
 
-  return new Branch(*this);
+  return new BoolValue(*this);
 }
 
-Condition *Branch::Restricted(Branch b, Condition *tr, Condition *fr) const {
+Condition *BoolValue::Restricted(BoolValue b, Condition *tr, Condition *fr) const {
   if(b == *this) {
     return tr;
   } else if(*b.Negated() == *this) {
     return fr;
   }
 
-  return new Branch(*this);
+  return new BoolValue(*this);
 }
 
 template<class C>
-Condition *LogicalOp::RestrictedLogic(Branch b, Condition *replace) const {
+Condition *LogicalOp::RestrictedLogic(BoolValue b, Condition *replace) const {
   std::vector<Condition *> newOps;
   
   for(auto op : operands) {
@@ -283,7 +283,7 @@ Condition *LogicalOp::RestrictedLogic(Branch b, Condition *replace) const {
 }
 
 template<class C>
-Condition *LogicalOp::RestrictedLogic(Branch b, Condition *tr, Condition *fr) const {
+Condition *LogicalOp::RestrictedLogic(BoolValue b, Condition *tr, Condition *fr) const {
   std::vector<Condition *> newOps;
   
   for(auto op : operands) {
@@ -293,19 +293,19 @@ Condition *LogicalOp::RestrictedLogic(Branch b, Condition *tr, Condition *fr) co
   return new C{newOps.begin(), newOps.end()};
 }
 
-Condition *And::Restricted(Branch b, Condition *replace) const {
+Condition *And::Restricted(BoolValue b, Condition *replace) const {
   return RestrictedLogic<And>(b, replace);
 }
 
-Condition *And::Restricted(Branch b, Condition *tr, Condition *fr) const {
+Condition *And::Restricted(BoolValue b, Condition *tr, Condition *fr) const {
   return RestrictedLogic<And>(b, tr, fr);
 }
 
-Condition *Or::Restricted(Branch b, Condition *replace) const {
+Condition *Or::Restricted(BoolValue b, Condition *replace) const {
   return RestrictedLogic<Or>(b, replace);
 }
 
-Condition *Or::Restricted(Branch b, Condition *tr, Condition *fr) const {
+Condition *Or::Restricted(BoolValue b, Condition *tr, Condition *fr) const {
   return RestrictedLogic<Or>(b, tr, fr);
 }
 
@@ -319,8 +319,8 @@ bool ConstTrue::Equal(Condition *other) const {
   return isa<ConstTrue>(other);
 }
 
-bool Branch::Equal(Condition *other) const {
-  if(auto ob = dyn_cast<Branch>(other)) {
+bool BoolValue::Equal(Condition *other) const {
+  if(auto ob = dyn_cast<BoolValue>(other)) {
     return *this == *ob;
   }
 
@@ -363,7 +363,7 @@ bool Or::Equal(Condition *other) const {
   return allEq;
 }
 
-bool Branch::Opposite(Branch *other) const {
+bool BoolValue::Opposite(BoolValue *other) const {
   return (value == other->value) && (constraint ^ other->constraint);
 }
 
@@ -377,7 +377,7 @@ std::string ConstTrue::str() const {
   return "true";
 }
 
-std::string Branch::str() const {
+std::string BoolValue::str() const {
   std::string out;
   raw_string_ostream os(out);
   os << value << "=" << (constraint ? "true" : "false");
