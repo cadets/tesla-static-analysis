@@ -19,10 +19,12 @@
 #include "Names.h"
 #include "tesla.pb.h"
 
+using std::map;
 using std::set;
 using std::string;
 using namespace llvm;
 
+struct BasicBlockEvent;
 struct Event;
 struct EventRange;
 
@@ -43,6 +45,11 @@ struct EventGraph {
   void transform(EventTransformation T);
 
   static EventGraph *BasicBlockGraph(Function *f);
+
+  static EventRange *Expand(BasicBlockEvent *e, int depth, map<Function *, EventGraph *>& cache);
+  static EventGraph *ExpandedBasicBlockGraph(Function *f, int depth);
+  static EventGraph *ExpandedBasicBlockGraph(Function *f, int depth, map<Function *, EventGraph *>& cache);
+
   static EventGraph *InstructionGraph(Function *f, CallInst *ci=nullptr);
   static EventGraph *ModuleGraph(Module *M, Function *root, int depth);
 

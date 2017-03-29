@@ -48,6 +48,9 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 }
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
+  auto ebbg = EventGraph::ExpandedBasicBlockGraph(Bound, Depth);
+  errs() << ebbg->GraphViz();
+
   set<const tesla::Usage *> safeUses;
 
   for(auto use : Manifest->RootAutomata()) {
