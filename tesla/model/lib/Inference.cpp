@@ -4,6 +4,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/CFG.h>
 
+#include "BackwardsSearch.h"
 #include "ImplicationCheck.h"
 #include "Inference.h"
 
@@ -33,12 +34,12 @@ Condition *Condition::BranchCondition(BasicBlock *pred, BasicBlock *succ) {
   assert(false && "Successor not actually a successor");
 }
 
-std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) {
+std::map<BasicBlock *, std::set<BoolValue *>> Condition::StrongestInferences(Function *f) {
   if(f->isDeclaration()) {
     return {};
   }
 
-  std::map<BasicBlock *, Condition *> ret;
+  std::map<BasicBlock *, Condition *> inf;
   auto &entry = f->getEntryBlock();
 
   // Initialise the mapping between blocks and conditions - we know we can
@@ -47,9 +48,9 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
   // possible inference and weaken based on later information.
   for(auto& bb : *f) {
     if(&bb == &entry) {
-      ret[&bb] = new ConstTrue;
+      inf[&bb] = new ConstTrue;
     } else {
-      ret[&bb] = new Or;
+      inf[&bb] = new Or;
     }
   }
 
@@ -69,16 +70,30 @@ std::map<BasicBlock *, Condition *> Condition::StrongestInferences(Function *f) 
     auto term = next->getTerminator();
     for(auto i = 0; i < term->getNumSuccessors(); i++) {
       auto succ = term->getSuccessor(i);
-      auto oldInfs = Implication::BoolValuesFrom(ret[succ]);
+      auto oldInfs = Implication::BoolValuesFrom(inf[succ]);
 
-      auto transition = new And{ret[next], BranchCondition(next, succ)};
-      auto newInf = new Or{ret[succ], transition};
+      auto transition = new And{inf[next], BranchCondition(next, succ)};
+      auto newInf = new Or{inf[succ], transition};
       
-      ret[succ] = newInf->Decomposed()->Simplified();
-      auto newInfs = Implication::BoolValuesFrom(ret[succ]);
+      inf[succ] = newInf->Decomposed()->Simplified();
+      auto newInfs = Implication::BoolValuesFrom(inf[succ]);
 
       if(newInfs != oldInfs) {
         workQueue.push(succ);
+      }
+    }
+  }
+
+  std::map<BasicBlock *, std::set<BoolValue *>> ret;
+  for(auto pair : inf) {
+    ret[pair.first] = {};
+
+    auto roots = Implication::BoolValuesFrom(pair.second);
+
+    for(auto bv : roots) {
+      auto found = BackwardsSearch::From(bv);
+      if(found) {
+        ret[pair.first].insert(found);
       }
     }
   }
