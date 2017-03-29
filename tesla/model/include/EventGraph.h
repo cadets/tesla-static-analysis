@@ -43,7 +43,7 @@ struct EventGraph {
   void transform(EventTransformation T);
 
   static EventGraph *BasicBlockGraph(Function *f);
-  static EventGraph *InstructionGraph(Function *f);
+  static EventGraph *InstructionGraph(Function *f, CallInst *ci=nullptr);
   static EventGraph *ModuleGraph(Module *M, Function *root, int depth);
 
   set<Event *> entries();
@@ -178,19 +178,26 @@ struct BasicBlockEvent : public Event {
 
 struct EntryEvent : public Event {
   EntryEvent(EventGraph *g, string n)
-    : Event(EV_Enter, g), Description(n), Func(nullptr) {}
+    : Event(EV_Enter, g), Description(n), Func(nullptr), Call(nullptr) {}
 
   EntryEvent(EventGraph *g, Function *f)
-    : Event(EV_Enter, g), Description(f->getName().str()), Func(f) {}
+    : Event(EV_Enter, g), Description(f->getName().str()), Func(f), Call(nullptr) {}
+
+  EntryEvent(EventGraph *g, CallInst *ci)
+    : Event(EV_Exit, g), 
+      Description(ci->getCalledFunction()->getName().str()), 
+      Func(ci->getCalledFunction()), 
+      Call(ci) {}
 
   EntryEvent(string n)
     : EntryEvent(nullptr, n) {}
 
   string Description;
   Function *Func;
+  CallInst *Call;
 
   virtual string Name() const override {
-    return "enter:" + Description;
+    return "enter:" + Description + (Call ? " (called)" : "");
   }
 
   static bool classof(const Event *other) {
@@ -200,19 +207,26 @@ struct EntryEvent : public Event {
 
 struct ExitEvent : public Event {
   ExitEvent(EventGraph *g, string n)
-    : Event(EV_Exit, g), Description(n), Func(nullptr) {}
+    : Event(EV_Exit, g), Description(n), Func(nullptr), Call(nullptr) {}
 
   ExitEvent(EventGraph *g, Function *f)
-    : Event(EV_Exit, g), Description(f->getName().str()), Func(f) {}
+    : Event(EV_Exit, g), Description(f->getName().str()), Func(f), Call(nullptr) {}
+
+  ExitEvent(EventGraph *g, CallInst *ci)
+    : Event(EV_Exit, g), 
+      Description(ci->getCalledFunction()->getName().str()), 
+      Func(ci->getCalledFunction()), 
+      Call(ci) {}
 
   ExitEvent(string n)
     : ExitEvent(nullptr, n) {}
 
   string Description;
   Function *Func;
+  CallInst *Call;
 
   virtual string Name() const override {
-    return "exit:" + Description;
+    return "exit:" + Description + (Call ? " (called)" : "");
   }
 
   static bool classof(const Event *other) {

@@ -76,7 +76,11 @@ EventGraph *EventGraph::BasicBlockGraph(Function *f) {
   return eg;
 }
 
-EventGraph *EventGraph::InstructionGraph(Function *f) {
+EventGraph *EventGraph::InstructionGraph(Function *f, CallInst *ci) {
+  if(ci) {
+    assert(f == ci->getCalledFunction() && "Heading for inconsistency here");
+  }
+
   auto eg = BasicBlockGraph(f);
 
   set<BasicBlockEvent *> toRemove;
@@ -91,14 +95,14 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
     eg->replace(bbe, range);
   }
 
-  auto ent = new EntryEvent(eg, f);
+  auto ent = ci ? new EntryEvent(eg, ci) : new EntryEvent(eg, f);
   for(auto e : eg->entries()) {
     if(e != ent) {
       ent->addSuccessor(e);
     }
   }
 
-  auto ex = new ExitEvent(eg, f);
+  auto ex = ci ? new ExitEvent(eg, ci) : new ExitEvent(eg, f);
   for(auto e : eg->exits()) {
     if(e != ex) {
       e->addSuccessor(ex);
