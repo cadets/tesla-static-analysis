@@ -111,14 +111,12 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
   auto constraints = std::vector<BoolValue>{};
   for(auto i = 0; i < tr.size(); i++) {
     if(auto exe = dyn_cast<ExitEvent>(tr[i])) {
-      if(hasReturnConstraint(mod[i])) {
+      if(exe->Call && hasReturnConstraint(mod[i])) {
         constraints.push_back(
-            BoolValue{exe->Func, static_cast<bool>(getReturnConstraint(mod[i]))});
+            BoolValue{exe->Call, static_cast<bool>(getReturnConstraint(mod[i]))});
       }
     }
   }
-
-  errs() << Graph->GraphViz() << '\n';
 
   return true;
 }

@@ -184,7 +184,7 @@ struct EntryEvent : public Event {
     : Event(EV_Enter, g), Description(f->getName().str()), Func(f), Call(nullptr) {}
 
   EntryEvent(EventGraph *g, CallInst *ci)
-    : Event(EV_Exit, g), 
+    : Event(EV_Enter, g),
       Description(ci->getCalledFunction()->getName().str()), 
       Func(ci->getCalledFunction()), 
       Call(ci) {}
