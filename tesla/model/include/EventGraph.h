@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 
+#include "Inference.h"
 #include "Names.h"
 #include "tesla.pb.h"
 
@@ -164,11 +165,17 @@ struct EmptyEvent : public Event {
 };
 
 struct BasicBlockEvent : public Event {
-  BasicBlockEvent(EventGraph *g, BasicBlock *bb)
-    : Event(EV_BasicBlock, g), Block(bb) {}
+  BasicBlockEvent(EventGraph *g, BasicBlock *bb, std::set<BoolValue *> infs)
+    : Event(EV_BasicBlock, g), Block(bb), Inferences(infs) {}
+
+  BasicBlockEvent(EventGraph *eg, BasicBlock *bb)
+    : BasicBlockEvent(eg, bb, {}) {}
 
   BasicBlockEvent(BasicBlock *bb)
-    : BasicBlockEvent(nullptr, bb) {}
+    : BasicBlockEvent(nullptr, bb, {}) {}
+
+  BasicBlockEvent(BasicBlock *bb, std::set<BoolValue *> infs)
+    : BasicBlockEvent(nullptr, bb, infs) {}
 
   virtual string Name() const override {
     std::stringstream ss;
@@ -181,6 +188,7 @@ struct BasicBlockEvent : public Event {
   }
 
   BasicBlock *Block;
+  std::set<BoolValue *> Inferences;
 };
 
 struct EntryEvent : public Event {

@@ -50,6 +50,8 @@ void EventGraph::assert_valid() {
 EventGraph *EventGraph::BasicBlockGraph(Function *f) {
   auto eg = new EventGraph(f->getName().str());
 
+  auto infs = Condition::StrongestInferences(f);
+
   map<BasicBlock *, Event *> cache;
 
   for(auto &BB : *f) {
@@ -59,14 +61,14 @@ EventGraph *EventGraph::BasicBlockGraph(Function *f) {
        &BB != &f->getEntryBlock()) { continue; }
 
     if(cache.find(&BB) == cache.end()) {
-      cache[&BB] = new BasicBlockEvent(eg, &BB);
+      cache[&BB] = new BasicBlockEvent(eg, &BB, infs[&BB]);
     }
 
     auto term = BB.getTerminator();
     for(int i = 0; i < term->getNumSuccessors(); i++) {
       auto suc = term->getSuccessor(i);
       if(cache.find(suc) == cache.end()) {
-        cache[suc] = new BasicBlockEvent(eg, suc);
+        cache[suc] = new BasicBlockEvent(eg, suc, infs[suc]);
       }
 
       cache[&BB]->successors.insert(cache[suc]);
