@@ -54,7 +54,7 @@ public:
   virtual std::string str() const = 0;
   virtual bool Equal(Condition *other) const = 0;
 
-  static std::map<BasicBlock *, Condition *> StrongestInferences(Function *f);
+  static std::map<BasicBlock *, std::set<BoolValue *>> StrongestInferences(Function *f);
   static Condition *BranchCondition(BasicBlock *pred, BasicBlock *succ);
 };
 

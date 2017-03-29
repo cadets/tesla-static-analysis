@@ -73,14 +73,8 @@ int main(int argc, char **argv) {
     auto infs = Condition::StrongestInferences(&f);
     for(auto pair : infs) {
       errs() << "--------------------\n\n";
-      errs() << "###\tconds: " << pair.second->str() << "\t###\n";
-
-      for(auto b : Implication::BoolValuesFrom(pair.second)) {
-        errs() << "\t" << "implies " << b.str() << '\n';
-        if(auto then = BackwardsSearch::From(b)) {
-          errs() << "\t and then " << then->str() << '\n';
-          then->GetValue()->dump();
-        }
+      for(auto b : pair.second) {
+        errs() << "\t" << "implies " << b->str() << '\n';
       }
 
       pair.first->print(errs());
