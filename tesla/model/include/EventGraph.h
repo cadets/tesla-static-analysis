@@ -197,7 +197,7 @@ struct EntryEvent : public Event {
   CallInst *Call;
 
   virtual string Name() const override {
-    return "enter:" + Description + (Call ? " (called)" : "");
+    return "enter:" + Description + (Call ? "" : " (no call)");
   }
 
   static bool classof(const Event *other) {
@@ -226,7 +226,7 @@ struct ExitEvent : public Event {
   CallInst *Call;
 
   virtual string Name() const override {
-    return "exit:" + Description + (Call ? " (called)" : "");
+    return "exit:" + Description + (Call ? "" : " (no call)");
   }
 
   static bool classof(const Event *other) {

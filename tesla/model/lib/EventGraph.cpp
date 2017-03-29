@@ -125,7 +125,7 @@ EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
       if(auto ce = dyn_cast<CallEvent>(ev)) {
         auto fn = ce->Call()->getCalledFunction();
 
-        auto gr = InstructionGraph(fn);
+        auto gr = InstructionGraph(fn, ce->Call());
         gr->transform(GraphTransforms::FindAssertions(assertFn));
         gr->transform(GraphTransforms::CallsOnly);
 
