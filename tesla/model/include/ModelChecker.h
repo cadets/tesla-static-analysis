@@ -29,6 +29,10 @@ struct ModelChecker {
 private:
   bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle=false);
 
+  static bool hasReturnConstraint(Expression *e);
+  static int getReturnConstraint(Expression *e);
+  bool CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
+
   bool CheckState(const tesla::Expression &ex, Event *);
   bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *);
   bool CheckFunction(const tesla::FunctionEvent &ex, Event *);

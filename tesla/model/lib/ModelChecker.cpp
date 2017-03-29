@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Debug.h"
+#include "Inference.h"
 #include "ModelChecker.h"
 #include "ModelGenerator.h"
 #include "SequenceExpressions.h"
@@ -73,7 +74,53 @@ bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenera
   for(auto i = 0; i < tr.size(); i++) {
     match = match && CheckState(*mod[i], tr[i]);
   }
-  return match;
+
+  return match && CheckReturnValues(tr, mod);
+}
+
+bool ModelChecker::hasReturnConstraint(Expression *e) {
+  if(e->type() != Expression_Type_FUNCTION) {
+    return false;
+  }
+
+  auto func = e->function();
+  if(!func.has_direction() || func.direction() != FunctionEvent_Direction_Exit) {
+    return false;
+  }
+
+  if(!func.has_expectedreturnvalue()) {
+    return false;
+  }
+
+  auto ret = func.expectedreturnvalue();
+  return ret.type() == Argument_Type_Constant && ret.has_value();
+}
+
+int ModelChecker::getReturnConstraint(Expression *e) {
+  return e->function().expectedreturnvalue().value();
+}
+
+bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
+  assert(mod.size() >= tr.size() && "Can't do RVC if model shorter than trace");
+  // How do we want to go about doing the checking in this part of the model
+  // checker? the trace describes a vector of events, and the model gives a
+  // vector of assertions. We only care about the assertions with an associated
+  // return value, so we should first filter those out using the associate
+  // protobuf information
+
+  auto constraints = std::vector<BoolValue>{};
+  for(auto i = 0; i < tr.size(); i++) {
+    if(auto exe = dyn_cast<ExitEvent>(tr[i])) {
+      if(hasReturnConstraint(mod[i])) {
+        constraints.push_back(
+            BoolValue{exe->Func, static_cast<bool>(getReturnConstraint(mod[i]))});
+      }
+    }
+  }
+
+  errs() << Graph->GraphViz() << '\n';
+
+  return true;
 }
 
 bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event) {
