@@ -50,19 +50,6 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 }
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
-  AssertionPairs = {};
-
-  for(auto ev : BBGraph->getEvents()) {
-    if(auto bb = dyn_cast<BasicBlockEvent>(ev)) {
-      auto fs = FollowSet(bb);
-      for(auto inf : bb->Inferences) {
-        for(auto follow : fs) {
-          AssertionPairs.insert(std::make_pair(*inf, follow));
-        }
-      }
-    }
-  }
-
   set<const tesla::Usage *> safeUses;
 
   for(auto use : Manifest->RootAutomata()) {
