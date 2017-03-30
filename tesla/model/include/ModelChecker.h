@@ -32,6 +32,10 @@ private:
 
   static bool hasReturnConstraint(Expression *e);
   static int getReturnConstraint(Expression *e);
+
+  set<BoolValue> FollowSet(Event *e);
+  set<BoolValue> FollowSet(Event *e, std::set<Event *> &cache);
+  bool ConstraintsOccur(EventGraph *eg, std::vector<BoolValue> constraints);
   bool CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
   bool ReturnConstraintSearch(std::vector<BoolValue> &constraints, int index, Event *root);
 

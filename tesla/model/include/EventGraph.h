@@ -180,7 +180,7 @@ struct BasicBlockEvent : public Event {
 
   virtual string Name() const override {
     std::stringstream ss;
-    ss << Block->getName().str() << ":" << Block;
+    ss << Block->getName().str() << ":" << Block << ":" << this;
     return ss.str();
   }
 

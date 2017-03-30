@@ -102,6 +102,69 @@ int ModelChecker::getReturnConstraint(Expression *e) {
   return e->function().expectedreturnvalue().value();
 }
 
+set<BoolValue> ModelChecker::FollowSet(Event *e) {
+  auto c = std::set<Event *>{};
+  return FollowSet(e, c);
+}
+
+set<BoolValue> ModelChecker::FollowSet(Event *e, std::set<Event *> &cache) {
+  auto here = set<BoolValue>{};
+  if(auto bb = dyn_cast<BasicBlockEvent>(e)) {
+    for(auto inf : bb->Inferences) {
+      here.insert(*inf);
+    }
+  }
+
+  auto possible = set<BoolValue>{};
+
+  for(auto suc : e->successors) {
+    if(auto bb = dyn_cast<BasicBlockEvent>(suc)) {
+      for(auto inf : bb->Inferences) {
+        auto found = here.find(*inf);
+        if(found == here.end()) {
+          possible.insert(*inf);
+        }
+      }
+    }
+  }
+
+  if(!possible.empty()) {
+    return possible;
+  }
+
+  cache.insert(e);
+  for(auto suc : e->successors) {
+    if(cache.find(suc) == cache.end()) {
+      auto fs = FollowSet(suc, cache);
+      for(auto inf : fs) {
+        possible.insert(inf);
+      }
+    }
+  }
+
+  return possible;
+}
+
+bool ModelChecker::ConstraintsOccur(EventGraph *eg, std::vector<BoolValue> constraints) {
+  set<BoolValue> cs{constraints.begin(), constraints.end()};
+  set<BoolValue> found;
+
+  for(auto ev : eg->getEvents()) {
+    if(auto bb = dyn_cast<BasicBlockEvent>(ev)) {
+      for(auto inf : bb->Inferences) {
+        found.insert(*inf);
+      }
+    }
+  }
+
+  auto all = true;
+  for(auto ev : cs) {
+    all = all && (found.find(ev) != found.end());
+  }
+
+  return all;
+}
+
 bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
   assert(mod.size() >= tr.size() && "Can't do RVC if model shorter than trace");
   // How do we want to go about doing the checking in this part of the model
@@ -124,60 +187,34 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
     return true;
   }
 
-  BBGraph->transform(GraphTransforms::DeleteEntryExit);
-  Event *root = nullptr;
-
-  for(auto ev : BBGraph->getEvents()) {
-    auto bb = cast<BasicBlockEvent>(ev);
-    auto found = std::find_if(bb->Inferences.begin(), bb->Inferences.end(),
-      [=](BoolValue *b) {
-        return *b == constraints[0];
-      }
-    );
-
-    if(found != bb->Inferences.end()) {
-      root = ev;
-      break;
-    }
-  }
-
-  if(!root) { 
+  auto occ = ConstraintsOccur(BBGraph, constraints);
+  if(!occ) {
     return false;
   }
 
-  auto ft = FiniteTraces{BBGraph, root};
-  auto ts = ft.OfLengthUpTo(Depth);
+  auto pairs = std::set<std::pair<BoolValue, BoolValue>>{};
 
-  for(auto t : ts) {
-    decltype(t) withInf;
-    std::copy_if(t.begin(), t.end(), std::back_inserter(withInf),
-      [=](Event *e) {
-        auto bbe = dyn_cast<BasicBlockEvent>(e);
-        return bbe && !bbe->Inferences.empty();
-      }
-    );
-
-    if(withInf.size() == constraints.size()) {
-      auto all = true;
-
-      for(auto i = 0; i < withInf.size(); i++) {
-        auto ev = cast<BasicBlockEvent>(withInf[i]);
-        auto any = std::any_of(ev->Inferences.begin(), ev->Inferences.end(),
-          [=](BoolValue *b) {
-            return *b == constraints[i];
-          }
-        );
-
-        all = all && any;
-      }
-
-      if(all) {
-        return true;
+  for(auto ev : BBGraph->getEvents()) {
+    if(auto bb = dyn_cast<BasicBlockEvent>(ev)) {
+      auto fs = FollowSet(bb);
+      for(auto inf : bb->Inferences) {
+        for(auto follow : fs) {
+          pairs.insert(std::make_pair(*inf, follow));
+        }
       }
     }
   }
 
-  return false;
+  for(auto i = 0; i < constraints.size() - 1; i++) {
+    auto bigram = std::make_pair(constraints[i], constraints[i+1]);
+    auto found = pairs.find(bigram);
+
+    if(found == pairs.end()) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event) {
