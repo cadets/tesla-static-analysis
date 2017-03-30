@@ -50,6 +50,19 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 }
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
+  AssertionPairs = {};
+
+  for(auto ev : BBGraph->getEvents()) {
+    if(auto bb = dyn_cast<BasicBlockEvent>(ev)) {
+      auto fs = FollowSet(bb);
+      for(auto inf : bb->Inferences) {
+        for(auto follow : fs) {
+          AssertionPairs.insert(std::make_pair(*inf, follow));
+        }
+      }
+    }
+  }
+
   set<const tesla::Usage *> safeUses;
 
   for(auto use : Manifest->RootAutomata()) {
@@ -192,24 +205,11 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
     return false;
   }
 
-  auto pairs = std::set<std::pair<BoolValue, BoolValue>>{};
-
-  for(auto ev : BBGraph->getEvents()) {
-    if(auto bb = dyn_cast<BasicBlockEvent>(ev)) {
-      auto fs = FollowSet(bb);
-      for(auto inf : bb->Inferences) {
-        for(auto follow : fs) {
-          pairs.insert(std::make_pair(*inf, follow));
-        }
-      }
-    }
-  }
-
   for(auto i = 0; i < constraints.size() - 1; i++) {
     auto bigram = std::make_pair(constraints[i], constraints[i+1]);
-    auto found = pairs.find(bigram);
+    auto found = AssertionPairs.find(bigram);
 
-    if(found == pairs.end()) {
+    if(found == AssertionPairs.end()) {
       return false;
     }
   }

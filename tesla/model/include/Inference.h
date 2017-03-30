@@ -141,6 +141,12 @@ struct BoolValue : public Condition {
   bool operator !=(const BoolValue& other) const {
     return !(*this == other);
   }
+
+  BoolValue& operator=(BoolValue b) {
+    std::swap(value, b.value);
+    std::swap(constraint, b.constraint);
+    return *this;
+  }
 private:
   Value *value;
   bool constraint;

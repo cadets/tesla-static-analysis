@@ -47,6 +47,8 @@ private:
 
   EventGraph *Graph;
   EventGraph *BBGraph;
+  std::set<std::pair<BoolValue, BoolValue>> AssertionPairs;
+
   Module *Mod;
   tesla::Manifest *Manifest;
   Function *Bound;
