@@ -50,6 +50,8 @@ void EventGraph::assert_valid() {
 EventGraph *EventGraph::BasicBlockGraph(Function *f) {
   auto eg = new EventGraph(f->getName().str());
 
+  auto infs = Condition::StrongestInferences(f);
+
   map<BasicBlock *, Event *> cache;
 
   for(auto &BB : *f) {
@@ -59,14 +61,14 @@ EventGraph *EventGraph::BasicBlockGraph(Function *f) {
        &BB != &f->getEntryBlock()) { continue; }
 
     if(cache.find(&BB) == cache.end()) {
-      cache[&BB] = new BasicBlockEvent(eg, &BB);
+      cache[&BB] = new BasicBlockEvent(eg, &BB, infs[&BB]);
     }
 
     auto term = BB.getTerminator();
     for(int i = 0; i < term->getNumSuccessors(); i++) {
       auto suc = term->getSuccessor(i);
       if(cache.find(suc) == cache.end()) {
-        cache[suc] = new BasicBlockEvent(eg, suc);
+        cache[suc] = new BasicBlockEvent(eg, suc, infs[suc]);
       }
 
       cache[&BB]->successors.insert(cache[suc]);
@@ -76,7 +78,88 @@ EventGraph *EventGraph::BasicBlockGraph(Function *f) {
   return eg;
 }
 
-EventGraph *EventGraph::InstructionGraph(Function *f) {
+EventRange *EventGraph::Expand(BasicBlockEvent *e, int depth, map<Function *, EventGraph *> &cache)
+{
+  if(depth == 0) {
+    return new EventRange{e, e};
+  }
+
+  EventRange *range = nullptr;
+  for(auto& I : *e->Block) {
+    if(auto ci = dyn_cast<CallInst>(&I)) {
+      if(ci->getCalledFunction()->isDeclaration()) {
+        continue;
+      }
+
+      auto gr = ExpandedBasicBlockGraph(ci->getCalledFunction(), depth, cache);
+      auto rr = gr->ReleasedRange();
+
+      if(!range) {
+        range = rr;
+      } else {
+        range->end->addSuccessor(rr->begin);
+        range = new EventRange{range->begin, rr->end};
+      }
+    }
+  }
+
+  if(!range) {
+    return new EventRange{e, e};
+  }
+
+  auto begin = e;
+  auto end = e;
+
+  begin->addSuccessor(range->begin);
+  range->end->addSuccessor(end);
+
+  return new EventRange{begin, end};
+}
+
+EventGraph *EventGraph::ExpandedBasicBlockGraph(Function *f, int depth) {
+  auto cache = map<Function *, EventGraph *>{};
+  return ExpandedBasicBlockGraph(f, depth, cache);
+}
+
+EventGraph *EventGraph::ExpandedBasicBlockGraph(Function *f, int depth, map<Function *, EventGraph *> &cache)
+{
+  auto bbg = BasicBlockGraph(f);
+
+  auto ent = new EntryEvent(bbg, f);
+  for(auto e : bbg->entries()) {
+    if(e != ent) {
+      ent->addSuccessor(e);
+    }
+  }
+
+  auto ex = new ExitEvent(bbg, f);
+  for(auto e : bbg->exits()) {
+    if(e != ex) {
+      e->addSuccessor(ex);
+    }
+  }
+
+  set<BasicBlockEvent *> toReplace;
+  for(auto ev : bbg->Events) {
+    if(auto bb = dyn_cast<BasicBlockEvent>(ev)) {
+      toReplace.insert(bb);
+    }
+  }
+
+  for(auto bb : toReplace) {
+    bbg->replace(bb, Expand(bb, depth-1, cache));
+  }
+
+  bbg->consolidate();
+  bbg->assert_valid();
+  return bbg;
+}
+
+EventGraph *EventGraph::InstructionGraph(Function *f, CallInst *ci) {
+  if(ci) {
+    assert(f == ci->getCalledFunction() && "Heading for inconsistency here");
+  }
+
   auto eg = BasicBlockGraph(f);
 
   set<BasicBlockEvent *> toRemove;
@@ -91,14 +174,14 @@ EventGraph *EventGraph::InstructionGraph(Function *f) {
     eg->replace(bbe, range);
   }
 
-  auto ent = new EntryEvent(eg, f);
+  auto ent = ci ? new EntryEvent(eg, ci) : new EntryEvent(eg, f);
   for(auto e : eg->entries()) {
     if(e != ent) {
       ent->addSuccessor(e);
     }
   }
 
-  auto ex = new ExitEvent(eg, f);
+  auto ex = ci ? new ExitEvent(eg, ci) : new ExitEvent(eg, f);
   for(auto e : eg->exits()) {
     if(e != ex) {
       e->addSuccessor(ex);
@@ -121,7 +204,7 @@ EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
       if(auto ce = dyn_cast<CallEvent>(ev)) {
         auto fn = ce->Call()->getCalledFunction();
 
-        auto gr = InstructionGraph(fn);
+        auto gr = InstructionGraph(fn, ce->Call());
         gr->transform(GraphTransforms::FindAssertions(assertFn));
         gr->transform(GraphTransforms::CallsOnly);
 

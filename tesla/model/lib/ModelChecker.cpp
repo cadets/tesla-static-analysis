@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "Debug.h"
+#include "GraphTransforms.h"
+#include "Inference.h"
 #include "ModelChecker.h"
 #include "ModelGenerator.h"
 #include "SequenceExpressions.h"
@@ -43,6 +45,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
     safe = safe && exists;
   }
 
+
   return safe;
 }
 
@@ -73,7 +76,108 @@ bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenera
   for(auto i = 0; i < tr.size(); i++) {
     match = match && CheckState(*mod[i], tr[i]);
   }
-  return match;
+
+  return match && CheckReturnValues(tr, mod);
+}
+
+bool ModelChecker::hasReturnConstraint(Expression *e) {
+  if(e->type() != Expression_Type_FUNCTION) {
+    return false;
+  }
+
+  auto func = e->function();
+  if(!func.has_direction() || func.direction() != FunctionEvent_Direction_Exit) {
+    return false;
+  }
+
+  if(!func.has_expectedreturnvalue()) {
+    return false;
+  }
+
+  auto ret = func.expectedreturnvalue();
+  return ret.type() == Argument_Type_Constant && ret.has_value();
+}
+
+int ModelChecker::getReturnConstraint(Expression *e) {
+  return e->function().expectedreturnvalue().value();
+}
+
+bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
+  assert(mod.size() >= tr.size() && "Can't do RVC if model shorter than trace");
+  // How do we want to go about doing the checking in this part of the model
+  // checker? the trace describes a vector of events, and the model gives a
+  // vector of assertions. We only care about the assertions with an associated
+  // return value, so we should first filter those out using the associate
+  // protobuf information
+
+  auto constraints = std::vector<BoolValue>{};
+  for(auto i = 0; i < tr.size(); i++) {
+    if(auto exe = dyn_cast<ExitEvent>(tr[i])) {
+      if(exe->Call && hasReturnConstraint(mod[i])) {
+        constraints.push_back(
+            BoolValue{exe->Call, static_cast<bool>(getReturnConstraint(mod[i]))});
+      }
+    }
+  }
+
+  if(constraints.empty()) {
+    return true;
+  }
+
+  BBGraph->transform(GraphTransforms::DeleteEntryExit);
+  Event *root = nullptr;
+
+  for(auto ev : BBGraph->getEvents()) {
+    auto bb = cast<BasicBlockEvent>(ev);
+    auto found = std::find_if(bb->Inferences.begin(), bb->Inferences.end(),
+      [=](BoolValue *b) {
+        return *b == constraints[0];
+      }
+    );
+
+    if(found != bb->Inferences.end()) {
+      root = ev;
+      break;
+    }
+  }
+
+  if(!root) { 
+    return false;
+  }
+
+  auto ft = FiniteTraces{BBGraph, root};
+  auto ts = ft.OfLengthUpTo(Depth);
+
+  for(auto t : ts) {
+    decltype(t) withInf;
+    std::copy_if(t.begin(), t.end(), std::back_inserter(withInf),
+      [=](Event *e) {
+        auto bbe = dyn_cast<BasicBlockEvent>(e);
+        return bbe && !bbe->Inferences.empty();
+      }
+    );
+
+    if(withInf.size() == constraints.size()) {
+      auto all = true;
+
+      for(auto i = 0; i < withInf.size(); i++) {
+        auto ev = cast<BasicBlockEvent>(withInf[i]);
+        auto any = std::any_of(ev->Inferences.begin(), ev->Inferences.end(),
+          [=](BoolValue *b) {
+            return *b == constraints[i];
+          }
+        );
+
+        all = all && any;
+      }
+
+      if(all) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event) {

@@ -21,13 +21,19 @@ using namespace llvm;
 
 struct ModelChecker {
   ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man, Function *bound, int d) :
-    Graph(gr), Mod(mod), Manifest(man), Bound(bound), Depth(d) {}
+    Graph(gr), BBGraph(EventGraph::ExpandedBasicBlockGraph(bound, d)), Mod(mod), 
+    Manifest(man), Bound(bound), Depth(d) {}
 
   bool IsUsageSafe(const tesla::Usage *use);
   set<const tesla::Usage *> SafeUsages();
 
 private:
   bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle=false);
+
+  static bool hasReturnConstraint(Expression *e);
+  static int getReturnConstraint(Expression *e);
+  bool CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
+  bool ReturnConstraintSearch(std::vector<BoolValue> &constraints, int index, Event *root);
 
   bool CheckState(const tesla::Expression &ex, Event *);
   bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *);
@@ -36,6 +42,7 @@ private:
   FiniteTraces::Trace filteredTrace(const FiniteTraces::Trace &tr, const tesla::Expression ex);
 
   EventGraph *Graph;
+  EventGraph *BBGraph;
   Module *Mod;
   tesla::Manifest *Manifest;
   Function *Bound;

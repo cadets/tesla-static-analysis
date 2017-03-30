@@ -19,7 +19,10 @@ struct FiniteTraces {
   using TraceSet = set<Trace>;
 
   FiniteTraces(EventGraph *eg) :
-    Graph(eg) {}
+    Graph(eg), Root(nullptr) {}
+
+  FiniteTraces(EventGraph *eg, Event *root) :
+    Graph(eg), Root(root) {}
 
   TraceSet OfLength(size_t len);
   TraceSet OfLengthUpTo(size_t len);
@@ -32,6 +35,7 @@ struct FiniteTraces {
 private:
   map<size_t, TraceSet> cache;
   EventGraph *Graph;
+  Event *Root;
 };
 
 #endif

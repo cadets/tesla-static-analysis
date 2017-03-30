@@ -16,13 +16,16 @@
 #include <sstream>
 #include <vector>
 
+#include "Inference.h"
 #include "Names.h"
 #include "tesla.pb.h"
 
+using std::map;
 using std::set;
 using std::string;
 using namespace llvm;
 
+struct BasicBlockEvent;
 struct Event;
 struct EventRange;
 
@@ -43,11 +46,17 @@ struct EventGraph {
   void transform(EventTransformation T);
 
   static EventGraph *BasicBlockGraph(Function *f);
-  static EventGraph *InstructionGraph(Function *f);
+
+  static EventRange *Expand(BasicBlockEvent *e, int depth, map<Function *, EventGraph *>& cache);
+  static EventGraph *ExpandedBasicBlockGraph(Function *f, int depth);
+  static EventGraph *ExpandedBasicBlockGraph(Function *f, int depth, map<Function *, EventGraph *>& cache);
+
+  static EventGraph *InstructionGraph(Function *f, CallInst *ci=nullptr);
   static EventGraph *ModuleGraph(Module *M, Function *root, int depth);
 
   set<Event *> entries();
   set<Event *> exits();
+  const set<Event *>& getEvents() const { return Events; }
 
   EventRange *ReleasedRange();
 
@@ -157,11 +166,17 @@ struct EmptyEvent : public Event {
 };
 
 struct BasicBlockEvent : public Event {
-  BasicBlockEvent(EventGraph *g, BasicBlock *bb)
-    : Event(EV_BasicBlock, g), Block(bb) {}
+  BasicBlockEvent(EventGraph *g, BasicBlock *bb, std::set<BoolValue *> infs)
+    : Event(EV_BasicBlock, g), Block(bb), Inferences(infs) {}
+
+  BasicBlockEvent(EventGraph *eg, BasicBlock *bb)
+    : BasicBlockEvent(eg, bb, {}) {}
 
   BasicBlockEvent(BasicBlock *bb)
-    : BasicBlockEvent(nullptr, bb) {}
+    : BasicBlockEvent(nullptr, bb, {}) {}
+
+  BasicBlockEvent(BasicBlock *bb, std::set<BoolValue *> infs)
+    : BasicBlockEvent(nullptr, bb, infs) {}
 
   virtual string Name() const override {
     std::stringstream ss;
@@ -174,23 +189,31 @@ struct BasicBlockEvent : public Event {
   }
 
   BasicBlock *Block;
+  std::set<BoolValue *> Inferences;
 };
 
 struct EntryEvent : public Event {
   EntryEvent(EventGraph *g, string n)
-    : Event(EV_Enter, g), Description(n), Func(nullptr) {}
+    : Event(EV_Enter, g), Description(n), Func(nullptr), Call(nullptr) {}
 
   EntryEvent(EventGraph *g, Function *f)
-    : Event(EV_Enter, g), Description(f->getName().str()), Func(f) {}
+    : Event(EV_Enter, g), Description(f->getName().str()), Func(f), Call(nullptr) {}
+
+  EntryEvent(EventGraph *g, CallInst *ci)
+    : Event(EV_Enter, g),
+      Description(ci->getCalledFunction()->getName().str()), 
+      Func(ci->getCalledFunction()), 
+      Call(ci) {}
 
   EntryEvent(string n)
     : EntryEvent(nullptr, n) {}
 
   string Description;
   Function *Func;
+  CallInst *Call;
 
   virtual string Name() const override {
-    return "enter:" + Description;
+    return "enter:" + Description + (Call ? "" : " (no call)");
   }
 
   static bool classof(const Event *other) {
@@ -200,19 +223,26 @@ struct EntryEvent : public Event {
 
 struct ExitEvent : public Event {
   ExitEvent(EventGraph *g, string n)
-    : Event(EV_Exit, g), Description(n), Func(nullptr) {}
+    : Event(EV_Exit, g), Description(n), Func(nullptr), Call(nullptr) {}
 
   ExitEvent(EventGraph *g, Function *f)
-    : Event(EV_Exit, g), Description(f->getName().str()), Func(f) {}
+    : Event(EV_Exit, g), Description(f->getName().str()), Func(f), Call(nullptr) {}
+
+  ExitEvent(EventGraph *g, CallInst *ci)
+    : Event(EV_Exit, g), 
+      Description(ci->getCalledFunction()->getName().str()), 
+      Func(ci->getCalledFunction()), 
+      Call(ci) {}
 
   ExitEvent(string n)
     : ExitEvent(nullptr, n) {}
 
   string Description;
   Function *Func;
+  CallInst *Call;
 
   virtual string Name() const override {
-    return "exit:" + Description;
+    return "exit:" + Description + (Call ? "" : " (no call)");
   }
 
   static bool classof(const Event *other) {

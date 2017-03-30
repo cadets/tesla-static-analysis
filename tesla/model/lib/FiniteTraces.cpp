@@ -17,13 +17,17 @@ FiniteTraces::TraceSet FiniteTraces::OfLength(size_t len) {
 
   // Traces of length 1 are just the entries to the graph
   if(len == 1) {
-    set<Trace> entries;
-    for(auto e : Graph->entries()) {
-      entries.insert({e});
-    }
+    if(!Root) {
+      set<Trace> entries;
+      for(auto e : Graph->entries()) {
+        entries.insert({e});
+      }
 
-    cache[1] = entries;
-    return entries;
+      cache[1] = entries;
+      return entries;
+    } else {
+      return {{Root}};
+    }
   }
 
   auto preds = OfLength(len - 1);
