@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Debug.h"
+#include "GraphTransforms.h"
 #include "Inference.h"
 #include "ModelChecker.h"
 #include "ModelGenerator.h"
@@ -44,13 +45,11 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
     safe = safe && exists;
   }
 
+
   return safe;
 }
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
-  auto ebbg = EventGraph::ExpandedBasicBlockGraph(Bound, Depth);
-  errs() << ebbg->GraphViz();
-
   set<const tesla::Usage *> safeUses;
 
   for(auto use : Manifest->RootAutomata()) {
@@ -121,7 +120,64 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
     }
   }
 
-  return true;
+  if(constraints.empty()) {
+    return true;
+  }
+
+  BBGraph->transform(GraphTransforms::DeleteEntryExit);
+  Event *root = nullptr;
+
+  for(auto ev : BBGraph->getEvents()) {
+    auto bb = cast<BasicBlockEvent>(ev);
+    auto found = std::find_if(bb->Inferences.begin(), bb->Inferences.end(),
+      [=](BoolValue *b) {
+        return *b == constraints[0];
+      }
+    );
+
+    if(found != bb->Inferences.end()) {
+      root = ev;
+      break;
+    }
+  }
+
+  if(!root) { 
+    return false;
+  }
+
+  auto ft = FiniteTraces{BBGraph, root};
+  auto ts = ft.OfLengthUpTo(Depth);
+
+  for(auto t : ts) {
+    decltype(t) withInf;
+    std::copy_if(t.begin(), t.end(), std::back_inserter(withInf),
+      [=](Event *e) {
+        auto bbe = dyn_cast<BasicBlockEvent>(e);
+        return bbe && !bbe->Inferences.empty();
+      }
+    );
+
+    if(withInf.size() == constraints.size()) {
+      auto all = true;
+
+      for(auto i = 0; i < withInf.size(); i++) {
+        auto ev = cast<BasicBlockEvent>(withInf[i]);
+        auto any = std::any_of(ev->Inferences.begin(), ev->Inferences.end(),
+          [=](BoolValue *b) {
+            return *b == constraints[i];
+          }
+        );
+
+        all = all && any;
+      }
+
+      if(all) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event) {

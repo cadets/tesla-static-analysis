@@ -60,3 +60,11 @@ Event *GraphTransforms::Tag::operator()(Event *e) {
 
   return e;
 }
+
+Event *GraphTransforms::DeleteEntryExit(Event *e) {
+  if(isa<EntryEvent>(e) || isa<ExitEvent>(e)) {
+    return new EmptyEvent;
+  }
+
+  return e;
+}

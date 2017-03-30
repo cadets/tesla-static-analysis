@@ -56,6 +56,7 @@ struct EventGraph {
 
   set<Event *> entries();
   set<Event *> exits();
+  const set<Event *>& getEvents() const { return Events; }
 
   EventRange *ReleasedRange();
 

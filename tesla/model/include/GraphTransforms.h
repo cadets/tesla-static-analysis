@@ -30,6 +30,8 @@ private:
   string str_;
 };
 
+Event *DeleteEntryExit(Event *e);
+
 }
 
 #endif
