@@ -22,7 +22,19 @@ using namespace llvm;
 struct ModelChecker {
   ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man, Function *bound, int d) :
     Graph(gr), BBGraph(EventGraph::ExpandedBasicBlockGraph(bound, d)), Mod(mod), 
-    Manifest(man), Bound(bound), Depth(d) {}
+    Manifest(man), Bound(bound), Depth(d)
+  {
+    for(auto ev : BBGraph->getEvents()) {
+      if(auto bb = dyn_cast<BasicBlockEvent>(ev)) {
+        auto fs = FollowSet(bb);
+        for(auto inf : bb->Inferences) {
+          for(auto follow : fs) {
+            AssertionPairs.insert(std::make_pair(*inf, follow));
+          }
+        }
+      }
+    }
+  }
 
   bool IsUsageSafe(const tesla::Usage *use);
   set<const tesla::Usage *> SafeUsages();
