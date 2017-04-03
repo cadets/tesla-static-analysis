@@ -63,9 +63,10 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D GOOGLE_PROTOBUF_NO_RTTI")
 
 #
-# TESLA uses C++11.
+# TESLA uses C++14, with the standards flag set to c++1y rather than c++14
+# because clang++34 isn't ISO compatible. Upgrading LLVM fully will fix this.
 #
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
 
 #
 # Global include directories for all of TESLA:
