@@ -36,6 +36,9 @@ public:
   FiniteStateMachine<Expression> SequenceFSM(const Sequence &ex);
   FiniteStateMachine<Expression> BooleanFSM(const BooleanExpr &ex);
   FiniteStateMachine<Expression> SubAutomatonFSM(const Automaton &ex);
+  FiniteStateMachine<Expression> AssertionSiteFSM(const AssertionSite &ex);
+  FiniteStateMachine<Expression> FunctionEventFSM(const FunctionEvent &ex);
+  FiniteStateMachine<Expression> FieldAssignFSM(const FieldAssignment &ex);
   FiniteStateMachine<Expression> NullFSM();
 
 private:

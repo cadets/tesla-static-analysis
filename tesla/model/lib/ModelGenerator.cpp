@@ -173,9 +173,13 @@ FiniteStateMachine<Expression> ModelGenerator::ExpressionFSM(const Expression &e
       return SequenceFSM(ex.sequence());
 
     case Expression_Type_ASSERTION_SITE:
+      return AssertionSiteFSM(ex.assertsite());
+
     case Expression_Type_FUNCTION:
+      return FunctionEventFSM(ex.function());
+
     case Expression_Type_FIELD_ASSIGN:
-      return FiniteStateMachine<Expression>{};
+      return FieldAssignFSM(ex.fieldassign());
 
     case Expression_Type_SUB_AUTOMATON:
       auto sub = Man->FindAutomaton(ex.subautomaton());
@@ -266,31 +270,112 @@ FiniteStateMachine<Expression> ModelGenerator::SequenceFSM(const Sequence &ex) {
 
   auto tails = std::set<std::shared_ptr<::State>>{ initial_added };
 
-  for(auto i = 1; i <= ex.maxreps(); i++) {
-    auto rep = SequenceOnceFSM(ex);
-    auto& rep_added = fsm.AddSubMachine(rep);
+  if(ex.maxreps() == std::numeric_limits<int>::max()) {
+    for(auto i = 0; i < ex.minreps(); i++) {
+      auto rep = SequenceOnceFSM(ex);
+      auto& rep_added = fsm.AddSubMachine(rep);
 
-    for(const auto& accept : tails) {
-      accept->accepting = false;
-      fsm.AddEdge(accept, rep_added.InitialState());
-
-      if(i >= ex.minreps()) {
-        for(const auto& rep_accept : rep_added.AcceptingStates()) {
-          fsm.AddEdge(rep_accept, accept_added);
-        }
+      for(const auto& accept : tails) {
+        accept->accepting = false;
+        fsm.AddEdge(accept, rep_added.InitialState());
       }
+
+      rep_added.InitialState()->initial = false;
+      tails = rep_added.AcceptingStates();
     }
 
-    rep_added.InitialState()->initial = false;
+    fsm.AddEdge(accept_added, initial_added);
+  } else {
+    for(auto i = 0; i < ex.maxreps(); i++) {
+      auto rep = SequenceOnceFSM(ex);
+      auto& rep_added = fsm.AddSubMachine(rep);
 
-    tails = rep_added.AcceptingStates();
+      for(const auto& accept : tails) {
+        accept->accepting = false;
+        fsm.AddEdge(accept, rep_added.InitialState());
+
+        if(i > ex.minreps()) {
+          for(const auto& rep_accept : rep_added.AcceptingStates()) {
+            fsm.AddEdge(rep_accept, accept_added);
+          }
+        }
+      }
+
+      rep_added.InitialState()->initial = false;
+
+      tails = rep_added.AcceptingStates();
+    }
   }
 
   for(const auto& accept : tails) {
     accept->accepting = false;
+    fsm.AddEdge(accept, accept_added);
   }
 
   initial_added->initial = true;
+  return fsm;
+}
+
+FiniteStateMachine<Expression> ModelGenerator::AssertionSiteFSM(const AssertionSite &ex) {
+  auto fsm = FiniteStateMachine<Expression>{};
+
+  auto initial_state = ::State{NextLabel()};
+  initial_state.initial = true;
+
+  auto accept_state = ::State{NextLabel()};
+  accept_state.accepting = true;
+
+  auto initial_added = fsm.AddState(initial_state);
+  auto accept_added = fsm.AddState(accept_state);
+
+  auto expr = Expression{};
+  expr.set_type(Expression_Type_ASSERTION_SITE);
+  *expr.mutable_assertsite() = ex;
+
+  fsm.AddEdge(initial_added, accept_added, expr);
+
+  return fsm;
+}
+
+FiniteStateMachine<Expression> ModelGenerator::FunctionEventFSM(const FunctionEvent &ex) {
+  auto fsm = FiniteStateMachine<Expression>{};
+
+  auto initial_state = ::State{NextLabel()};
+  initial_state.initial = true;
+
+  auto accept_state = ::State{NextLabel()};
+  accept_state.accepting = true;
+
+  auto initial_added = fsm.AddState(initial_state);
+  auto accept_added = fsm.AddState(accept_state);
+
+  auto expr = Expression{};
+  expr.set_type(Expression_Type_FUNCTION);
+  *expr.mutable_function() = ex;
+
+  fsm.AddEdge(initial_added, accept_added, expr);
+
+  return fsm;
+}
+
+FiniteStateMachine<Expression> ModelGenerator::FieldAssignFSM(const FieldAssignment &ex) {
+  auto fsm = FiniteStateMachine<Expression>{};
+
+  auto initial_state = ::State{NextLabel()};
+  initial_state.initial = true;
+
+  auto accept_state = ::State{NextLabel()};
+  accept_state.accepting = true;
+
+  auto initial_added = fsm.AddState(initial_state);
+  auto accept_added = fsm.AddState(accept_state);
+
+  auto expr = Expression{};
+  expr.set_type(Expression_Type_FIELD_ASSIGN);
+  *expr.mutable_fieldassign() = ex;
+
+  fsm.AddEdge(initial_added, accept_added, expr);
+
   return fsm;
 }
 

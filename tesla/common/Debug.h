@@ -44,13 +44,13 @@
 #include <sstream>
 #include <string>
 
+#include "tesla.pb.h"
+
 namespace llvm {
   class raw_ostream;
 }
 
 namespace tesla {
-
-class Expression;
 
 std::ostream& operator<<(std::ostream& stream, const Expression& ex);
 

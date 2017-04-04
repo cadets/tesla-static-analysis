@@ -108,7 +108,26 @@ std::string tesla::ProtoDump(google::protobuf::Message *m) {
 }
 
 std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression& ex) {
-  stream << "hello label";
+  switch(ex.type()) {
+    case Expression_Type_NULL_EXPR:
+    case Expression_Type_BOOLEAN_EXPR:
+    case Expression_Type_SUB_AUTOMATON:
+    case Expression_Type_SEQUENCE:
+      stream << "[not printable]";
+      break;
+
+    case Expression_Type_ASSERTION_SITE:
+      stream << "assert";
+      break;
+
+    case Expression_Type_FUNCTION:
+      stream << "func:" << ex.function().function().name();
+      break;
+
+    case Expression_Type_FIELD_ASSIGN:
+      stream << "field";
+      break;
+  }
   return stream;
 }
 
