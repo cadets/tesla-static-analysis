@@ -33,6 +33,7 @@ private:
 public:
   FiniteStateMachine<Expression> ExpressionFSM(const Expression &ex);
   FiniteStateMachine<Expression> BooleanFSM(const BooleanExpr &ex);
+  FiniteStateMachine<Expression> SequenceFSM(const Sequence &ex);
   FiniteStateMachine<Expression> NullFSM();
 
 private:

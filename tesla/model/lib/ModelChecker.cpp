@@ -21,11 +21,20 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 
   auto nl = Expression{};
   nl.set_type(Expression_Type_NULL_EXPR);
+
   auto b = BooleanExpr{};
   *b.add_expression() = nl;
   *b.add_expression() = nl;
   *b.add_expression() = nl;
-  errs() << Gen.BooleanFSM(b).Dot() << '\n';
+  auto be = Expression{};
+  be.set_type(Expression_Type_BOOLEAN_EXPR);
+  *be.mutable_booleanexpr() = b;
+
+  auto s = Sequence{};
+  *s.add_expression() = be;
+  *s.add_expression() = be;
+
+  errs() << Gen.SequenceFSM(s).Dot() << '\n';
 
   auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
   auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
