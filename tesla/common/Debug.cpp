@@ -34,6 +34,7 @@
 #endif
 
 #include "Debug.h"
+#include "Names.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/raw_ostream.h>
@@ -117,12 +118,24 @@ std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression* e
       break;
 
     case Expression_Type_ASSERTION_SITE:
-      stream << "assert";
+      stream << tesla::ShortName(ex->assertsite().location());
       break;
 
-    case Expression_Type_FUNCTION:
-      stream << "func:" << ex->function().function().name();
+    case Expression_Type_FUNCTION: {
+      if(ex->function().direction() == FunctionEvent_Direction_Entry) {
+        stream << "entry:";
+      } else {
+        stream << "exit:";
+      }
+
+      stream << ex->function().function().name() << "()";
+
+      if(ex->function().has_expectedreturnvalue()) {
+        stream << " = " << ex->function().expectedreturnvalue().value();
+      }
+
       break;
+    }
 
     case Expression_Type_FIELD_ASSIGN:
       stream << "field";
