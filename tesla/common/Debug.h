@@ -41,6 +41,7 @@
 
 #include <google/protobuf/text_format.h>
 
+#include <sstream>
 #include <string>
 
 namespace llvm {
@@ -48,6 +49,10 @@ namespace llvm {
 }
 
 namespace tesla {
+
+class Expression;
+
+std::ostream& operator<<(std::ostream& stream, const Expression& ex);
 
 llvm::raw_ostream& debugs(llvm::StringRef DebugModuleName = "tesla");
 

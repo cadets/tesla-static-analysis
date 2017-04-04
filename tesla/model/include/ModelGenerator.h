@@ -2,6 +2,7 @@
 #define MODEL_GENERATOR_H
 
 #include "Automaton.h"
+#include "fsm/finite_state_machine.h"
 #include "Manifest.h"
 #include "tesla.pb.h"
 
@@ -28,6 +29,11 @@ private:
   set<Model> fromFieldAssign(const FieldAssignment &ex, size_t length);
   set<Model> fromSubAutomaton(const Automaton &ex, size_t length);
 
+public:
+  FiniteStateMachine<Expression> ExpressionFSM(const Expression &ex);
+  FiniteStateMachine<Expression> NullFSM();
+
+private:
   Manifest *Man;
   Expression &Expr;
 };

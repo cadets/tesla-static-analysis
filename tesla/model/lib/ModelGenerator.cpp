@@ -1,7 +1,6 @@
 #include "Debug.h"
 #include "ModelGenerator.h"
 
-
 set<ModelGenerator::Model> ModelGenerator::ofLength(size_t length) {
   return fromExpression(Expr, length);
 }
@@ -156,4 +155,29 @@ set<ModelGenerator::Model> ModelGenerator::fromFieldAssign(const FieldAssignment
  */
 set<ModelGenerator::Model> ModelGenerator::fromSubAutomaton(const Automaton &ex, size_t length) {
   return fromExpression(ex.getAssertion().expression(), length);
+}
+
+FiniteStateMachine<Expression> ModelGenerator::ExpressionFSM(const Expression &ex) {
+  switch(ex.type()) {
+    case Expression_Type_NULL_EXPR:
+      return NullFSM();
+
+    case Expression_Type_BOOLEAN_EXPR:
+    case Expression_Type_SEQUENCE:
+    case Expression_Type_ASSERTION_SITE:
+    case Expression_Type_FUNCTION:
+    case Expression_Type_FIELD_ASSIGN:
+    case Expression_Type_SUB_AUTOMATON:
+      return FiniteStateMachine<Expression>{};
+  }
+}
+
+FiniteStateMachine<Expression> ModelGenerator::NullFSM() {
+  auto fsm = FiniteStateMachine<Expression>{};
+  auto accept = ::State{};
+  accept.accepting = true;
+  accept.initial = true;
+
+  fsm.AddState(accept);
+  return fsm;
 }

@@ -107,6 +107,11 @@ std::string tesla::ProtoDump(google::protobuf::Message *m) {
   return ProtobufText;
 }
 
+std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression& ex) {
+  stream << "hello label";
+  return stream;
+}
+
 #ifndef NDEBUG
 #include <llvm/Support/Signals.h>
 
