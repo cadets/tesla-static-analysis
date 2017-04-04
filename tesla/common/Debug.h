@@ -52,7 +52,7 @@ namespace llvm {
 
 namespace tesla {
 
-std::ostream& operator<<(std::ostream& stream, const Expression& ex);
+std::ostream& operator<<(std::ostream& stream, const Expression* ex);
 
 llvm::raw_ostream& debugs(llvm::StringRef DebugModuleName = "tesla");
 

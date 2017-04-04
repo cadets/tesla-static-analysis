@@ -107,8 +107,8 @@ std::string tesla::ProtoDump(google::protobuf::Message *m) {
   return ProtobufText;
 }
 
-std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression& ex) {
-  switch(ex.type()) {
+std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression* ex) {
+  switch(ex->type()) {
     case Expression_Type_NULL_EXPR:
     case Expression_Type_BOOLEAN_EXPR:
     case Expression_Type_SUB_AUTOMATON:
@@ -121,7 +121,7 @@ std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression& e
       break;
 
     case Expression_Type_FUNCTION:
-      stream << "func:" << ex.function().function().name();
+      stream << "func:" << ex->function().function().name();
       break;
 
     case Expression_Type_FIELD_ASSIGN:

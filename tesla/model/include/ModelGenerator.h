@@ -31,15 +31,15 @@ private:
   std::string NextLabel();
 
 public:
-  FiniteStateMachine<Expression> ExpressionFSM(const Expression &ex);
-  FiniteStateMachine<Expression> SequenceOnceFSM(const Sequence &ex);
-  FiniteStateMachine<Expression> SequenceFSM(const Sequence &ex);
-  FiniteStateMachine<Expression> BooleanFSM(const BooleanExpr &ex);
-  FiniteStateMachine<Expression> SubAutomatonFSM(const Automaton &ex);
-  FiniteStateMachine<Expression> AssertionSiteFSM(const AssertionSite &ex);
-  FiniteStateMachine<Expression> FunctionEventFSM(const FunctionEvent &ex);
-  FiniteStateMachine<Expression> FieldAssignFSM(const FieldAssignment &ex);
-  FiniteStateMachine<Expression> NullFSM();
+  FiniteStateMachine<Expression *> ExpressionFSM(const Expression &ex);
+  FiniteStateMachine<Expression *> SequenceOnceFSM(const Sequence &ex);
+  FiniteStateMachine<Expression *> SequenceFSM(const Sequence &ex);
+  FiniteStateMachine<Expression *> BooleanFSM(const BooleanExpr &ex);
+  FiniteStateMachine<Expression *> SubAutomatonFSM(const Automaton &ex);
+  FiniteStateMachine<Expression *> AssertionSiteFSM(const AssertionSite &ex);
+  FiniteStateMachine<Expression *> FunctionEventFSM(const FunctionEvent &ex);
+  FiniteStateMachine<Expression *> FieldAssignFSM(const FieldAssignment &ex);
+  FiniteStateMachine<Expression *> NullFSM();
 
 private:
   int label = 0;

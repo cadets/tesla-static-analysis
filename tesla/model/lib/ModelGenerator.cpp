@@ -161,7 +161,7 @@ set<ModelGenerator::Model> ModelGenerator::fromSubAutomaton(const Automaton &ex,
   return fromExpression(ex.getAssertion().expression(), length);
 }
 
-FiniteStateMachine<Expression> ModelGenerator::ExpressionFSM(const Expression &ex) {
+FiniteStateMachine<Expression *> ModelGenerator::ExpressionFSM(const Expression &ex) {
   switch(ex.type()) {
     case Expression_Type_NULL_EXPR:
       return NullFSM();
@@ -187,8 +187,8 @@ FiniteStateMachine<Expression> ModelGenerator::ExpressionFSM(const Expression &e
   }
 }
 
-FiniteStateMachine<Expression> ModelGenerator::BooleanFSM(const BooleanExpr &ex) {
-  auto fsm = FiniteStateMachine<Expression>{};
+FiniteStateMachine<Expression *> ModelGenerator::BooleanFSM(const BooleanExpr &ex) {
+  auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
   initial_state.initial = true;
@@ -219,8 +219,8 @@ FiniteStateMachine<Expression> ModelGenerator::BooleanFSM(const BooleanExpr &ex)
   return fsm;
 }
 
-FiniteStateMachine<Expression> ModelGenerator::SequenceOnceFSM(const Sequence &ex) {
-  auto fsm = FiniteStateMachine<Expression>{};
+FiniteStateMachine<Expression *> ModelGenerator::SequenceOnceFSM(const Sequence &ex) {
+  auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
   initial_state.initial = true;
@@ -256,8 +256,8 @@ FiniteStateMachine<Expression> ModelGenerator::SequenceOnceFSM(const Sequence &e
   return fsm;
 }
 
-FiniteStateMachine<Expression> ModelGenerator::SequenceFSM(const Sequence &ex) {
-  auto fsm = FiniteStateMachine<Expression>{};
+FiniteStateMachine<Expression *> ModelGenerator::SequenceFSM(const Sequence &ex) {
+  auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
   initial_state.initial = true;
@@ -316,8 +316,8 @@ FiniteStateMachine<Expression> ModelGenerator::SequenceFSM(const Sequence &ex) {
   return fsm;
 }
 
-FiniteStateMachine<Expression> ModelGenerator::AssertionSiteFSM(const AssertionSite &ex) {
-  auto fsm = FiniteStateMachine<Expression>{};
+FiniteStateMachine<Expression *> ModelGenerator::AssertionSiteFSM(const AssertionSite &ex) {
+  auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
   initial_state.initial = true;
@@ -328,17 +328,17 @@ FiniteStateMachine<Expression> ModelGenerator::AssertionSiteFSM(const AssertionS
   auto initial_added = fsm.AddState(initial_state);
   auto accept_added = fsm.AddState(accept_state);
 
-  auto expr = Expression{};
-  expr.set_type(Expression_Type_ASSERTION_SITE);
-  *expr.mutable_assertsite() = ex;
+  auto expr = new Expression;
+  expr->set_type(Expression_Type_ASSERTION_SITE);
+  *expr->mutable_assertsite() = ex;
 
   fsm.AddEdge(initial_added, accept_added, expr);
 
   return fsm;
 }
 
-FiniteStateMachine<Expression> ModelGenerator::FunctionEventFSM(const FunctionEvent &ex) {
-  auto fsm = FiniteStateMachine<Expression>{};
+FiniteStateMachine<Expression *> ModelGenerator::FunctionEventFSM(const FunctionEvent &ex) {
+  auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
   initial_state.initial = true;
@@ -349,17 +349,17 @@ FiniteStateMachine<Expression> ModelGenerator::FunctionEventFSM(const FunctionEv
   auto initial_added = fsm.AddState(initial_state);
   auto accept_added = fsm.AddState(accept_state);
 
-  auto expr = Expression{};
-  expr.set_type(Expression_Type_FUNCTION);
-  *expr.mutable_function() = ex;
+  auto expr = new Expression;
+  expr->set_type(Expression_Type_FUNCTION);
+  *expr->mutable_function() = ex;
 
   fsm.AddEdge(initial_added, accept_added, expr);
 
   return fsm;
 }
 
-FiniteStateMachine<Expression> ModelGenerator::FieldAssignFSM(const FieldAssignment &ex) {
-  auto fsm = FiniteStateMachine<Expression>{};
+FiniteStateMachine<Expression *> ModelGenerator::FieldAssignFSM(const FieldAssignment &ex) {
+  auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
   initial_state.initial = true;
@@ -370,21 +370,21 @@ FiniteStateMachine<Expression> ModelGenerator::FieldAssignFSM(const FieldAssignm
   auto initial_added = fsm.AddState(initial_state);
   auto accept_added = fsm.AddState(accept_state);
 
-  auto expr = Expression{};
-  expr.set_type(Expression_Type_FIELD_ASSIGN);
-  *expr.mutable_fieldassign() = ex;
+  auto expr = new Expression;
+  expr->set_type(Expression_Type_FIELD_ASSIGN);
+  *expr->mutable_fieldassign() = ex;
 
   fsm.AddEdge(initial_added, accept_added, expr);
 
   return fsm;
 }
 
-FiniteStateMachine<Expression> ModelGenerator::SubAutomatonFSM(const Automaton &ex) {
+FiniteStateMachine<Expression *> ModelGenerator::SubAutomatonFSM(const Automaton &ex) {
   return ExpressionFSM(ex.getAssertion().expression());
 }
 
-FiniteStateMachine<Expression> ModelGenerator::NullFSM() {
-  auto fsm = FiniteStateMachine<Expression>{};
+FiniteStateMachine<Expression *> ModelGenerator::NullFSM() {
+  auto fsm = FiniteStateMachine<Expression *>{};
   auto accept = ::State{NextLabel()};
   accept.accepting = true;
   accept.initial = true;
