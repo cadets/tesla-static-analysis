@@ -20,7 +20,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
 
   errs() << Gen.ExpressionFSM(expr).Dot() << '\n';
-  errs() << Gen.ExpressionFSM(expr).Deterministic().Dot() << '\n';
+  errs() << Gen.ExpressionFSM(expr).Deterministic().Relabeled().Dot() << '\n';
 
   auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
   auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
