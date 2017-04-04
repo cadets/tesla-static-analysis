@@ -28,12 +28,15 @@ private:
   set<Model> fromFunction(const FunctionEvent &ex, size_t length);
   set<Model> fromFieldAssign(const FieldAssignment &ex, size_t length);
   set<Model> fromSubAutomaton(const Automaton &ex, size_t length);
+  std::string NextLabel();
 
 public:
   FiniteStateMachine<Expression> ExpressionFSM(const Expression &ex);
+  FiniteStateMachine<Expression> BooleanFSM(const BooleanExpr &ex);
   FiniteStateMachine<Expression> NullFSM();
 
 private:
+  int label = 0;
   Manifest *Man;
   Expression &Expr;
 };

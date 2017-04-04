@@ -1,6 +1,10 @@
 #include "Debug.h"
 #include "ModelGenerator.h"
 
+std::string ModelGenerator::NextLabel() {
+  return "_s" + std::to_string(label++);
+}
+
 set<ModelGenerator::Model> ModelGenerator::ofLength(size_t length) {
   return fromExpression(Expr, length);
 }
@@ -163,6 +167,8 @@ FiniteStateMachine<Expression> ModelGenerator::ExpressionFSM(const Expression &e
       return NullFSM();
 
     case Expression_Type_BOOLEAN_EXPR:
+      return BooleanFSM(ex.booleanexpr());
+
     case Expression_Type_SEQUENCE:
     case Expression_Type_ASSERTION_SITE:
     case Expression_Type_FUNCTION:
@@ -172,9 +178,42 @@ FiniteStateMachine<Expression> ModelGenerator::ExpressionFSM(const Expression &e
   }
 }
 
+FiniteStateMachine<Expression> ModelGenerator::BooleanFSM(const BooleanExpr &ex) {
+  auto fsm = FiniteStateMachine<Expression>{};
+
+  auto initial_state = ::State{NextLabel()};
+  initial_state.initial = true;
+
+  auto accept_state = ::State{NextLabel()};
+  accept_state.accepting = true;
+
+  auto initial_added = fsm.AddState(initial_state);
+  auto accept_added = fsm.AddState(accept_state);
+
+  for(auto i = 0; i < ex.expression_size(); i++) {
+    auto sub_expr = ex.expression(i);
+    auto sub_fsm = ExpressionFSM(sub_expr);
+
+    auto& sub_added = fsm.AddSubMachine(sub_fsm);
+    fsm.AddEdge(initial_added, sub_added.InitialState());
+    sub_added.InitialState()->initial = false;
+
+    for(const auto& sub_accept : sub_added.AcceptingStates()) {
+      fsm.AddEdge(sub_accept, accept_added);
+      sub_accept->accepting = false;
+    }
+  }
+
+  if(ex.expression_size() == 0) {
+    fsm.AddEdge(initial_added, accept_added);
+  }
+
+  return fsm;
+}
+
 FiniteStateMachine<Expression> ModelGenerator::NullFSM() {
   auto fsm = FiniteStateMachine<Expression>{};
-  auto accept = ::State{};
+  auto accept = ::State{NextLabel()};
   accept.accepting = true;
   accept.initial = true;
 
