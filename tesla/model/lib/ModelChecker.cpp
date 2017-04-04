@@ -33,6 +33,8 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto s = Sequence{};
   *s.add_expression() = be;
   *s.add_expression() = be;
+  s.set_maxreps(2);
+  s.set_minreps(1);
 
   errs() << Gen.SequenceFSM(s).Dot() << '\n';
 

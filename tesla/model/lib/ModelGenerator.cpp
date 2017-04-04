@@ -210,7 +210,7 @@ FiniteStateMachine<Expression> ModelGenerator::BooleanFSM(const BooleanExpr &ex)
   return fsm;
 }
 
-FiniteStateMachine<Expression> ModelGenerator::SequenceFSM(const Sequence &ex) {
+FiniteStateMachine<Expression> ModelGenerator::SequenceOnceFSM(const Sequence &ex) {
   auto fsm = FiniteStateMachine<Expression>{};
 
   auto initial_state = ::State{NextLabel()};
@@ -243,6 +243,48 @@ FiniteStateMachine<Expression> ModelGenerator::SequenceFSM(const Sequence &ex) {
     fsm.AddEdge(accept, accept_added);
   }
  
+  initial_added->initial = true;
+  return fsm;
+}
+
+FiniteStateMachine<Expression> ModelGenerator::SequenceFSM(const Sequence &ex) {
+  auto fsm = FiniteStateMachine<Expression>{};
+
+  auto initial_state = ::State{NextLabel()};
+  initial_state.initial = true;
+
+  auto accept_state = ::State{NextLabel()};
+  accept_state.accepting = true;
+
+  auto initial_added = fsm.AddState(initial_state);
+  auto accept_added = fsm.AddState(accept_state);
+
+  auto tails = std::set<std::shared_ptr<::State>>{ initial_added };
+
+  for(auto i = 1; i <= ex.maxreps(); i++) {
+    auto rep = SequenceOnceFSM(ex);
+    auto& rep_added = fsm.AddSubMachine(rep);
+
+    for(const auto& accept : tails) {
+      accept->accepting = false;
+      fsm.AddEdge(accept, rep_added.InitialState());
+
+      if(i >= ex.minreps()) {
+        for(const auto& rep_accept : rep_added.AcceptingStates()) {
+          fsm.AddEdge(rep_accept, accept_added);
+        }
+      }
+    }
+
+    rep_added.InitialState()->initial = false;
+
+    tails = rep_added.AcceptingStates();
+  }
+
+  for(const auto& accept : tails) {
+    accept->accepting = false;
+  }
+
   initial_added->initial = true;
   return fsm;
 }
