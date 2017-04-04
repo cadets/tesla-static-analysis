@@ -170,11 +170,16 @@ FiniteStateMachine<Expression> ModelGenerator::ExpressionFSM(const Expression &e
       return BooleanFSM(ex.booleanexpr());
 
     case Expression_Type_SEQUENCE:
+      return SequenceFSM(ex.sequence());
+
     case Expression_Type_ASSERTION_SITE:
     case Expression_Type_FUNCTION:
     case Expression_Type_FIELD_ASSIGN:
-    case Expression_Type_SUB_AUTOMATON:
       return FiniteStateMachine<Expression>{};
+
+    case Expression_Type_SUB_AUTOMATON:
+      auto sub = Man->FindAutomaton(ex.subautomaton());
+      return SubAutomatonFSM(*sub);
   }
 }
 
@@ -287,6 +292,10 @@ FiniteStateMachine<Expression> ModelGenerator::SequenceFSM(const Sequence &ex) {
 
   initial_added->initial = true;
   return fsm;
+}
+
+FiniteStateMachine<Expression> ModelGenerator::SubAutomatonFSM(const Automaton &ex) {
+  return ExpressionFSM(ex.getAssertion().expression());
 }
 
 FiniteStateMachine<Expression> ModelGenerator::NullFSM() {
