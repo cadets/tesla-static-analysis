@@ -34,6 +34,7 @@
 #endif
 
 #include "Debug.h"
+#include "Names.h"
 
 #include <llvm/ADT/Twine.h>
 #include <llvm/Support/raw_ostream.h>
@@ -105,6 +106,42 @@ std::string tesla::ProtoDump(google::protobuf::Message *m) {
   std::string ProtobufText;
   google::protobuf::TextFormat::PrintToString(*m, &ProtobufText);
   return ProtobufText;
+}
+
+std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression* ex) {
+  switch(ex->type()) {
+    case Expression_Type_NULL_EXPR:
+    case Expression_Type_BOOLEAN_EXPR:
+    case Expression_Type_SUB_AUTOMATON:
+    case Expression_Type_SEQUENCE:
+      stream << "[not printable]";
+      break;
+
+    case Expression_Type_ASSERTION_SITE:
+      stream << tesla::ShortName(ex->assertsite().location());
+      break;
+
+    case Expression_Type_FUNCTION: {
+      if(ex->function().direction() == FunctionEvent_Direction_Entry) {
+        stream << "entry:";
+      } else {
+        stream << "exit:";
+      }
+
+      stream << ex->function().function().name() << "()";
+
+      if(ex->function().has_expectedreturnvalue()) {
+        stream << " = " << ex->function().expectedreturnvalue().value();
+      }
+
+      break;
+    }
+
+    case Expression_Type_FIELD_ASSIGN:
+      stream << "field";
+      break;
+  }
+  return stream;
 }
 
 #ifndef NDEBUG

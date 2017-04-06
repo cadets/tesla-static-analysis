@@ -41,13 +41,18 @@
 
 #include <google/protobuf/text_format.h>
 
+#include <sstream>
 #include <string>
+
+#include "tesla.pb.h"
 
 namespace llvm {
   class raw_ostream;
 }
 
 namespace tesla {
+
+std::ostream& operator<<(std::ostream& stream, const Expression* ex);
 
 llvm::raw_ostream& debugs(llvm::StringRef DebugModuleName = "tesla");
 

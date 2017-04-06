@@ -2,6 +2,7 @@
 #define MODEL_GENERATOR_H
 
 #include "Automaton.h"
+#include "fsm/finite_state_machine.h"
 #include "Manifest.h"
 #include "tesla.pb.h"
 
@@ -27,7 +28,21 @@ private:
   set<Model> fromFunction(const FunctionEvent &ex, size_t length);
   set<Model> fromFieldAssign(const FieldAssignment &ex, size_t length);
   set<Model> fromSubAutomaton(const Automaton &ex, size_t length);
+  std::string NextLabel();
 
+public:
+  FiniteStateMachine<Expression *> ExpressionFSM(const Expression &ex);
+  FiniteStateMachine<Expression *> SequenceOnceFSM(const Sequence &ex);
+  FiniteStateMachine<Expression *> SequenceFSM(const Sequence &ex);
+  FiniteStateMachine<Expression *> BooleanFSM(const BooleanExpr &ex);
+  FiniteStateMachine<Expression *> SubAutomatonFSM(const Automaton &ex);
+  FiniteStateMachine<Expression *> AssertionSiteFSM(const AssertionSite &ex);
+  FiniteStateMachine<Expression *> FunctionEventFSM(const FunctionEvent &ex);
+  FiniteStateMachine<Expression *> FieldAssignFSM(const FieldAssignment &ex);
+  FiniteStateMachine<Expression *> NullFSM();
+
+private:
+  int label = 0;
   Manifest *Man;
   Expression &Expr;
 };
