@@ -52,6 +52,8 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 
     const auto checkBounded = [&](auto v){
       for(const auto& trace : v) {
+        if(!safe) { break; }
+
         const auto& filt = filteredTrace(trace, expr);
 
         auto exists = false;
@@ -65,6 +67,8 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 
     const auto checkCyclic = [&](auto v){
       for(const auto& trace : v) {
+        if(!safe) { break; }
+
         const auto& filt = filteredTrace(trace, expr);
 
         auto exists = false;
