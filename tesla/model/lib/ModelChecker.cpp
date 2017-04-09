@@ -1,7 +1,5 @@
 #include <numeric>
 #include <map>
-#include <mutex>
-#include <thread>
 #include <vector>
 
 #include "Debug.h"
@@ -16,10 +14,10 @@ using std::vector;
 
 bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
-  const auto expr = automaton->getAssertion().expression();
+  auto expr = automaton->getAssertion().expression();
 
   auto Gen = ModelGenerator(expr, Manifest);
-  const auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
+  auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
 
   auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
   auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
@@ -27,70 +25,27 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 
   auto safe = true; 
 
-  auto threads = std::vector<std::thread>{};
-  auto n_cores = std::thread::hardware_concurrency();
+  for(auto trace : boundedTraces) {
+    auto filt = filteredTrace(trace, expr);
 
-  std::iterator_traits<decltype(boundedTraces.begin())>::difference_type
-    bounded_len = boundedTraces.size() / n_cores;
-  std::iterator_traits<decltype(boundedTraces.begin())>::difference_type
-    cyclic_len = cyclicTraces.size() / n_cores;
-
-  auto bv = std::vector<typename decltype(boundedTraces)::value_type>
-    {boundedTraces.begin(), boundedTraces.end()};
-  auto cv = std::vector<typename decltype(cyclicTraces)::value_type>
-    {cyclicTraces.begin(), cyclicTraces.end()};
-
-  auto bi = std::begin(bv);
-  auto ci = std::begin(cv);
-
-  for(auto i = 0; i < n_cores; i++) {
-    auto bd = std::min(bounded_len, std::distance(bi, bv.end()));
-    auto cd = std::min(cyclic_len, std::distance(ci, cv.end()));
-
-    auto bounded = decltype(bv){bi, bi + bd};
-    auto cyclic = decltype(cv){ci, ci + cd};
-
-    const auto checkBounded = [&](auto v){
-      for(const auto& trace : v) {
-        if(!safe) { break; }
-
-        const auto& filt = filteredTrace(trace, expr);
-
-        auto exists = false;
-        for(const auto& model : n) {
-          exists = exists || CheckAgainst(filt, model);
-        }
-
-        safe = safe && exists;
-      }
-    };
-
-    const auto checkCyclic = [&](auto v){
-      for(const auto& trace : v) {
-        if(!safe) { break; }
-
-        const auto& filt = filteredTrace(trace, expr);
-
-        auto exists = false;
-        for(const auto& model : n) {
-          exists = exists || CheckAgainst(filt, model, true);
-        }
-
-        safe = safe && exists;
-      }
-    };
-
-    std::thread t1(checkBounded, bounded);
-    std::thread t2(checkCyclic, cyclicTraces);
-
-    threads.push_back(std::move(t1));
-    threads.push_back(std::move(t2));
-
-    bi += bd;
-    ci += cd;
+    auto exists = false;
+    for(auto model : n) {
+      exists = exists || CheckAgainst(filt, model);
+    }
+    safe = safe && exists;
   }
 
-  std::for_each(threads.begin(), threads.end(), [](auto& t) { t.join(); });
+  for(auto trace : cyclicTraces) {
+    auto filt = filteredTrace(trace, expr);
+
+    auto exists = false;
+    for(auto model : n) {
+      exists = exists || CheckAgainst(filt, model, true);
+    }
+    safe = safe && exists;
+  }
+
+
   return safe;
 }
 
