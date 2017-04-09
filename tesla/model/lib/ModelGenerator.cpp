@@ -57,27 +57,27 @@ set<ModelGenerator::Model> ModelGenerator::fromSequence(const Sequence &ex, size
     return {{}};
   }
 
-  auto head = ex.expression(index);
-  auto hes = fromExpression(head, length);
+  const auto& head = ex.expression(index);
+  const auto& hes = fromExpression(head, length);
 
   set<ModelGenerator::Model> ret;
 
-  for(auto he : hes) {
-    auto tes = fromSequence(ex, length - he.size(), index+1);
+  for(const auto& he : hes) {
+    const auto& tes = fromSequence(ex, length - he.size(), index+1);
     
-    for(auto te : tes) {
+    for(const auto& te : tes) {
       ModelGenerator::Model cat;
-      for(auto hev : he) {
+      for(const auto& hev : he) {
         cat.push_back(hev);
       }
 
-      for(auto tev : te) {
+      for(const auto& tev : te) {
         cat.push_back(tev);
       }
 
       if(cat.size() <= length && !cat.empty()) {
-        auto once = cat;
-        auto rep_bound = length / cat.size();
+        const auto& once = cat;
+        const auto rep_bound = length / cat.size();
 
         for(auto i = ex.minreps(); i <= ex.maxreps() && i <= rep_bound; i++) {
           ModelGenerator::Model repd;
@@ -103,7 +103,7 @@ set<ModelGenerator::Model> ModelGenerator::fromBoolean(const BooleanExpr &ex, si
 
   set<ModelGenerator::Model> possibles;
   for(int i = 0; i < ex.expression_size(); i++) {
-    auto disj = fromExpression(ex.expression(i), length);
+    const auto& disj = fromExpression(ex.expression(i), length);
     std::copy(disj.begin(), disj.end(), std::inserter(possibles, possibles.begin()));
   }
 
