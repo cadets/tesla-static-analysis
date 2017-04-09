@@ -15,7 +15,7 @@ using namespace tesla;
 
 struct ModelGenerator {
   using Model = vector<Expression *>;
-  ModelGenerator(Expression &e, Manifest *man) :
+  ModelGenerator(const Expression &e, Manifest *man) :
     Man(man), Expr(e) {}
 
   set<Model> ofLength(size_t length);
@@ -44,7 +44,7 @@ public:
 private:
   int label = 0;
   Manifest *Man;
-  Expression &Expr;
+  const Expression &Expr;
 };
 
 #endif

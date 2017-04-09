@@ -14,7 +14,7 @@ using std::vector;
 
 bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
-  auto expr = automaton->getAssertion().expression();
+  const auto expr = automaton->getAssertion().expression();
 
   auto Gen = ModelGenerator(expr, Manifest);
   auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
