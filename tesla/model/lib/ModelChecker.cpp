@@ -23,30 +23,48 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
   auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
 
-  auto safe = true; 
+  auto boundedSorted = std::vector<decltype(boundedTraces)::value_type>{
+    boundedTraces.begin(), boundedTraces.end() };
+  std::sort(std::begin(boundedSorted), std::end(boundedSorted),
+    [](auto tr1, auto tr2) { return tr1.size() < tr2.size(); });
 
-  for(auto trace : boundedTraces) {
+  for(auto trace : boundedSorted) {
     auto filt = filteredTrace(trace, expr);
 
     auto exists = false;
     for(auto model : n) {
       exists = exists || CheckAgainst(filt, model);
     }
-    safe = safe && exists;
+
+    if(!exists) {
+      errs() << "Counterexample of length " << trace.size() << '\n';
+      for(const auto& ev : trace) {
+        errs() << "  " << ev->GraphViz() << '\n';
+      }
+      errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
+      return false;
+    }
   }
 
-  for(auto trace : cyclicTraces) {
+  auto cyclicSorted = std::vector<decltype(cyclicTraces)::value_type>{
+    cyclicTraces.begin(), cyclicTraces.end() };
+  std::sort(std::begin(cyclicSorted), std::end(cyclicSorted),
+    [](auto tr1, auto tr2) { return tr1.size() < tr2.size(); });
+
+  for(auto trace : cyclicSorted) {
     auto filt = filteredTrace(trace, expr);
 
     auto exists = false;
     for(auto model : n) {
       exists = exists || CheckAgainst(filt, model, true);
     }
-    safe = safe && exists;
+
+    if(!exists) {
+      return false;
+    }
   }
 
-
-  return safe;
+  return true;
 }
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
@@ -189,6 +207,7 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
 
   auto occ = ConstraintsOccur(BBGraph, constraints);
   if(!occ) {
+    errs() << "Return constraints do not occur\n";
     return false;
   }
 
@@ -197,6 +216,8 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
     auto found = AssertionPairs.find(bigram);
 
     if(found == AssertionPairs.end()) {
+      errs() << "RVC failure: cannot observe " << constraints[i].str()
+             << " followed by " << constraints[i+1].str() << '\n';
       return false;
     }
   }
