@@ -4,6 +4,7 @@
 #include <llvm/IR/Function.h>
 
 #include <map>
+#include <mutex>
 #include <set>
 #include <vector>
 
@@ -36,6 +37,7 @@ private:
   map<size_t, TraceSet> cache;
   EventGraph *Graph;
   Event *Root;
+  std::mutex cache_lock;
 };
 
 #endif

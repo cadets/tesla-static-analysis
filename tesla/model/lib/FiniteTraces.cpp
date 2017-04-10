@@ -1,17 +1,23 @@
-#include "FiniteTraces.h"
-
 #include <llvm/Support/raw_ostream.h>
+
+#include "FiniteTraces.h"
 
 FiniteTraces::TraceSet FiniteTraces::OfLength(size_t len) {
   // Look it up in the cache if we can - no set of traces will be computed more
   // than once for a single graph.
-  if(cache.find(len) != cache.end()) {
-    return cache[len];
+  {
+    std::lock_guard<std::mutex> lock(cache_lock);
+    if(cache.find(len) != cache.end()) {
+      return cache[len];
+    }
   }
 
   // No traces of length 0
   if(len == 0) {
-    cache[0] = {};
+    {
+      std::lock_guard<std::mutex> lock(cache_lock);
+      cache[0] = {};
+    }
     return {};
   }
 
@@ -23,7 +29,10 @@ FiniteTraces::TraceSet FiniteTraces::OfLength(size_t len) {
         entries.insert({e});
       }
 
-      cache[1] = entries;
+      {
+        std::lock_guard<std::mutex> lock(cache_lock);
+        cache[1] = entries;
+      }
       return entries;
     } else {
       return {{Root}};
@@ -43,7 +52,10 @@ FiniteTraces::TraceSet FiniteTraces::OfLength(size_t len) {
     }
   }
 
-  cache[len] = ret;
+  {
+    std::lock_guard<std::mutex> lock(cache_lock);
+    cache[len] = ret;
+  }
   return ret;
 }
 

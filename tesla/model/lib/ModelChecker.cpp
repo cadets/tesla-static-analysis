@@ -1,5 +1,9 @@
+#include <array>
 #include <numeric>
 #include <map>
+#include <mutex>
+#include <sstream>
+#include <thread>
 #include <vector>
 
 #include "Debug.h"
@@ -18,51 +22,85 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
 
   auto Gen = ModelGenerator(expr, Manifest);
 
-  for(auto d = 1; d < Depth; d++) {
-    auto allTraces = FiniteTraces{Graph}.OfLength(d);
-    auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
-    auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
-
-    auto n = Gen.ofLength(d * 2); // generate longer model for cyclic checks
-
-    for(auto trace : boundedTraces) {
-      auto filt = filteredTrace(trace, expr);
-
-      auto exists = false;
-      for(auto model : n) {
-        exists = exists || CheckAgainst(filt, model);
-      }
-
-      if(!exists) {
-        errs() << "Counterexample of length " << trace.size() << '\n';
-        for(const auto& ev : trace) {
-          errs() << "  " << ev->GraphViz() << '\n';
-        }
-        errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
-        return false;
-      }
-    }
-
-    for(auto trace : cyclicTraces) {
-      auto filt = filteredTrace(trace, expr);
-
-      auto exists = false;
-      for(auto model : n) {
-        exists = exists || CheckAgainst(filt, model, true);
-      }
-
-      if(!exists) {
-        errs() << "(cyclic) Counterexample of length " << trace.size() << '\n';
-        for(const auto& ev : trace) {
-          errs() << "  " << ev->GraphViz() << '\n';
-        }
-        errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
-        return false;
-      }
-    }
+  auto work_queue = std::queue<int>{};
+  for(auto i = 0; i < Depth; i++) {
+    work_queue.push(i+1);
   }
+  auto done = false;
+  auto&& mut = std::mutex{};
 
-  return true;
+  auto n_cores = std::thread::hardware_concurrency();
+  auto&& trace_gen = FiniteTraces{Graph};
+
+  const auto thread_worker = [&] {
+    while(!work_queue.empty() && !done) {
+      int d;
+      {
+        std::lock_guard<std::mutex> lock(mut);
+        if(!work_queue.empty()) {
+          d = work_queue.front();
+          work_queue.pop();
+        } else {
+          return;
+        }
+      }
+
+      auto allTraces = trace_gen.OfLength(d);
+      auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
+      auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
+
+      auto n = Gen.ofLength(d * 2); // generate longer model for cyclic checks
+
+      for(auto trace : boundedTraces) {
+        auto filt = filteredTrace(trace, expr);
+
+        auto exists = false;
+        for(auto model : n) {
+          exists = exists || CheckAgainst(filt, model);
+        }
+
+        std::lock_guard<std::mutex> lock(mut);
+        if(!exists && !done) {
+          errs() << "Counterexample of length " << trace.size() << '\n';
+          for(const auto& ev : trace) {
+            errs() << "  " << ev->GraphViz() << '\n';
+          }
+          errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
+
+          done = true;
+        }
+      }
+
+      for(auto trace : cyclicTraces) {
+        auto filt = filteredTrace(trace, expr);
+
+        auto exists = false;
+        for(auto model : n) {
+          exists = exists || CheckAgainst(filt, model, true);
+        }
+
+        std::lock_guard<std::mutex> lock(mut);
+        if(!exists && !done) {
+
+          errs() << "(cyclic) Counterexample of length " << trace.size() << '\n';
+          for(const auto& ev : trace) {
+            errs() << "  " << ev->GraphViz() << '\n';
+          }
+          errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
+
+          done = true;
+        }
+      }
+    }
+  };
+
+  auto threads = std::vector<std::thread>{};
+  for(auto i = 0; i < n_cores; i++) {
+    threads.push_back(std::thread(thread_worker));
+  }
+  std::for_each(std::begin(threads), std::end(threads), [](auto& t) { t.join(); });
+
+  return !done;
 }
 
 set<const tesla::Usage *> ModelChecker::SafeUsages() {
