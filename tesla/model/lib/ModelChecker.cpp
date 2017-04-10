@@ -17,50 +17,48 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto expr = automaton->getAssertion().expression();
 
   auto Gen = ModelGenerator(expr, Manifest);
-  auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
 
-  auto allTraces = FiniteTraces{Graph}.OfLengthUpTo(Depth);
-  auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
-  auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
+  for(auto d = 1; d < Depth; d++) {
+    auto allTraces = FiniteTraces{Graph}.OfLength(d);
+    auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
+    auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
 
-  auto boundedSorted = std::vector<decltype(boundedTraces)::value_type>{
-    boundedTraces.begin(), boundedTraces.end() };
-  std::sort(std::begin(boundedSorted), std::end(boundedSorted),
-    [](auto tr1, auto tr2) { return tr1.size() < tr2.size(); });
+    auto n = Gen.ofLength(d * 2); // generate longer model for cyclic checks
 
-  for(auto trace : boundedSorted) {
-    auto filt = filteredTrace(trace, expr);
+    for(auto trace : boundedTraces) {
+      auto filt = filteredTrace(trace, expr);
 
-    auto exists = false;
-    for(auto model : n) {
-      exists = exists || CheckAgainst(filt, model);
-    }
-
-    if(!exists) {
-      errs() << "Counterexample of length " << trace.size() << '\n';
-      for(const auto& ev : trace) {
-        errs() << "  " << ev->GraphViz() << '\n';
+      auto exists = false;
+      for(auto model : n) {
+        exists = exists || CheckAgainst(filt, model);
       }
-      errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
-      return false;
-    }
-  }
 
-  auto cyclicSorted = std::vector<decltype(cyclicTraces)::value_type>{
-    cyclicTraces.begin(), cyclicTraces.end() };
-  std::sort(std::begin(cyclicSorted), std::end(cyclicSorted),
-    [](auto tr1, auto tr2) { return tr1.size() < tr2.size(); });
-
-  for(auto trace : cyclicSorted) {
-    auto filt = filteredTrace(trace, expr);
-
-    auto exists = false;
-    for(auto model : n) {
-      exists = exists || CheckAgainst(filt, model, true);
+      if(!exists) {
+        errs() << "Counterexample of length " << trace.size() << '\n';
+        for(const auto& ev : trace) {
+          errs() << "  " << ev->GraphViz() << '\n';
+        }
+        errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
+        return false;
+      }
     }
 
-    if(!exists) {
-      return false;
+    for(auto trace : cyclicTraces) {
+      auto filt = filteredTrace(trace, expr);
+
+      auto exists = false;
+      for(auto model : n) {
+        exists = exists || CheckAgainst(filt, model, true);
+      }
+
+      if(!exists) {
+        errs() << "(cyclic) Counterexample of length " << trace.size() << '\n';
+        for(const auto& ev : trace) {
+          errs() << "  " << ev->GraphViz() << '\n';
+        }
+        errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
+        return false;
+      }
     }
   }
 
@@ -207,7 +205,6 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
 
   auto occ = ConstraintsOccur(BBGraph, constraints);
   if(!occ) {
-    errs() << "Return constraints do not occur\n";
     return false;
   }
 
@@ -216,8 +213,6 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
     auto found = AssertionPairs.find(bigram);
 
     if(found == AssertionPairs.end()) {
-      errs() << "RVC failure: cannot observe " << constraints[i].str()
-             << " followed by " << constraints[i+1].str() << '\n';
       return false;
     }
   }
