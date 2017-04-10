@@ -32,6 +32,8 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto n_cores = std::thread::hardware_concurrency();
   auto&& trace_gen = FiniteTraces{Graph};
 
+  auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
+
   const auto thread_worker = [&] {
     while(!work_queue.empty() && !done) {
       int d;
@@ -48,8 +50,6 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       auto allTraces = trace_gen.OfLength(d);
       auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
       auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
-
-      auto n = Gen.ofLength(d * 2); // generate longer model for cyclic checks
 
       for(auto trace : boundedTraces) {
         auto filt = filteredTrace(trace, expr);
