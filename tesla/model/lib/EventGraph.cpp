@@ -87,7 +87,7 @@ EventRange *EventGraph::Expand(BasicBlockEvent *e, int depth, map<Function *, Ev
   EventRange *range = nullptr;
   for(auto& I : *e->Block) {
     if(auto ci = dyn_cast<CallInst>(&I)) {
-      if(ci->getCalledFunction()->isDeclaration()) {
+      if(!ci->getCalledFunction() || ci->getCalledFunction()->isDeclaration()) {
         continue;
       }
 
