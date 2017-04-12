@@ -16,7 +16,6 @@ AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A,
   ModulePass(ID), 
   correctUsage(true),
   boundName(A.Use()->beginning().function().function().name()),
-  automaton(A),
   args(args_)
 {
 }

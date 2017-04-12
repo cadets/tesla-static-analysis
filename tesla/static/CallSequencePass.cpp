@@ -8,10 +8,7 @@ namespace tesla {
 unique_ptr<Manifest> CallSequencePass::run(Manifest &Man, llvm::Module &Mo) {
   auto File = new ManifestFile();
 
-  auto main = Mo.getFunction("main");
   auto f = Mo.getFunction("f");
-  auto g = Mo.getFunction("g");
-  auto h = Mo.getFunction("h");
   if(f) {
     auto tcs = TransitiveCallsOnce(Mo, f);
     for(auto fn : tcs) {

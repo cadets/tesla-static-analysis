@@ -45,6 +45,6 @@ BoolValue *BackwardsSearch::Resolve(BoolValue b) {
     case Instruction::Xor:
       return new BoolValue{otherArg, constVal != b.GetConstraint()};
     default:
-      assert(false && "Unhandled op type for resolution!");
+      return nullptr;
   }
 }
