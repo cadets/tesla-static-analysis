@@ -116,6 +116,17 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
 }
 
 bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle) {
+  auto no_asserts_checked = std::none_of(tr.begin(), tr.end(), 
+    [=](auto e) {
+      if(auto ae = dyn_cast<AssertEvent>(e)) {
+        return std::any_of(mod.begin(), mod.end(), [=](auto as) { return CheckState(*as, ae); });
+      }
+
+      return false;
+    }
+  );
+  if(no_asserts_checked) { return true; }
+
   if(!cycle) {
     if(tr.size() != mod.size()) {
       return false;
