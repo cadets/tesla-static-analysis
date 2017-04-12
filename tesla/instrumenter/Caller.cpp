@@ -226,6 +226,7 @@ CallerInstrumentation*
                                  bool SuppressDebugInstr) {
 
   assert(false && "update ObjC implementation");
+  __builtin_unreachable();
 }
 
 

@@ -32,6 +32,7 @@ Condition *Condition::BranchCondition(BasicBlock *pred, BasicBlock *succ) {
   }
 
   assert(false && "Successor not actually a successor");
+  __builtin_unreachable();
 }
 
 std::map<BasicBlock *, std::set<BoolValue *>> Condition::StrongestInferences(Function *f) {
@@ -147,6 +148,7 @@ std::set<BoolValue> LogicalOp::BoolValues() const {
 
 bool BoolValue::Eval() const {
   assert(false && "Can't evaluate a branch - expression not constant!");
+  __builtin_unreachable();
 }
 
 bool And::Eval() const {

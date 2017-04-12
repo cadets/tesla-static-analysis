@@ -29,7 +29,6 @@ struct AcquireReleaseCheck : public ModulePass {
 private:
   bool correctUsage;
   const string boundName;
-  const tesla::Automaton &automaton;
   std::vector<tesla::Argument> args;
 };
 

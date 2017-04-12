@@ -37,6 +37,7 @@ Event *GraphTransforms::CallsOnly(Event *e) {
   }
 
   assert(false && "Non instruction event in calls only transform");
+  __builtin_unreachable();
 }
 
 Event *GraphTransforms::DeleteCalls(Event *e) {
