@@ -27,8 +27,14 @@ Event *GraphTransforms::CallsOnly(Event *e) {
       if(called && !called->isDeclaration()) {
         return new CallEvent(ci);
       }
+
+      if(auto cst = dyn_cast<ConstantExpr>(ci->getOperand(0))) {
+        if(cst->isCast()) {
+          return new CallEvent(ci);
+        }
+      }
     }
-    
+
     return new EmptyEvent;
   }
 
