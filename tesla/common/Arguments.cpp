@@ -183,3 +183,16 @@ void tesla::ParseAssertionLocation(
 
   Loc->set_counter(Count->getLimitedValue(INT_MAX));
 }
+
+llvm::Function* calledOrCastFunction(llvm::CallInst *ci)
+{
+  if(auto cst = llvm::dyn_cast<llvm::ConstantExpr>(ci->getOperand(0))) {
+    if(cst->isCast()) {
+      if(auto fn = llvm::dyn_cast<llvm::Function>(cst->getOperand(0))) {
+        return fn;
+      }
+    }
+  }
+
+  return ci->getCalledFunction();
+}

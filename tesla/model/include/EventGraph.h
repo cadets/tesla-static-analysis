@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 
+#include "Arguments.h"
 #include "Inference.h"
 #include "Names.h"
 #include "tesla.pb.h"
@@ -201,8 +202,8 @@ struct EntryEvent : public Event {
 
   EntryEvent(EventGraph *g, CallInst *ci)
     : Event(EV_Enter, g),
-      Description(ci->getCalledFunction()->getName().str()), 
-      Func(ci->getCalledFunction()), 
+      Description(calledOrCastFunction(ci)->getName().str()), 
+      Func(calledOrCastFunction(ci)), 
       Call(ci) {}
 
   EntryEvent(string n)
@@ -230,8 +231,8 @@ struct ExitEvent : public Event {
 
   ExitEvent(EventGraph *g, CallInst *ci)
     : Event(EV_Exit, g), 
-      Description(ci->getCalledFunction()->getName().str()), 
-      Func(ci->getCalledFunction()), 
+      Description(calledOrCastFunction(ci)->getName().str()), 
+      Func(calledOrCastFunction(ci)), 
       Call(ci) {}
 
   ExitEvent(string n)

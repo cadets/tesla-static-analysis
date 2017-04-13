@@ -41,6 +41,9 @@ llvm::Value* GetArgumentValue(llvm::Value* Param, const Argument& ArgDescrip,
  * pseudo-call.
  */
 void ParseAssertionLocation(Location *Loc, llvm::CallInst*);
+
 }
+
+llvm::Function* calledOrCastFunction(llvm::CallInst *ci);
 
 #endif

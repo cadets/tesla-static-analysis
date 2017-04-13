@@ -1,6 +1,8 @@
+#include "Arguments.h"
 #include "EventGraph.h"
 #include "GraphTransforms.h"
 
+#include <llvm/IR/Constants.h>
 #include <llvm/Support/CFG.h>
 
 #include <map>
@@ -87,11 +89,10 @@ EventRange *EventGraph::Expand(BasicBlockEvent *e, int depth, map<Function *, Ev
   EventRange *range = nullptr;
   for(auto& I : *e->Block) {
     if(auto ci = dyn_cast<CallInst>(&I)) {
-      if(!ci->getCalledFunction() || ci->getCalledFunction()->isDeclaration()) {
-        continue;
-      }
+      auto func = calledOrCastFunction(ci);
+      if(!func || func->isDeclaration()) { continue; }
 
-      auto gr = ExpandedBasicBlockGraph(ci->getCalledFunction(), depth, cache);
+      auto gr = ExpandedBasicBlockGraph(func, depth, cache);
       auto rr = gr->ReleasedRange();
 
       if(!range) {
@@ -157,7 +158,7 @@ EventGraph *EventGraph::ExpandedBasicBlockGraph(Function *f, int depth, map<Func
 
 EventGraph *EventGraph::InstructionGraph(Function *f, CallInst *ci) {
   if(ci) {
-    assert(f == ci->getCalledFunction() && "Heading for inconsistency here");
+    assert(f == calledOrCastFunction(ci) && "Heading for inconsistency here");
   }
 
   auto eg = BasicBlockGraph(f);
@@ -202,7 +203,7 @@ EventGraph *EventGraph::ModuleGraph(Module *M, Function *root, int depth) {
     auto EventsCopy = eg->Events;
     for(auto ev : EventsCopy) {
       if(auto ce = dyn_cast<CallEvent>(ev)) {
-        auto fn = ce->Call()->getCalledFunction();
+        auto fn = calledOrCastFunction(ce->Call());
 
         auto gr = InstructionGraph(fn, ce->Call());
         gr->transform(GraphTransforms::FindAssertions(assertFn));
@@ -438,7 +439,7 @@ string InstructionEvent::Name() const {
 
 string CallEvent::Name() const {
   std::stringstream ss;
-  ss << "call:" << Call()->getCalledFunction()->getName().str() << ":" << this;
+  ss << "call:" << calledOrCastFunction(Call())->getName().str() << ":" << this;
   return ss.str();
 }
 
