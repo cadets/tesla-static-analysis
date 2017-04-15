@@ -300,6 +300,9 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *eve
 }
 
 bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
+  // TODO: check constant / any args better - bit of a hack at the moment
+  //       it is definitely possible to check constant / any args, but this code
+  //       currently just ignores them - may be incorrect on mixed args
   auto modFn = Mod->getFunction(ex.function().name());
 
   BasicBlock &entry = Bound->getEntryBlock();
@@ -309,7 +312,14 @@ bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
   std::vector<Value *> func_args{};
   {
     std::lock_guard<std::mutex>{args_mutex};
-    auto ex_args = std::vector<tesla::Argument>{ex.argument().begin(), ex.argument().end()};
+
+    std::vector<tesla::Argument> ex_args{};
+    for(const auto& ex_arg : ex.argument()) {
+      if(ex_arg.type() != tesla::Argument::Any && ex_arg.type() != tesla::Argument::Constant) {
+        ex_args.push_back(ex_arg);
+      }
+    }
+
     for(const auto& arg : tesla::CollectArgs(first, ex_args, *Mod, B)) {
       func_args.push_back(arg);
     }
