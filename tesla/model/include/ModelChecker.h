@@ -51,9 +51,10 @@ private:
   bool CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
   bool ReturnConstraintSearch(std::vector<BoolValue> &constraints, int index, Event *root);
 
-  bool CheckState(const tesla::Expression &ex, Event *);
+  bool CheckState(const tesla::Expression &ex, Event *, bool args=true);
   bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *);
   bool CheckFunction(const tesla::FunctionEvent &ex, Event *);
+  bool CheckFunctionNoArgs(const tesla::FunctionEvent &ex, Event *event);
 
   FiniteTraces::Trace filteredTrace(const FiniteTraces::Trace &tr, const tesla::Expression ex);
 
@@ -65,6 +66,8 @@ private:
   tesla::Manifest *Manifest;
   Function *Bound;
   int Depth;
+
+  static std::mutex args_mutex;
 };
 
 #endif

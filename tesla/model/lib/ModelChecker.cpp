@@ -16,6 +16,8 @@
 using std::map;
 using std::vector;
 
+std::mutex ModelChecker::args_mutex{};
+
 bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
@@ -269,13 +271,17 @@ bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelG
   return true;
 }
 
-bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event) {
+bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event, bool args) {
    switch(ex.type()) {
     case tesla::Expression_Type_ASSERTION_SITE:
       return CheckAssertionSite(ex.assertsite(), event);
 
     case tesla::Expression_Type_FUNCTION:
-      return CheckFunction(ex.function(), event);
+      if(args) {
+        return CheckFunction(ex.function(), event);
+      } else {
+        return CheckFunctionNoArgs(ex.function(), event);
+      }
 
     default:
       assert(false && "This should not happen");
@@ -294,6 +300,49 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *eve
 }
 
 bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
+  auto modFn = Mod->getFunction(ex.function().name());
+
+  BasicBlock &entry = Bound->getEntryBlock();
+  Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
+  IRBuilder<> B(first);
+
+  std::vector<Value *> func_args{};
+  {
+    std::lock_guard<std::mutex>{args_mutex};
+    auto ex_args = std::vector<tesla::Argument>{ex.argument().begin(), ex.argument().end()};
+    for(const auto& arg : tesla::CollectArgs(first, ex_args, *Mod, B)) {
+      func_args.push_back(arg);
+    }
+  }
+
+  if(auto ent = dyn_cast<EntryEvent>(event)) {
+    if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
+      if(modFn && ent->Call && calledOrCastFunction(ent->Call) == modFn) {
+        std::vector<Value *> call_args{};
+        for(auto i = 0; i < ent->Call->getNumArgOperands(); i++) {
+          call_args.push_back(ent->Call->getArgOperand(i));
+        }
+        return call_args == func_args;
+      }
+    }
+  }
+
+  if(auto exit = dyn_cast<ExitEvent>(event)) {
+    if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
+      if(modFn && exit->Call && calledOrCastFunction(exit->Call) == modFn) {
+        std::vector<Value *> call_args{};
+        for(auto i = 0; i < exit->Call->getNumArgOperands(); i++) {
+          call_args.push_back(exit->Call->getArgOperand(i));
+        }
+        return call_args == func_args;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool ModelChecker::CheckFunctionNoArgs(const tesla::FunctionEvent &ex, Event *event) {
   auto modFn = Mod->getFunction(ex.function().name());
 
   if(auto ent = dyn_cast<EntryEvent>(event)) {
@@ -322,7 +371,7 @@ FiniteTraces::Trace ModelChecker::filteredTrace(const FiniteTraces::Trace &tr, c
 
   for(auto ev : tr) {
     for(auto sub : subExprs) {
-      if(CheckState(*sub, ev)) {
+      if(CheckState(*sub, ev, false)) {
         filt.push_back(ev);
         break;
       }
