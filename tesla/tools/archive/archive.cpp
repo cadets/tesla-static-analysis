@@ -7,7 +7,6 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include "Debug.h"
-#include "Manifest.h"
 
 using namespace llvm;
 
@@ -18,7 +17,8 @@ static cl::opt<std::string>
 ManifestFilename(cl::Positional, cl::desc("<manifest>"), cl::Required);
 
 static cl::opt<std::string>
-OutputFilename("o", cl::init("-"), cl::desc("Specify output filename"), cl::value_desc("filename"));
+OutputFilename("o", cl::init("archive.bc"), cl::desc("Specify output filename"), 
+                    cl::value_desc("filename"));
 
 long get_file_size(std::string name)
 {
