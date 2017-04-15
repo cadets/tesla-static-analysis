@@ -3,12 +3,8 @@
 
 #include <sys/stat.h>
 
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/SourceMgr.h>
 
 #include "Debug.h"
 #include "Manifest.h"
@@ -38,9 +34,6 @@ uint8_t get_component(int n, long val)
 
 int main(int argc, char **argv)
 {
-  SMDiagnostic Err;
-  LLVMContext &Context = getGlobalContext();
-
   cl::ParseCommandLineOptions(argc, argv, "TESLA Archive Utility\n");
 
   long manifest_len = get_file_size(ManifestFilename);
