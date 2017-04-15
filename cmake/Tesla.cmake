@@ -8,7 +8,7 @@ else()
 endif()
 
 function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
-  set(TESLA_LINK "-L/home/test/tesla_install/lib" "-ltesla")
+  set(TESLA_LINK "-Wl,-rpath,/home/test/tesla_install/lib" "-L/home/test/tesla_install/lib" "-ltesla")
 
   set(TESLA_INCLUDE "-I/home/test/tesla_install/include")
 
