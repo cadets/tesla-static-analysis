@@ -33,7 +33,7 @@ bool ModelCheckerPass::CheckUsage(Manifest &Man, llvm::Module &Mo, const Usage *
   auto fn = Mo.getFunction(funcName);
 
   auto eg = EventGraph::ModuleGraph(&Mo, fn, UnrollDepth);
-  auto mc = ModelChecker(eg, &Mo, &Man, fn, TraceBound);
+  ModelChecker mc{eg, &Mo, &Man, fn, TraceBound};
   return mc.IsUsageSafe(use);
 }
 
