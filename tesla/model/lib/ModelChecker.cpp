@@ -309,43 +309,76 @@ bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
   Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
   IRBuilder<> B(first);
 
-  std::vector<Value *> func_args{};
+  // Builds a mapping from arguments to LLVM values (which is only valid for
+  // named values)
+  std::map<const tesla::Argument *, Value *> arg_map{};
   {
     std::lock_guard<std::mutex>{args_mutex};
 
-    std::vector<tesla::Argument> ex_args{};
-    for(const auto& ex_arg : ex.argument()) {
+    std::vector<const tesla::Argument *> named_args{};
+    for(auto& ex_arg : ex.argument()) {
       if(ex_arg.type() != tesla::Argument::Any && ex_arg.type() != tesla::Argument::Constant) {
-        ex_args.push_back(ex_arg);
+        named_args.push_back(&ex_arg);
       }
     }
 
-    for(const auto& arg : tesla::CollectArgs(first, ex_args, *Mod, B)) {
-      func_args.push_back(arg);
+    std::vector<tesla::Argument> deref_args{};
+    for(const auto& arg : named_args) { deref_args.push_back(*arg); }
+
+    auto collected = tesla::CollectArgs(first, deref_args, *Mod, B);
+    assert(collected.size() == named_args.size() && "Size mismatch");
+
+    for(auto i = 0; i < collected.size(); ++i) {
+      arg_map[named_args[i]] = collected[i];
     }
   }
 
-  if(auto ent = dyn_cast<EntryEvent>(event)) {
-    if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
-      if(modFn && ent->Call && calledOrCastFunction(ent->Call) == modFn) {
-        std::vector<Value *> call_args{};
-        for(auto i = 0; i < ent->Call->getNumArgOperands(); i++) {
-          call_args.push_back(ent->Call->getArgOperand(i));
-        }
-        return call_args == func_args;
+  const auto check = [&](auto ev) {
+    if(modFn && ev->Call && calledOrCastFunction(ev->Call) == modFn) {
+      std::vector<Value *> call_args{};
+      for(auto i = 0; i < ev->Call->getNumArgOperands(); i++) {
+        call_args.push_back(ev->Call->getArgOperand(i));
       }
+
+      auto all_match = true;
+      for(auto i = 0; i < ex.argument_size(); i++) {
+        if(!all_match) { break; }
+
+        const auto& ex_arg = ex.argument(i);
+
+        switch(ex_arg.type()) {
+          case Argument_Type_Any:
+            break;
+          case Argument_Type_Constant:
+            if(auto cst = dyn_cast<ConstantInt>(call_args[i])) {
+              all_match = all_match && 
+                          (cst->getSExtValue() == ex_arg.value());
+            } else {
+              all_match = false;
+            }
+            break;
+          default:
+            assert(arg_map.find(&ex_arg) != arg_map.end() && "Argument list broken");
+            all_match = all_match && (arg_map.find(&ex_arg)->second == call_args[i]);
+            break;
+        }
+      }
+
+      return all_match;
+    }
+
+    return false;
+  };
+
+  if(auto entry = dyn_cast<EntryEvent>(event)) {
+    if(ex.direction() == tesla::FunctionEvent_Direction_Entry) {
+      if(check(entry)) { return true; }
     }
   }
 
   if(auto exit = dyn_cast<ExitEvent>(event)) {
     if(ex.direction() == tesla::FunctionEvent_Direction_Exit) {
-      if(modFn && exit->Call && calledOrCastFunction(exit->Call) == modFn) {
-        std::vector<Value *> call_args{};
-        for(auto i = 0; i < exit->Call->getNumArgOperands(); i++) {
-          call_args.push_back(exit->Call->getArgOperand(i));
-        }
-        return call_args == func_args;
-      }
+      if(check(exit)) { return true; }
     }
   }
 
