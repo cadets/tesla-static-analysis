@@ -342,13 +342,20 @@ bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
 
       auto all_match = true;
       for(auto i = 0; i < ex.argument_size(); i++) {
+        if(!all_match) { break; }
+
         const auto& ex_arg = ex.argument(i);
 
         switch(ex_arg.type()) {
           case Argument_Type_Any:
             break;
           case Argument_Type_Constant:
-            errs() << call_args[i];
+            if(auto cst = dyn_cast<ConstantInt>(call_args[i])) {
+              all_match = all_match && 
+                          (cst->getSExtValue() == ex_arg.value());
+            } else {
+              all_match = false;
+            }
             break;
           default:
             assert(arg_map.find(&ex_arg) != arg_map.end() && "Argument list broken");
