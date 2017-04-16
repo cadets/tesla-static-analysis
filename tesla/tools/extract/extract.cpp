@@ -25,7 +25,8 @@ int main(int argc, char **argv)
   auto header = std::array<char, 20>{};
   
   ifs.read(&header[0], 20);
-  int offset = header[8] | (header[9] << 8) | (header[10] << 16) | (header[11] << 24);
+  unsigned offset = (header[8] & 0xFF) | ((header[9] & 0xFF) << 8) | 
+                    ((header[10] & 0xFF) << 16) | ((header[11] & 0xFF) << 24);
   auto manifest_len = offset - 20;
 
   auto data = std::vector<char>(manifest_len);
