@@ -199,49 +199,16 @@ Condition *LogicalOp::SimplifyLogic() const {
     }
   }
 
-  auto elim = std::any_of(simples.begin(), simples.end(),
-    [](Condition *c) { return isa<Elim>(c); }
+  auto elim = std::any_of(std::begin(simples), std::end(simples),
+    [](auto c) { return isa<Elim>(c); }
   );
+  if(elim) { return new Elim; }
 
-  if(elim) {
-    return new Elim;
-  }
-
-  std::vector<Condition *> dedup;
-  for(auto op : simples) {
-    auto prev = std::find_if(dedup.begin(), dedup.end(),
-      [=](Condition *c) {
-        return c->Equal(op);
-      }
-    );
-
-    if(prev == dedup.end()) {
-      dedup.push_back(op);
-    }
-  }
-
-  for(auto op : dedup) {
-    if(auto br = dyn_cast<BoolValue>(op)) {
-      auto dual = std::find_if(dedup.begin(), dedup.end(),
-        [=](Condition *c) {
-          auto ob = dyn_cast<BoolValue>(c);
-          return ob && br->Opposite(ob);
-        }
-      );
-
-      if(dual != dedup.end()) {
-        return new Match;
-      }
-    }
-  }
-
-  if(dedup.size() == 0) {
-    return new Zero;
-  } else if(dedup.size() == 1) {
-    return dedup[0];
-  } else {
-    return new C{dedup.begin(), dedup.end()};
-  }
+  auto bools = Implication::BoolValuesFrom(new C{simples.begin(), simples.end()});
+  std::vector<Condition *> cs{};
+  std::transform(std::begin(bools), std::end(bools), std::back_inserter(cs),
+    [](auto bv) { return new BoolValue{bv}; });
+  return new And{cs.begin(), cs.end()};
 }
 
 Condition *And::Simplified() const {

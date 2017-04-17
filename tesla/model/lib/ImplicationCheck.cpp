@@ -1,6 +1,6 @@
 #include "ImplicationCheck.h"
 
-bool Implication::Check(Condition *c, BoolValue b) {
+bool Implication::Check(const Condition *c, BoolValue b) {
   auto not_b = *b.Negated();
 
   auto allBoolValues = c->BoolValues();
@@ -12,10 +12,10 @@ bool Implication::Check(Condition *c, BoolValue b) {
     }
   }
 
-  std::vector<Condition *> workingSet{c};
+  std::vector<const Condition *> workingSet{c};
 
   for(auto branch : extras) {
-    std::vector<Condition *> updated;
+    std::vector<const Condition *> updated;
 
     for(auto cond : workingSet) {
       updated.push_back(cond->Restricted(branch, new ConstTrue, new ConstFalse));
@@ -26,14 +26,14 @@ bool Implication::Check(Condition *c, BoolValue b) {
   }
 
   return std::none_of(workingSet.begin(), workingSet.end(),
-    [=](Condition *w) {
+    [=](auto w) {
       auto val = w->Restricted(b, new ConstFalse, new ConstTrue);
       return val->Eval();
     }
   );
 }
 
-std::set<BoolValue> Implication::BoolValuesFrom(Condition *c) {
+std::set<BoolValue> Implication::BoolValuesFrom(const Condition *c) {
   std::set<BoolValue> ret;
 
   for(auto branch : c->BoolValues()) {
