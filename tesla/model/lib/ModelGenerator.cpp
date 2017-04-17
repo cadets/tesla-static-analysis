@@ -161,6 +161,11 @@ set<ModelGenerator::Model> ModelGenerator::fromSubAutomaton(const Automaton &ex,
   return fromExpression(ex.getAssertion().expression(), length);
 }
 
+FiniteStateMachine<Expression *> ModelGenerator::FSM()
+{
+  return ExpressionFSM(Expr);
+}
+
 FiniteStateMachine<Expression *> ModelGenerator::ExpressionFSM(const Expression &ex) {
   switch(ex.type()) {
     case Expression_Type_NULL_EXPR:

@@ -19,6 +19,9 @@ struct ModelGenerator {
     Man(man), Expr(e) {}
 
   set<Model> ofLength(size_t length);
+
+  FiniteStateMachine<Expression *> FSM();
+
 private:
   set<Model> fromExpression(const Expression &ex, size_t length);
   set<Model> fromSequence(const Sequence &ex, size_t length);
@@ -30,7 +33,6 @@ private:
   set<Model> fromSubAutomaton(const Automaton &ex, size_t length);
   std::string NextLabel();
 
-public:
   FiniteStateMachine<Expression *> ExpressionFSM(const Expression &ex);
   FiniteStateMachine<Expression *> SequenceOnceFSM(const Sequence &ex);
   FiniteStateMachine<Expression *> SequenceFSM(const Sequence &ex);
@@ -41,7 +43,6 @@ public:
   FiniteStateMachine<Expression *> FieldAssignFSM(const FieldAssignment &ex);
   FiniteStateMachine<Expression *> NullFSM();
 
-private:
   int label = 0;
   Manifest *Man;
   Expression &Expr;

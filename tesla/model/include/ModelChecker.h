@@ -19,6 +19,8 @@ using std::set;
 using std::vector;
 using namespace llvm;
 
+static std::mutex args_mutex;
+
 struct ModelChecker {
   ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man, Function *bound, int d) :
     Graph(gr), BBGraph(EventGraph::ExpandedBasicBlockGraph(bound, d)), Mod(mod), 
@@ -41,6 +43,7 @@ struct ModelChecker {
 
 private:
   bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle=false);
+  bool CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm);
 
   static bool hasReturnConstraint(Expression *e);
   static int getReturnConstraint(Expression *e);
@@ -66,8 +69,6 @@ private:
   tesla::Manifest *Manifest;
   Function *Bound;
   int Depth;
-
-  static std::mutex args_mutex;
 };
 
 #endif

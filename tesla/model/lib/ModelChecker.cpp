@@ -16,8 +16,6 @@
 using std::map;
 using std::vector;
 
-std::mutex ModelChecker::args_mutex{};
-
 bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
@@ -35,6 +33,8 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto&& trace_gen = FiniteTraces{Graph};
 
   auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
+
+  auto fsm = Gen.FSM();
 
   const auto thread_worker = [&] {
     while(!work_queue.empty() && !done) {
@@ -76,10 +76,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       for(auto trace : cyclicTraces) {
         auto filt = filteredTrace(trace, expr);
 
-        auto exists = false;
-        for(auto model : n) {
-          exists = exists || CheckAgainst(filt, model, true);
-        }
+        auto exists = CheckAgainstFSM(filt, fsm);
 
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
@@ -115,6 +112,11 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   }
 
   return safeUses;
+}
+
+bool ModelChecker::CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm)
+{
+  return true;
 }
 
 bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle) {
@@ -305,15 +307,15 @@ bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
   //       currently just ignores them - may be incorrect on mixed args
   auto modFn = Mod->getFunction(ex.function().name());
 
-  BasicBlock &entry = Bound->getEntryBlock();
-  Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
-  IRBuilder<> B(first);
-
   // Builds a mapping from arguments to LLVM values (which is only valid for
   // named values)
   std::map<const tesla::Argument *, Value *> arg_map{};
   {
-    std::lock_guard<std::mutex>{args_mutex};
+    std::lock_guard<std::mutex> lock{args_mutex};
+
+    BasicBlock &entry = Bound->getEntryBlock();
+    Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
+    IRBuilder<> B(first);
 
     std::vector<const tesla::Argument *> named_args{};
     for(auto& ex_arg : ex.argument()) {
