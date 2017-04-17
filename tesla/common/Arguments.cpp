@@ -186,7 +186,8 @@ void tesla::ParseAssertionLocation(
 
 llvm::Function* calledOrCastFunction(llvm::CallInst *ci)
 {
-  if(auto cst = llvm::dyn_cast<llvm::ConstantExpr>(ci->getOperand(0))) {
+  auto num = ci->getNumOperands() - 1;
+  if(auto cst = llvm::dyn_cast<llvm::ConstantExpr>(ci->getOperand(num))) {
     if(cst->isCast()) {
       if(auto fn = llvm::dyn_cast<llvm::Function>(cst->getOperand(0))) {
         return fn;
