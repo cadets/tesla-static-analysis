@@ -56,18 +56,16 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       for(auto trace : boundedTraces) {
         auto filt = filteredTrace(trace, expr);
 
-        auto exists = false;
-        for(auto model : n) {
-          exists = exists || CheckAgainst(filt, model);
-        }
+        auto exists = CheckAgainstFSM(filt, fsm.Deterministic());
 
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
           errs() << "Counterexample of length " << trace.size() << '\n';
-          for(const auto& ev : trace) {
+          for(const auto& ev : filt) {
             errs() << "  " << ev->GraphViz() << '\n';
           }
           errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
+          errs() << "FSM:\n" << fsm.Deterministic().Dot() << '\n';
 
           done = true;
         }
@@ -76,7 +74,10 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       for(auto trace : cyclicTraces) {
         auto filt = filteredTrace(trace, expr);
 
-        auto exists = CheckAgainstFSM(filt, fsm);
+        auto exists = false;
+        for(const auto& model : n) {
+          exists = exists || CheckAgainst(filt, model, true);
+        }
 
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
@@ -116,7 +117,50 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
 
 bool ModelChecker::CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm)
 {
-  return true;
+  auto start_state = fsm.InitialState();
+  auto work_queue = std::stack<std::pair<decltype(start_state), size_t>>{};
+  work_queue.push(std::make_pair(start_state, 0));
+
+  auto visited = std::set<decltype(work_queue)::value_type>{};
+  std::vector<Expression *> model{};
+  
+  while(!work_queue.empty()) {
+    auto next = work_queue.top();
+    work_queue.pop();
+
+    if(model.size() > next.second) {
+      model.resize(next.second);
+    }
+
+    if(visited.find(next) == visited.end()) {
+      visited.insert(next);
+    } else {
+      continue;
+    }
+
+    if(next.first->accepting && next.second == tr.size()) {
+      if(CheckReturnValues(tr, model)) {
+        return true;
+      }
+    }
+
+    if(next.second >= tr.size()) {
+      continue;
+    }
+
+    for(const auto& edge : fsm.Edges(next.first)) {
+      auto accepts = edge.Accepts<Event *>(tr[next.second], [=](auto ev, auto ex) { 
+        return CheckState(*ex, ev, true); 
+      });
+
+      if(accepts) {
+        work_queue.push(std::make_pair(edge.End(), next.second+1));
+        model.push_back(edge.Value());
+      }
+    }
+  }
+
+  return false;
 }
 
 bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle) {
