@@ -17,12 +17,12 @@ namespace Implication {
  *    and checking on all the possible valuations generated (i.e. set b to false
  *    and check that every valuation then evals to false as well).
  */
-bool Check(Condition *c, BoolValue b);
+bool Check(const Condition *c, BoolValue b);
 
 /**
  * Generate the set of all implied branches for a particular condition.
  */
-std::set<BoolValue> BoolValuesFrom(Condition *c);
+std::set<BoolValue> BoolValuesFrom(const Condition *c);
 
 }
 
