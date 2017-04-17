@@ -28,7 +28,8 @@ Event *GraphTransforms::CallsOnly(Event *e) {
         return new CallEvent(ci);
       }
 
-      if(auto cst = dyn_cast<ConstantExpr>(ci->getOperand(0))) {
+      auto num = ci->getNumOperands() - 1;
+      if(auto cst = dyn_cast<ConstantExpr>(ci->getOperand(num))) {
         if(cst->isCast()) {
           return new CallEvent(ci);
         }
