@@ -66,6 +66,10 @@ private:
   tesla::Manifest *Manifest;
   Function *Bound;
   int Depth;
+  
+  // internal options configuring the search for counterexamples
+  bool PreferTerminating = true;
+  bool Sequential = false;
 };
 
 #endif

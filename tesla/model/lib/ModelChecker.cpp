@@ -20,7 +20,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
 
-  auto Gen = ModelGenerator(expr, Manifest);
+  auto fsm = ModelGenerator(expr, Manifest).FSM().Deterministic();
 
   auto work_queue = std::queue<int>{};
   for(auto i = 0; i < Depth; i++) {
@@ -29,12 +29,10 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto done = false;
   auto&& mut = std::mutex{};
 
-  auto n_cores = std::thread::hardware_concurrency();
+  auto n_cores = Sequential ? 1 : std::thread::hardware_concurrency();
   auto&& trace_gen = FiniteTraces{Graph};
 
-  auto fsm = Gen.FSM();
-
-  const auto thread_worker = [&] {
+  const auto thread_worker = [&](bool cycle) {
     while(!work_queue.empty() && !done) {
       int d;
       {
@@ -48,13 +46,17 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       }
 
       auto allTraces = trace_gen.OfLength(d);
-      auto boundedTraces = FiniteTraces::BoundedBy(allTraces, Bound);
-      auto cyclicTraces = FiniteTraces::Cyclic(allTraces);
+      auto traces = decltype(allTraces){};
+      if(cycle) {
+        traces = FiniteTraces::Cyclic(allTraces);
+      } else {
+        traces = FiniteTraces::BoundedBy(allTraces, Bound);
+      }
 
-      for(auto trace : boundedTraces) {
+      for(auto trace : traces) {
         auto filt = filteredTrace(trace, expr);
 
-        auto exists = CheckAgainstFSM(filt, fsm.Deterministic());
+        auto exists = CheckAgainstFSM(filt, fsm.Deterministic(), cycle);
 
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
@@ -67,32 +69,34 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
           done = true;
         }
       }
-
-      for(auto trace : cyclicTraces) {
-        auto filt = filteredTrace(trace, expr);
-
-        auto exists = CheckAgainstFSM(filt, fsm.Deterministic(), true);
-
-        std::lock_guard<std::mutex> lock(mut);
-        if(!exists && !done) {
-
-          errs() << "(cyclic) Counterexample of length " << trace.size() << '\n';
-          for(const auto& ev : trace) {
-            errs() << "  " << ev->GraphViz() << '\n';
-          }
-          errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
-
-          done = true;
-        }
-      }
     }
   };
 
   auto threads = std::vector<std::thread>{};
-  for(auto i = 0; i < n_cores; i++) {
-    threads.push_back(std::thread(thread_worker));
+
+  if(PreferTerminating) {
+    // If we prefer terminating counterexamples (probably easier to understand),
+    // then search for those first, and only if none exist do we run the cyclic
+    // checker
+    for(auto i = 0; i < n_cores; i++) {
+      threads.push_back(std::thread(thread_worker, false));
+    }
+    std::for_each(std::begin(threads), std::end(threads), [](auto& t) { t.join(); });
+
+    threads.clear();
+
+    for(auto i = 0; i < n_cores; i++) {
+      threads.push_back(std::thread(thread_worker, true));
+    }
+    std::for_each(std::begin(threads), std::end(threads), [](auto& t) { t.join(); });
+  } else {
+    // Otherwise, just run them all together
+    for(auto i = 0; i < n_cores; i++) {
+      threads.push_back(std::thread(thread_worker, false));
+      threads.push_back(std::thread(thread_worker, true));
+    }
+    std::for_each(std::begin(threads), std::end(threads), [](auto& t) { t.join(); });
   }
-  std::for_each(std::begin(threads), std::end(threads), [](auto& t) { t.join(); });
 
   return !done;
 }
