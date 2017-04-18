@@ -20,7 +20,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
 
-  auto fsm = ModelGenerator(expr, Manifest).FSM().Deterministic();
+  auto fsm = ModelGenerator(expr, Manifest).FSM().Deterministic().Relabeled();
 
   auto work_queue = std::queue<int>{};
   for(auto i = 0; i < Depth; i++) {
@@ -65,6 +65,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
             errs() << "  " << ev->GraphViz() << '\n';
           }
           errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
+          errs() << "FSM:\n" << fsm.Dot() << '\n';
 
           done = true;
         }
@@ -127,6 +128,19 @@ bool ModelChecker::CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteSt
       return std::tie(state, begin, expr) < std::tie(o.state, o.begin, o.expr);
     }
   };
+
+  auto labels = fsm.AllLabels();
+  auto no_asserts_checked = std::none_of(tr.begin(), tr.end(), 
+    [&](auto e) {
+      if(auto ae = dyn_cast<AssertEvent>(e)) {
+        return std::any_of(labels.begin(), labels.end(), 
+			   [&](auto as) { return CheckState(*as, ae); });
+      }
+
+      return false;
+    }
+  );
+  if(no_asserts_checked) { return true; }
 
   auto start_state = fsm.InitialState();
 
