@@ -32,8 +32,6 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto n_cores = std::thread::hardware_concurrency();
   auto&& trace_gen = FiniteTraces{Graph};
 
-  auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
-
   auto fsm = Gen.FSM();
 
   const auto thread_worker = [&] {
@@ -61,11 +59,10 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
           errs() << "Counterexample of length " << trace.size() << '\n';
-          for(const auto& ev : filt) {
+          for(const auto& ev : trace) {
             errs() << "  " << ev->GraphViz() << '\n';
           }
           errs() << "May not satisfy assertion:\n  " << automaton->SourceCode() << "\n\n";
-          errs() << "FSM:\n" << fsm.Deterministic().Dot() << '\n';
 
           done = true;
         }
@@ -74,10 +71,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       for(auto trace : cyclicTraces) {
         auto filt = filteredTrace(trace, expr);
 
-        auto exists = false;
-        for(const auto& model : n) {
-          exists = exists || CheckAgainst(filt, model, true);
-        }
+        auto exists = CheckAgainstFSM(filt, fsm.Deterministic(), true);
 
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
@@ -115,22 +109,36 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   return safeUses;
 }
 
-bool ModelChecker::CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm)
-{
-  auto start_state = fsm.InitialState();
-  auto work_queue = std::stack<std::pair<decltype(start_state), size_t>>{};
-  work_queue.push(std::make_pair(start_state, 0));
+// Need to keep track of a return constraint as we're going through the FSM.
+// What if each work item is given a return constraint when it's built (i.e. the
+// one corresponding to the edge that led to it)? This third member needs to be
+// passed through if the next event doesn't supply a new constraint.
 
-  auto visited = std::set<decltype(work_queue)::value_type>{};
-  std::vector<Expression *> model{};
+bool ModelChecker::CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm, bool cycle)
+{
+  struct work_item {
+    work_item(std::shared_ptr<::State> s, size_t b, std::shared_ptr<Expression> e) :
+      state(s), begin(b), expr(e) {}
+
+    std::shared_ptr<::State> state;
+    size_t begin;
+    std::shared_ptr<Expression> expr;
+
+    bool operator<(const work_item& o) const {
+      return std::tie(state, begin, expr) < std::tie(o.state, o.begin, o.expr);
+    }
+  };
+
+  auto start_state = fsm.InitialState();
+
+  auto work_queue = std::stack<work_item>{};
+  work_queue.push(work_item(start_state, 0, nullptr));
+
+  auto visited = std::set<work_item>{};
   
   while(!work_queue.empty()) {
     auto next = work_queue.top();
     work_queue.pop();
-
-    if(model.size() > next.second) {
-      model.resize(next.second);
-    }
 
     if(visited.find(next) == visited.end()) {
       visited.insert(next);
@@ -138,24 +146,21 @@ bool ModelChecker::CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteSt
       continue;
     }
 
-    if(next.first->accepting && next.second == tr.size()) {
-      if(CheckReturnValues(tr, model)) {
-        return true;
-      }
+    if((cycle || next.state->accepting) && next.begin == tr.size()) {
+      return true;
     }
 
-    if(next.second >= tr.size()) {
+    if(next.begin >= tr.size()) {
       continue;
     }
 
-    for(const auto& edge : fsm.Edges(next.first)) {
-      auto accepts = edge.Accepts<Event *>(tr[next.second], [=](auto ev, auto ex) { 
+    for(const auto& edge : fsm.Edges(next.state)) {
+      auto accepts = edge.Accepts<Event *>(tr[next.begin], [=](auto ev, auto ex) { 
         return CheckState(*ex, ev, true); 
       });
 
       if(accepts) {
-        work_queue.push(std::make_pair(edge.End(), next.second+1));
-        model.push_back(edge.Value());
+        work_queue.push(work_item(edge.End(), next.begin+1, next.expr));
       }
     }
   }

@@ -43,7 +43,7 @@ struct ModelChecker {
 
 private:
   bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle=false);
-  bool CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm);
+  bool CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm, bool cycle=false);
 
   static bool hasReturnConstraint(Expression *e);
   static int getReturnConstraint(Expression *e);
