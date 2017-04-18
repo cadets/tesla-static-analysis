@@ -42,7 +42,6 @@ struct ModelChecker {
   set<const tesla::Usage *> SafeUsages();
 
 private:
-  bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle=false);
   bool CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm, bool cycle=false);
 
   static bool hasReturnConstraint(Expression *e);
@@ -51,8 +50,6 @@ private:
   set<BoolValue> FollowSet(Event *e);
   set<BoolValue> FollowSet(Event *e, std::set<Event *> &cache);
   bool ConstraintsOccur(EventGraph *eg, std::vector<BoolValue> constraints);
-  bool CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
-  bool ReturnConstraintSearch(std::vector<BoolValue> &constraints, int index, Event *root);
 
   bool CheckState(const tesla::Expression &ex, Event *, bool args=true);
   bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *);
