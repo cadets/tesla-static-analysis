@@ -16,8 +16,6 @@
 using std::map;
 using std::vector;
 
-std::mutex ModelChecker::args_mutex{};
-
 bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
@@ -34,7 +32,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto n_cores = std::thread::hardware_concurrency();
   auto&& trace_gen = FiniteTraces{Graph};
 
-  auto n = Gen.ofLength(Depth * 2); // generate longer model for cyclic checks
+  auto fsm = Gen.FSM();
 
   const auto thread_worker = [&] {
     while(!work_queue.empty() && !done) {
@@ -56,10 +54,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       for(auto trace : boundedTraces) {
         auto filt = filteredTrace(trace, expr);
 
-        auto exists = false;
-        for(auto model : n) {
-          exists = exists || CheckAgainst(filt, model);
-        }
+        auto exists = CheckAgainstFSM(filt, fsm.Deterministic());
 
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
@@ -76,10 +71,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
       for(auto trace : cyclicTraces) {
         auto filt = filteredTrace(trace, expr);
 
-        auto exists = false;
-        for(auto model : n) {
-          exists = exists || CheckAgainst(filt, model, true);
-        }
+        auto exists = CheckAgainstFSM(filt, fsm.Deterministic(), true);
 
         std::lock_guard<std::mutex> lock(mut);
         if(!exists && !done) {
@@ -117,34 +109,78 @@ set<const tesla::Usage *> ModelChecker::SafeUsages() {
   return safeUses;
 }
 
-bool ModelChecker::CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle) {
-  auto no_asserts_checked = std::none_of(tr.begin(), tr.end(), 
-    [=](auto e) {
-      if(auto ae = dyn_cast<AssertEvent>(e)) {
-        return std::any_of(mod.begin(), mod.end(), [=](auto as) { return CheckState(*as, ae); });
+bool ModelChecker::CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm, bool cycle)
+{
+  struct work_item {
+    work_item(std::shared_ptr<::State> s, size_t b, std::shared_ptr<BoolValue> e) :
+      state(s), begin(b), expr(e) {}
+
+    std::shared_ptr<::State> state;
+    size_t begin;
+    std::shared_ptr<BoolValue> expr;
+
+    bool operator<(const work_item& o) const {
+      return std::tie(state, begin, expr) < std::tie(o.state, o.begin, o.expr);
+    }
+  };
+
+  auto start_state = fsm.InitialState();
+
+  auto work_queue = std::stack<work_item>{};
+  work_queue.push(work_item(start_state, 0, nullptr));
+
+  auto visited = std::set<work_item>{};
+
+  while(!work_queue.empty()) {
+    auto next = work_queue.top();
+    work_queue.pop();
+
+    if(visited.find(next) == visited.end()) {
+      visited.insert(next);
+    } else {
+      continue;
+    }
+
+    if((cycle || next.state->accepting) && next.begin == tr.size()) {
+      return true;
+    }
+
+    if(next.begin >= tr.size()) {
+      continue;
+    }
+
+    for(const auto& edge : fsm.Edges(next.state)) {
+      auto new_c = next.expr;
+
+      auto accepts = edge.Accepts<Event *>(tr[next.begin], [=,&new_c](auto ev, auto ex) { 
+        auto bigram_match = true;
+
+        if(auto exe = dyn_cast<ExitEvent>(ev)) {
+          if(exe->Call && hasReturnConstraint(ex)) {
+            auto val = static_cast<bool>(getReturnConstraint(ex));
+            auto&& constraint = std::make_shared<BoolValue>(exe->Call, val);
+
+            bigram_match = bigram_match && ConstraintsOccur(BBGraph, {*constraint});
+
+            if(next.expr) {
+              auto&& bigram = std::make_pair(*next.expr, *constraint);
+              bigram_match = bigram_match && AssertionPairs.find(bigram) != AssertionPairs.end();
+            }
+
+            new_c = constraint;
+          }
+        }
+
+        return CheckState(*ex, ev, true) && bigram_match;
+      });
+
+      if(accepts) {
+        work_queue.push(work_item(edge.End(), next.begin+1, new_c));
       }
-
-      return false;
-    }
-  );
-  if(no_asserts_checked) { return true; }
-
-  if(!cycle) {
-    if(tr.size() != mod.size()) {
-      return false;
-    }
-  } else {
-    if(tr.size() > mod.size()) {
-      return false;
     }
   }
 
-  auto match = true;
-  for(auto i = 0; i < tr.size(); i++) {
-    match = match && CheckState(*mod[i], tr[i]);
-  }
-
-  return match && CheckReturnValues(tr, mod);
+  return false;
 }
 
 bool ModelChecker::hasReturnConstraint(Expression *e) {
@@ -232,45 +268,6 @@ bool ModelChecker::ConstraintsOccur(EventGraph *eg, std::vector<BoolValue> const
   return all;
 }
 
-bool ModelChecker::CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod) {
-  assert(mod.size() >= tr.size() && "Can't do RVC if model shorter than trace");
-  // How do we want to go about doing the checking in this part of the model
-  // checker? the trace describes a vector of events, and the model gives a
-  // vector of assertions. We only care about the assertions with an associated
-  // return value, so we should first filter those out using the associate
-  // protobuf information
-
-  auto constraints = std::vector<BoolValue>{};
-  for(auto i = 0; i < tr.size(); i++) {
-    if(auto exe = dyn_cast<ExitEvent>(tr[i])) {
-      if(exe->Call && hasReturnConstraint(mod[i])) {
-        constraints.push_back(
-            BoolValue{exe->Call, static_cast<bool>(getReturnConstraint(mod[i]))});
-      }
-    }
-  }
-
-  if(constraints.empty()) {
-    return true;
-  }
-
-  auto occ = ConstraintsOccur(BBGraph, constraints);
-  if(!occ) {
-    return false;
-  }
-
-  for(auto i = 0; i < constraints.size() - 1; i++) {
-    auto bigram = std::make_pair(constraints[i], constraints[i+1]);
-    auto found = AssertionPairs.find(bigram);
-
-    if(found == AssertionPairs.end()) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 bool ModelChecker::CheckState(const tesla::Expression &ex, Event *event, bool args) {
    switch(ex.type()) {
     case tesla::Expression_Type_ASSERTION_SITE:
@@ -300,20 +297,17 @@ bool ModelChecker::CheckAssertionSite(const tesla::AssertionSite &ex, Event *eve
 }
 
 bool ModelChecker::CheckFunction(const tesla::FunctionEvent &ex, Event *event) {
-  // TODO: check constant / any args better - bit of a hack at the moment
-  //       it is definitely possible to check constant / any args, but this code
-  //       currently just ignores them - may be incorrect on mixed args
   auto modFn = Mod->getFunction(ex.function().name());
-
-  BasicBlock &entry = Bound->getEntryBlock();
-  Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
-  IRBuilder<> B(first);
 
   // Builds a mapping from arguments to LLVM values (which is only valid for
   // named values)
   std::map<const tesla::Argument *, Value *> arg_map{};
   {
-    std::lock_guard<std::mutex>{args_mutex};
+    std::lock_guard<std::mutex> lock{args_mutex};
+
+    BasicBlock &entry = Bound->getEntryBlock();
+    Instruction *first = entry.getFirstNonPHIOrDbgOrLifetime();
+    IRBuilder<> B(first);
 
     std::vector<const tesla::Argument *> named_args{};
     for(auto& ex_arg : ex.argument()) {

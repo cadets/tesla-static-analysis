@@ -19,6 +19,8 @@ using std::set;
 using std::vector;
 using namespace llvm;
 
+static std::mutex args_mutex;
+
 struct ModelChecker {
   ModelChecker(EventGraph *gr, Module *mod, tesla::Manifest *man, Function *bound, int d) :
     Graph(gr), BBGraph(EventGraph::ExpandedBasicBlockGraph(bound, d)), Mod(mod), 
@@ -40,7 +42,7 @@ struct ModelChecker {
   set<const tesla::Usage *> SafeUsages();
 
 private:
-  bool CheckAgainst(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod, bool cycle=false);
+  bool CheckAgainstFSM(const FiniteTraces::Trace &tr, const FiniteStateMachine<Expression *> fsm, bool cycle=false);
 
   static bool hasReturnConstraint(Expression *e);
   static int getReturnConstraint(Expression *e);
@@ -48,8 +50,6 @@ private:
   set<BoolValue> FollowSet(Event *e);
   set<BoolValue> FollowSet(Event *e, std::set<Event *> &cache);
   bool ConstraintsOccur(EventGraph *eg, std::vector<BoolValue> constraints);
-  bool CheckReturnValues(const FiniteTraces::Trace &tr, const ModelGenerator::Model &mod);
-  bool ReturnConstraintSearch(std::vector<BoolValue> &constraints, int index, Event *root);
 
   bool CheckState(const tesla::Expression &ex, Event *, bool args=true);
   bool CheckAssertionSite(const tesla::AssertionSite &ex, Event *);
@@ -66,8 +66,6 @@ private:
   tesla::Manifest *Manifest;
   Function *Bound;
   int Depth;
-
-  static std::mutex args_mutex;
 };
 
 #endif
