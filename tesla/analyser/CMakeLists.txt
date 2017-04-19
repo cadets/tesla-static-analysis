@@ -36,6 +36,6 @@ endforeach(i)
 # link the executable against some important libraries like LLVMSupport.
 #
 # Instead, we need to pass in ${LLVM_LIBS} explicitly.
-llvm_map_components_to_libraries(LLVM_LIBS bitreader mcparser)
+llvm_map_components_to_libnames(LLVM_LIBS bitreader mcparser)
 target_link_libraries(tesla-analyse ${LLVM_LIBS})
 
