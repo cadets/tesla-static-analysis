@@ -34,6 +34,7 @@
 
 #include <llvm/ADT/Twine.h>
 
+#include <algorithm>
 #include <string>
 #include <sstream>
 

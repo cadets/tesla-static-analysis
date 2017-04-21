@@ -69,6 +69,15 @@ Manifest::~Manifest() {
     delete i.second;
 }
 
+bool Manifest::HasInstrumentation() const {
+  auto&& usages = RootAutomata();
+  return std::any_of(std::begin(usages), std::end(usages),
+    [](auto use) {
+      return !use->deleted();
+    }
+  );
+}
+
 const Automaton* Manifest::FindAutomaton(const Identifier& ID) const {
   auto i = Automata.find(ID);
   if (i == Automata.end())

@@ -109,4 +109,10 @@ std::string InstanceName(const ReferenceVector&,
 
 } /* namespace tesla */
 
+template<class Input>
+bool has_prefix(Input haystack, Input needle) {
+  return haystack.size() >= needle.size() &&
+    std::equal(std::begin(needle), std::end(needle), std::begin(haystack));
+}
+
 #endif
