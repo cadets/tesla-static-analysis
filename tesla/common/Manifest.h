@@ -63,6 +63,9 @@ public:
   //! Top-level automata (named explicitly in code).
   llvm::ArrayRef<const Usage*> RootAutomata() const { return Roots; }
 
+  //! Have all the usages in this manifest been deleted by static analysis? 
+  bool HasInstrumentation() const;
+
   //! All automata in the manifest file.
   const AutomataMap& AllAutomata() const { return Descriptions; }
 

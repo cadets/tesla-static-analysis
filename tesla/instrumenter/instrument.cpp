@@ -19,6 +19,7 @@
 #include "Debug.h"
 #include "FieldReference.h"
 #include "Manifest.h"
+#include "Remove.h"
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/Verifier.h>
@@ -146,10 +147,14 @@ int main(int argc, char **argv) {
     Passes.add(TD);
 
   // Just add TESLA instrumentation passes.
-  addPass(Passes, new tesla::AssertionSiteInstrumenter(*Manifest, SuppressDI));
-  addPass(Passes, new tesla::FnCalleeInstrumenter(*Manifest, SuppressDI));
-  addPass(Passes, new tesla::FnCallerInstrumenter(*Manifest, SuppressDI));
-  addPass(Passes, new tesla::FieldReferenceInstrumenter(*Manifest, SuppressDI));
+  if(Manifest->HasInstrumentation()) {
+    addPass(Passes, new tesla::AssertionSiteInstrumenter(*Manifest, SuppressDI));
+    addPass(Passes, new tesla::FnCalleeInstrumenter(*Manifest, SuppressDI));
+    addPass(Passes, new tesla::FnCallerInstrumenter(*Manifest, SuppressDI));
+    addPass(Passes, new tesla::FieldReferenceInstrumenter(*Manifest, SuppressDI));
+  } else {
+    addPass(Passes, new tesla::RemoveInstrumenter(*Manifest, SuppressDI));
+  }
 
   // Write bitcode or assembly to the output as the last step...
   if (!NoOutput) {

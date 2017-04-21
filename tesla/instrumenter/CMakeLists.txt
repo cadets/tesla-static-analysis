@@ -13,11 +13,12 @@ add_llvm_executable(tesla-instrument
 	Assertion.cpp
 	Callee.cpp
 	Caller.cpp
-  EventTranslator.cpp
+        EventTranslator.cpp
 	FieldReference.cpp
-  InstrContext.cpp
+        InstrContext.cpp
 	Instrumentation.cpp
-  TranslationFn.cpp
+        Remove.cpp
+        TranslationFn.cpp
 )
 
 target_link_libraries(tesla-instrument
