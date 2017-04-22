@@ -6,6 +6,8 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/SourceMgr.h>
 
+#include "trace_finder.h"
+
 using namespace llvm;
 
 static cl::opt<std::string>
@@ -32,6 +34,12 @@ int main(int argc, char **argv)
     return 2;
   }
 
-  function->dump();
+  auto finder = TraceFinder(*function);
+  auto trs = finder.of_length(7);
+  for(const auto& trace : trs) {
+    if(auto tr_fn = finder.from_trace(trace)) {
+      tr_fn->dump();
+    }
+  }
   return 0;
 }
