@@ -116,5 +116,13 @@ std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr) const
   }
 
   sink->moveAfter(clones.back());
+  int i = 0;
+
+  for(auto &BB : *trace_fn) {
+    for(auto &I : BB) {
+      I.setName("i" + std::to_string(i++));
+    }
+  }
+
   return std::shared_ptr<Function>(trace_fn);
 }
