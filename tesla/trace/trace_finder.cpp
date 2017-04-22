@@ -74,20 +74,23 @@ std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr) const
 
   auto trace_fn = Function::Create(fn_type, GlobalValue::ExternalLinkage, 
                                    "trace_" + function_.getName() + "_" + std::to_string(tr.size()));
-  ValueToValueMapTy arg_map;
-  auto to_it = trace_fn->arg_begin();
+  /*auto to_it = trace_fn->arg_begin();
   for(auto from_it = function_.arg_begin();
       to_it != trace_fn->arg_end() && from_it != function_.arg_end();
       to_it++, from_it++) {
     arg_map[from_it] = to_it;
-  }
+  }*/
 
   auto sink = BasicBlock::Create(function_.getContext(), "sink", trace_fn);
   new UnreachableInst(function_.getContext(), sink);
 
   auto clones = std::vector<BasicBlock *>{};
   for(auto i = 0; i < tr.size(); i++) {
+    ValueToValueMapTy arg_map;
     auto clone = CloneBasicBlock(tr[i].first.get(), arg_map, "tr", trace_fn);
+    for(auto &inst : *clone) {
+      RemapInstruction(&inst, arg_map, RF_NoModuleLevelChanges | RF_IgnoreMissingEntries);
+    }
     clones.push_back(clone);
   }
 
