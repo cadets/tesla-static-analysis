@@ -13,7 +13,7 @@ using namespace llvm;
 
 class TraceFinder {
 public:
-  using trace_element_type = std::pair<std::shared_ptr<BasicBlock>, size_t>;
+  using trace_element_type = std::pair<BasicBlock *, size_t>;
   using trace_type = std::vector<trace_element_type>;
   using trace_set_type = std::set<trace_type>;
 

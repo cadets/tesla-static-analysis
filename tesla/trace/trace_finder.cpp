@@ -23,7 +23,7 @@ TraceFinder::trace_set_type TraceFinder::of_length(size_t n)
 
   if(n == 1) {
     auto& entry_block = function_.getEntryBlock();
-    const auto& trace = trace_type{std::make_pair(std::shared_ptr<BasicBlock>(&entry_block),0)};
+    const auto& trace = trace_type{std::make_pair(&entry_block, 0)};
     return cached({trace});
   }
 
@@ -37,7 +37,7 @@ TraceFinder::trace_set_type TraceFinder::of_length(size_t n)
     for(auto i = 0; i < term->getNumSuccessors(); i++) {
       auto succ = term->getSuccessor(i);
       auto trace = prefix;
-      trace.push_back(std::make_pair(std::shared_ptr<BasicBlock>(succ), i));
+      trace.push_back(std::make_pair(succ, i));
       traces.insert(trace);
     }
   }
@@ -99,7 +99,7 @@ std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr, ValueMap<Value 
   auto clones = std::vector<BasicBlock *>{};
   ValueToValueMapTy arg_map;
   for(auto i = 0; i < tr.size(); i++) {
-    auto clone = CloneBasicBlock(tr[i].first.get(), arg_map, "", trace_fn);
+    auto clone = CloneBasicBlock(tr[i].first, arg_map, "", trace_fn);
     clones.push_back(clone);
     for(auto &inst : *clone) {
       RemapInstruction(&inst, arg_map, RF_IgnoreMissingEntries);

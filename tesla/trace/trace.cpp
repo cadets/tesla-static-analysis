@@ -9,6 +9,7 @@
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/PassManager.h>
 
+#include "inline_all_pass.h"
 #include "smt_gen.h"
 #include "stub_functions_pass.h"
 #include "trace_finder.h"
@@ -46,8 +47,11 @@ int main(int argc, char **argv)
     return 2;
   }
 
+  auto&& inliner = InlineAllPass(64);
+  inliner.runOnFunction(*function);
+
   auto finder = TraceFinder(*function);
-  auto trs = finder.of_length_up_to(5);
+  auto trs = finder.of_length_up_to(25);
   for(const auto& trace : trs) {
     auto&& names = ValueMap<Value *, std::string>{};
     if(auto tr_fn = finder.from_trace(trace, names)) {

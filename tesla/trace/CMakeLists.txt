@@ -5,6 +5,7 @@ add_llvm_executable(tesla-trace
   trace_finder.cpp
   smt_gen.cpp
   stub_functions_pass.cpp
+  inline_all_pass.cpp
 )
 target_link_libraries(tesla-trace ${LLVM_LIBS})
 

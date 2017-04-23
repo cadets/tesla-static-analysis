@@ -35,7 +35,6 @@ bool StubFunctionsPass::runOnModule(Module &M)
 {
   create_stubs(M);
   call_stubs(M);
-  M.dump();
   return true;
 }
 
