@@ -45,12 +45,24 @@ TraceFinder::trace_set_type TraceFinder::of_length(size_t n)
   return cached(traces);
 }
 
+TraceFinder::trace_set_type TraceFinder::of_length_up_to(size_t n)
+{
+  auto ret = trace_set_type{};
+  for(size_t i = 0; i < n; i++) {
+    auto traces = of_length(i);
+    for(const auto& trace : traces) {
+      ret.insert(trace);
+    }
+  }
+  return ret;
+}
+
 bool TraceFinder::terminates(trace_type tr)
 {
   return tr.back().first->getTerminator()->getNumSuccessors() == 0;
 }
 
-std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr) const
+std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr, ValueMap<Value *, std::string>& names) const
 {
   if(!terminates(tr)) {
     return nullptr;
@@ -81,17 +93,17 @@ std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr) const
     arg_map[from_it] = to_it;
   }*/
 
-  auto sink = BasicBlock::Create(function_.getContext(), "sink", trace_fn);
+  auto sink = BasicBlock::Create(function_.getContext(), "__tesla_sink", trace_fn);
   new UnreachableInst(function_.getContext(), sink);
 
   auto clones = std::vector<BasicBlock *>{};
+  ValueToValueMapTy arg_map;
   for(auto i = 0; i < tr.size(); i++) {
-    ValueToValueMapTy arg_map;
-    auto clone = CloneBasicBlock(tr[i].first.get(), arg_map, "tr", trace_fn);
-    for(auto &inst : *clone) {
-      RemapInstruction(&inst, arg_map, RF_NoModuleLevelChanges | RF_IgnoreMissingEntries);
-    }
+    auto clone = CloneBasicBlock(tr[i].first.get(), arg_map, "", trace_fn);
     clones.push_back(clone);
+    for(auto &inst : *clone) {
+      RemapInstruction(&inst, arg_map, RF_IgnoreMissingEntries);
+    }
   }
 
   for(auto i = 0; i < clones.size(); i++) {
@@ -116,11 +128,11 @@ std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr) const
   }
 
   sink->moveAfter(clones.back());
-  int i = 0;
 
-  for(auto &BB : *trace_fn) {
-    for(auto &I : BB) {
-      I.setName("i" + std::to_string(i++));
+  int i = 0;
+  for(auto& BB : *trace_fn) {
+    for(auto& I : BB) {
+      names.insert(std::make_pair(&I, "V" + std::to_string(i++)));
     }
   }
 

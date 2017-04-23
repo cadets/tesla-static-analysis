@@ -1,3 +1,4 @@
+#include <llvm/ADT/ValueMap.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
@@ -5,7 +6,10 @@
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/SourceMgr.h>
+#include <llvm/Transforms/Scalar.h>
+#include <llvm/PassManager.h>
 
+#include "smt_gen.h"
 #include "trace_finder.h"
 
 using namespace llvm;
@@ -28,17 +32,29 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  auto function = std::shared_ptr<Function>(mod->getFunction(FunctionName));
-  if(function.get() == nullptr) {
+  PassManager Passes;
+  Passes.add(createPromoteMemoryToRegisterPass());
+  //Passes.add(createInstructionCombiningPass());
+  //Passes.add(createDeadCodeEliminationPass());
+  Passes.run(*mod);
+
+  auto function = mod->getFunction(FunctionName);
+  if(function == nullptr) {
     errs() << "No function named: " << FunctionName << " in module\n";
     return 2;
   }
 
   auto finder = TraceFinder(*function);
-  auto trs = finder.of_length(7);
+  auto trs = finder.of_length_up_to(15);
   for(const auto& trace : trs) {
-    if(auto tr_fn = finder.from_trace(trace)) {
+    auto&& names = ValueMap<Value *, std::string>{};
+    if(auto tr_fn = finder.from_trace(trace, names)) {
       tr_fn->dump();
+
+      auto gen = SMTVisitor(*tr_fn, names); 
+      gen.run();
+      gen.check();
+      outs() << gen.str() << '\n';
     }
   }
   return 0;

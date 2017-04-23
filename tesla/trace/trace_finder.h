@@ -6,6 +6,7 @@
 #include <set>
 #include <vector>
 
+#include <llvm/ADT/ValueMap.h>
 #include <llvm/IR/Function.h>
 
 using namespace llvm;
@@ -22,9 +23,10 @@ public:
   const Function& function() const { return function_; }
 
   trace_set_type of_length(size_t n);
+  trace_set_type of_length_up_to(size_t n);
 
   static bool terminates(trace_type tr);
-  std::shared_ptr<Function> from_trace(trace_type tr) const;
+  std::shared_ptr<Function> from_trace(trace_type tr, ValueMap<Value *, std::string>& names) const;
 private:
   Function& function_;
   std::map<size_t, trace_set_type> trace_cache_;
