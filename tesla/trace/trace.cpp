@@ -10,6 +10,7 @@
 #include <llvm/PassManager.h>
 
 #include "smt_gen.h"
+#include "stub_functions_pass.h"
 #include "trace_finder.h"
 
 using namespace llvm;
@@ -34,6 +35,7 @@ int main(int argc, char **argv)
 
   PassManager Passes;
   Passes.add(createPromoteMemoryToRegisterPass());
+  Passes.add(new StubFunctionsPass);
   //Passes.add(createInstructionCombiningPass());
   //Passes.add(createDeadCodeEliminationPass());
   Passes.run(*mod);
