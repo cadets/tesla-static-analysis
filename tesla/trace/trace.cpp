@@ -47,7 +47,7 @@ int main(int argc, char **argv)
   }
 
   auto finder = TraceFinder(*function);
-  auto trs = finder.of_length_up_to(15);
+  auto trs = finder.of_length_up_to(5);
   for(const auto& trace : trs) {
     auto&& names = ValueMap<Value *, std::string>{};
     if(auto tr_fn = finder.from_trace(trace, names)) {
