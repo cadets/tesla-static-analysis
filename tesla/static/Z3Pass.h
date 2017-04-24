@@ -4,6 +4,8 @@
 #include "Debug.h"
 #include "ManifestPass.h"
 
+#include "z3_checker.h"
+
 #include <llvm/Support/raw_ostream.h>
 
 using std::unique_ptr;

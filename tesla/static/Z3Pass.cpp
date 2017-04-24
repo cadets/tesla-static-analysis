@@ -1,3 +1,4 @@
+#include "z3_checker.h"
 #include "Z3Pass.h"
 
 namespace tesla {
@@ -26,7 +27,7 @@ unique_ptr<Manifest> Z3Pass::run(Manifest &Man, llvm::Module &Mo) {
 }
   
 bool Z3Pass::CheckUsage(Manifest &Man, llvm::Module &Mo, const Usage *use) {
-  return false;
+  return Z3Checker{Man, Mo}.check_usage(use);
 }
 
 const std::string Z3Pass::PassName() const {

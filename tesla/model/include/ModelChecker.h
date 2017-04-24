@@ -11,7 +11,7 @@
 
 #include "EventGraph.h"
 #include "FiniteTraces.h"
-#include "ModelGenerator.h"
+#include "FSMBuilder.h"
 
 using std::map;
 using std::pair;

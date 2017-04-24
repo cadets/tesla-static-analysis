@@ -7,6 +7,7 @@ add_library(TeslaCommon
   Arguments.cpp
   Automaton.cpp
   Debug.cpp
+  FSMBuilder.cpp
   Manifest.cpp
   Names.cpp
   Protocol.cpp

@@ -30,8 +30,10 @@ add_llvm_executable(tesla-static
 target_link_libraries(tesla-static
   TeslaCommon
   TeslaModel
+  TeslaModelZ3
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/tesla/model/include")
+include_directories("${CMAKE_SOURCE_DIR}/tesla/trace/include")
 
 install(TARGETS tesla-static DESTINATION bin)
