@@ -1,6 +1,3 @@
-#include <llvm/Support/raw_ostream.h>
-#include <iostream>
-
 #include "z3_solve.h"
 
 void Z3Visitor::run()
@@ -28,10 +25,7 @@ void Z3Visitor::run()
   }
 
   solver_.check();
-
-  errs() << str() << '\n';
   auto m = solver_.get_model();
-  std::cerr << m << '\n';
 
   for(auto i = 0; i < m.size(); i++) {
     auto v = m[i];
@@ -56,8 +50,6 @@ void Z3Visitor::run()
       constraints_[ci] = constraint;
     }
   }
-
-  errs() << '\n';
 }
 
 void Z3Visitor::visitBinaryOperator(BinaryOperator &BO)
