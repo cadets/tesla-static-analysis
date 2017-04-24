@@ -4,6 +4,7 @@
 #include "Debug.h"
 #include "Manifest.h"
 #include "ManifestPassManager.h"
+#include "Z3Pass.h"
 #include "tesla.pb.h"
 
 #include "ModelChecker.h"
@@ -42,6 +43,10 @@ EnableCallSeqPass("callseq", cl::desc("Run obsolete call sequence pass"),
 static cl::opt<bool>
 EnableModelChecker("modelcheck", cl::desc("Run model checker pass"),
                    cl::init(false), cl::cat(PassCat));
+
+static cl::opt<bool>
+EnableZ3Checker("z3", cl::desc("Run new Z3-based pass"),
+                cl::init(false), cl::cat(PassCat));
 
 static cl::OptionCategory ModelCat("Model checker options",
                                    "These flags control the model checker if it is run");
@@ -84,6 +89,7 @@ int main(int argc, char **argv) {
   if(EnableAcqRelPass) PM.addPass(new tesla::AcquireReleasePass);
   if(EnableCallSeqPass) PM.addPass(new tesla::CallSequencePass);
   if(EnableModelChecker) PM.addPass(new tesla::ModelCheckerPass(UnrollDepth, TraceBound));
+  if(EnableZ3Checker) PM.addPass(new tesla::Z3Pass(UnrollDepth, TraceBound));
 
   PM.runPasses();
   if(!PM.Manifest) {

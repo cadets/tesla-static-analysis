@@ -24,6 +24,7 @@ add_llvm_executable(tesla-static
   ReachabilityGraph.cpp
   SimpleCallGraph.cpp
   CallsFunctionOnce.cpp
+  Z3Pass.cpp
 )
 
 target_link_libraries(tesla-static

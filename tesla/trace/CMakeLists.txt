@@ -11,7 +11,11 @@ add_llvm_executable(tesla-trace
   inline_all_pass.cpp
   z3_solve.cpp
 )
-target_link_libraries(tesla-trace z3 ${LLVM_LIBS})
+target_link_libraries(tesla-trace 
+  TeslaCommon
+  z3 
+  ${LLVM_LIBS}
+)
 
 install(TARGETS tesla-trace DESTINATION bin)
 endif()
