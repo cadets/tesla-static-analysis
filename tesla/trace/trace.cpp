@@ -10,7 +10,7 @@
 #include <llvm/PassManager.h>
 
 #include "inline_all_pass.h"
-#include "smt_gen.h"
+#include "smt_text_gen.h"
 #include "stub_functions_pass.h"
 #include "trace_finder.h"
 
@@ -21,6 +21,9 @@ BitcodeFilename(cl::Positional, cl::desc("bitcode"), cl::Required);
 
 static cl::opt<std::string>
 FunctionName("f", cl::desc("function"), cl::init("main"));
+
+static cl::opt<bool>
+SMT2TextOutput("smt2", cl::desc("output SMT2 textual form"), cl::init(false));
 
 int main(int argc, char **argv)
 {
@@ -55,12 +58,16 @@ int main(int argc, char **argv)
   for(const auto& trace : trs) {
     auto&& names = ValueMap<Value *, std::string>{};
     if(auto tr_fn = finder.from_trace(trace, names)) {
-      tr_fn->dump();
+      //tr_fn->dump();
 
-      auto gen = SMTVisitor(*tr_fn, names); 
-      gen.run();
-      gen.check();
-      outs() << gen.str() << '\n';
+      if(SMT2TextOutput) {
+        auto gen = SMTTextVisitor(*tr_fn, names); 
+        gen.run();
+        gen.check();
+        outs() << gen.str() << '\n';
+      } else {
+        outs() << "Z3 Internal Mode!\n";
+      }
     }
   }
   return 0;
