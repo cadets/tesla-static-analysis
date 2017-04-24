@@ -51,7 +51,7 @@ int main(int argc, char **argv)
   inliner.runOnFunction(*function);
 
   auto finder = TraceFinder(*function);
-  auto trs = finder.of_length_up_to(25);
+  auto trs = finder.of_length_up_to(10);
   for(const auto& trace : trs) {
     auto&& names = ValueMap<Value *, std::string>{};
     if(auto tr_fn = finder.from_trace(trace, names)) {

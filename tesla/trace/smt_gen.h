@@ -20,6 +20,8 @@ public:
 
   void visitBinaryOperator(BinaryOperator &BO);
   void visitCallInst(CallInst &CI);
+  void visitLoadInst(LoadInst &LI);
+  void visitCmpInst(CmpInst &CI);
 
   void check();
 

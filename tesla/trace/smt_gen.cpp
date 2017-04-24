@@ -106,6 +106,67 @@ void SMTVisitor::visitCallInst(CallInst &CI)
   ss << ")\n";
 }
 
+void SMTVisitor::visitLoadInst(LoadInst &LI)
+{
+  if(auto int_ty = dyn_cast<IntegerType>(LI.getType())) {
+    auto width = int_ty->getBitWidth();
+
+    ss << "(declare-fun |" << names_[&LI] << "| () ";
+    if(width == 1) {
+      ss << "Bool";
+    } else {
+      ss << "Int";
+    }
+    ss << ")\n";
+  }
+}
+
+void SMTVisitor::visitCmpInst(CmpInst &CI)
+{
+  if(!CI.isIntPredicate()) {
+    return;
+  }
+
+  const auto define = [&](std::string op) {
+    ss << "(define-fun |" << names_[&CI] << "| () ";
+    ss << "Bool";
+
+    ss << " (" << op << " ";
+    ss << operand_str(CI.getOperand(0)) << " ";
+    ss << operand_str(CI.getOperand(1));
+    ss << ")";
+
+    ss << ")\n";
+  };
+
+  switch(CI.getPredicate()) {
+    case CmpInst::ICMP_EQ:
+      define("=");
+      break;
+    case CmpInst::ICMP_NE:
+      define("distinct");
+      break;
+    case CmpInst::ICMP_UGT:
+    case CmpInst::ICMP_SGT:
+      define(">");
+      break;
+    case CmpInst::ICMP_UGE:
+    case CmpInst::ICMP_SGE:
+      define(">=");
+      break;
+    case CmpInst::ICMP_ULT:
+    case CmpInst::ICMP_SLT:
+      define("<");
+      break;
+    case CmpInst::ICMP_ULE:
+    case CmpInst::ICMP_SLE:
+      define("<=");
+      break;
+    default:
+      break;
+  }
+}
+
 std::string SMTVisitor::operand_str(Value *V) const
 {
   auto found = names_.find(V);
@@ -117,7 +178,12 @@ std::string SMTVisitor::operand_str(Value *V) const
     if(cst->getBitWidth() == 1) {
       return cst->isOne() ? "true" : "false";
     } else {
-      return std::to_string(cst->getSExtValue());
+      auto val = cst->getSExtValue();
+      if(val >= 0) {
+        return std::to_string(val);
+      } else {
+        return "(- " + std::to_string(-val) + ")";
+      }
     }
   }
 
