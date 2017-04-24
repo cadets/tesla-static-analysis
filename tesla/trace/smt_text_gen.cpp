@@ -3,9 +3,9 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Support/raw_ostream.h>
 
-#include "smt_gen.h"
+#include "smt_text_gen.h"
 
-SMTVisitor::SMTVisitor(Function& f, ValueMap<Value *, std::string>& ns) :
+SMTTextVisitor::SMTTextVisitor(Function& f, ValueMap<Value *, std::string>& ns) :
   function_(f), names_(ns)
 {
   for(const auto& pair : names_) {
@@ -18,7 +18,7 @@ SMTVisitor::SMTVisitor(Function& f, ValueMap<Value *, std::string>& ns) :
   ss << "(set-logic QF_UFLIA)\n";
 }
 
-void SMTVisitor::run()
+void SMTTextVisitor::run()
 {
   visit(function_);
   auto& sink = *std::find_if(std::begin(function_), std::end(function_),
@@ -40,15 +40,12 @@ void SMTVisitor::run()
       }
     }
   }
-}
 
-void SMTVisitor::check()
-{
   ss << "(check-sat)\n";
   ss << "(get-model)\n";
 }
 
-void SMTVisitor::visitBinaryOperator(BinaryOperator &BO)
+void SMTTextVisitor::visitBinaryOperator(BinaryOperator &BO)
 {
   auto define = [&](std::string op) {
     ss << "(define-fun |" << names_[&BO] << "| () ";
@@ -95,7 +92,7 @@ void SMTVisitor::visitBinaryOperator(BinaryOperator &BO)
   }
 }
 
-void SMTVisitor::visitCallInst(CallInst &CI)
+void SMTTextVisitor::visitCallInst(CallInst &CI)
 {
   ss << "(declare-fun |" << names_[&CI] << "| () ";
   if(called_returns_bool(CI)) {
@@ -106,7 +103,7 @@ void SMTVisitor::visitCallInst(CallInst &CI)
   ss << ")\n";
 }
 
-void SMTVisitor::visitLoadInst(LoadInst &LI)
+void SMTTextVisitor::visitLoadInst(LoadInst &LI)
 {
   if(auto int_ty = dyn_cast<IntegerType>(LI.getType())) {
     auto width = int_ty->getBitWidth();
@@ -121,7 +118,7 @@ void SMTVisitor::visitLoadInst(LoadInst &LI)
   }
 }
 
-void SMTVisitor::visitCmpInst(CmpInst &CI)
+void SMTTextVisitor::visitCmpInst(CmpInst &CI)
 {
   if(!CI.isIntPredicate()) {
     return;
@@ -167,7 +164,7 @@ void SMTVisitor::visitCmpInst(CmpInst &CI)
   }
 }
 
-std::string SMTVisitor::operand_str(Value *V) const
+std::string SMTTextVisitor::operand_str(Value *V) const
 {
   auto found = names_.find(V);
   if(found != names_.end()) {
@@ -190,7 +187,7 @@ std::string SMTVisitor::operand_str(Value *V) const
   return "__bad_operand__";
 }
 
-bool SMTVisitor::called_returns_bool(CallInst &CI) const
+bool SMTTextVisitor::called_returns_bool(CallInst &CI) const
 {
   auto fn = CI.getCalledFunction();
   if(!fn) { return false; }

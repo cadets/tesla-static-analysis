@@ -12,9 +12,9 @@
 
 using namespace llvm;
 
-class SMTVisitor : public InstVisitor<SMTVisitor> {
+class SMTTextVisitor : public InstVisitor<SMTTextVisitor> {
 public:
-  SMTVisitor(Function &f, ValueMap<Value *, std::string>& ns);
+  SMTTextVisitor(Function &f, ValueMap<Value *, std::string>& ns);
 
   void run();
 
@@ -22,8 +22,6 @@ public:
   void visitCallInst(CallInst &CI);
   void visitLoadInst(LoadInst &LI);
   void visitCmpInst(CmpInst &CI);
-
-  void check();
 
   std::string str() const { return ss.str(); }
 private:
