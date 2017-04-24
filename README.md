@@ -71,6 +71,19 @@ cmake -D CMAKE_INSTALL_PREFIX=/some/sensible/path .
 ninja install
 ```
 
+## Z3 Solver
+
+A newer version of the TESLA model checker is being developed that uses the [Z3
+theorem prover](https://github.com/Z3Prover/z3) to prove properties of LLVM IR.
+Using this newer version requires that you have Z3 installed globally on your
+system - you can do this following the instructions
+[here](https://github.com/Z3Prover/z3#building-z3-using-make-and-gccclang).
+
+Once Z3 is installed, the new model checker can be enabled by:
+```
+cmake -D USE_Z3_SOLVER=On .
+```
+
 ## Options
 
 My research project into static analysis for TESLA produced a set of experiments

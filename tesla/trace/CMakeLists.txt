@@ -1,3 +1,6 @@
+option(USE_Z3_SOLVER "Use the experimental Z3 solver" OFF)
+
+if(USE_Z3_SOLVER)
 set(LLVM_LINK_COMPONENTS ${LLVM_TARGETS_TO_BUILD})
 
 add_llvm_executable(tesla-trace 
@@ -11,3 +14,4 @@ add_llvm_executable(tesla-trace
 target_link_libraries(tesla-trace z3 ${LLVM_LIBS})
 
 install(TARGETS tesla-trace DESTINATION bin)
+endif()
