@@ -40,10 +40,7 @@ void SMTTextVisitor::run()
       }
     }
   }
-}
 
-void SMTTextVisitor::check()
-{
   ss << "(check-sat)\n";
   ss << "(get-model)\n";
 }

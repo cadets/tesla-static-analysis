@@ -13,6 +13,7 @@
 #include "smt_text_gen.h"
 #include "stub_functions_pass.h"
 #include "trace_finder.h"
+#include "z3_solve.h"
 
 using namespace llvm;
 
@@ -63,10 +64,10 @@ int main(int argc, char **argv)
       if(SMT2TextOutput) {
         auto gen = SMTTextVisitor(*tr_fn, names); 
         gen.run();
-        gen.check();
         outs() << gen.str() << '\n';
       } else {
-        outs() << "Z3 Internal Mode!\n";
+        auto&& z3 = Z3Visitor(*tr_fn, names);
+        z3.run();
       }
     }
   }
