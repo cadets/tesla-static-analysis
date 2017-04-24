@@ -6,7 +6,58 @@
 void Z3Visitor::run()
 {
   visit(function_);
+
+  auto& sink = *std::find_if(std::begin(function_), std::end(function_),
+    [](auto& BB) { return BB.getName() == "__tesla_sink"; });
+
+  for(auto& BB : function_) {
+    auto term = BB.getTerminator();
+    if(auto bi = dyn_cast<BranchInst>(term)) {
+      if(bi->isConditional()) {
+        auto cond = bi->getCondition();
+        auto true_dest = bi->getSuccessor(0);
+        auto false_dest = bi->getSuccessor(1);
+
+        if(true_dest == &sink) {
+          solver_.add(!value_expr(cond));
+        } else if(false_dest == &sink) {
+          solver_.add(value_expr(cond));
+        }
+      }
+    }
+  }
+
+  solver_.check();
+
   errs() << str() << '\n';
+  auto m = solver_.get_model();
+  std::cerr << m << '\n';
+
+  for(auto i = 0; i < m.size(); i++) {
+    auto v = m[i];
+    assert(v.arity() == 0 && "Non-constant interpretation shouldn't happen");
+
+    auto val = m.get_const_interp(v);
+    if(auto ci = dyn_cast_or_null<CallInst>(reverse_name_lookup(v.name().str()))) {
+      auto constraint = [&] {
+        if(val.is_bool()) {
+          auto b = Z3_get_bool_value(context_, val);
+          if(b == Z3_L_UNDEF) { assert(false && "Should have an interpretation"); }
+          return (long long)(b == Z3_L_TRUE);
+        } else if(val.is_int()) {
+          long long l;
+          Z3_get_numeral_int64(context_, m.get_const_interp(v), &l);
+          return l;
+        }
+
+        assert(false && "Non int / bool interpretation");
+      }();
+
+      constraints_[ci] = constraint;
+    }
+  }
+
+  errs() << '\n';
 }
 
 void Z3Visitor::visitBinaryOperator(BinaryOperator &BO)
@@ -30,19 +81,6 @@ void Z3Visitor::visitBinaryOperator(BinaryOperator &BO)
   }();
 
   solver_.add(result == body);
-}
-
-void Z3Visitor::visitCallInst(CallInst &CI)
-{
-  /*auto fn = cast<Function>(CI.getCalledValue()->stripPointerCasts());
-  auto result_ty = fn->getFunctionType()->getReturnType();
-  if(isa<IntegerType>(result_ty)) {
-    solver_.add(value_expr(&CI));
-  }*/
-}
-
-void Z3Visitor::visitLoadInst(LoadInst &LI)
-{
 }
 
 void Z3Visitor::visitCmpInst(CmpInst &CI)
@@ -111,4 +149,15 @@ z3::expr Z3Visitor::value_expr(Value *v)
 
   v->dump();
   assert(false && "Unhandled value - can't get Z3 expr!");
+}
+
+Value *Z3Visitor::reverse_name_lookup(std::string name) const
+{
+  for(const auto& pair : names_) {
+    if(pair.second == name) {
+      return pair.first;
+    }
+  }
+
+  return nullptr;
 }
