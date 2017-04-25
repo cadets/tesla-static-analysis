@@ -30,6 +30,7 @@ add_llvm_executable(tesla-static
 target_link_libraries(tesla-static
   TeslaCommon
   TeslaModel
+  z3
   TeslaModelZ3
 )
 

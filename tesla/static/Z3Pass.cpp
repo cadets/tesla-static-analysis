@@ -27,7 +27,7 @@ unique_ptr<Manifest> Z3Pass::run(Manifest &Man, llvm::Module &Mo) {
 }
   
 bool Z3Pass::CheckUsage(Manifest &Man, llvm::Module &Mo, const Usage *use) {
-  return Z3Checker{Man, Mo}.check_usage(use);
+  return Z3Checker{Man, Mo}.check_usage(use, UnrollDepth, TraceBound);
 }
 
 const std::string Z3Pass::PassName() const {
