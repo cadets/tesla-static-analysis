@@ -1,5 +1,7 @@
 #include "z3_solve.h"
 
+#include <iostream>
+
 void Z3Visitor::run()
 {
   visit(function_);

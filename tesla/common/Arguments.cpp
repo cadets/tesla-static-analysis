@@ -122,7 +122,7 @@ Value* tesla::GetArgumentValue(Value* Param, const Argument& ArgDescrip,
 }
 
 void tesla::ParseAssertionLocation(
-  Location *Loc, CallInst *Call) {
+  Location *Loc, const CallInst *Call) {
 
   assert(Call->getCalledFunction()->getName() == INLINE_ASSERTION);
 
@@ -184,7 +184,7 @@ void tesla::ParseAssertionLocation(
   Loc->set_counter(Count->getLimitedValue(INT_MAX));
 }
 
-llvm::Function* calledOrCastFunction(llvm::CallInst *ci)
+llvm::Function* calledOrCastFunction(const llvm::CallInst *ci)
 {
   auto num = ci->getNumOperands() - 1;
   if(auto cst = llvm::dyn_cast<llvm::ConstantExpr>(ci->getOperand(num))) {

@@ -10,7 +10,7 @@
 #include "GraphTransforms.h"
 #include "Inference.h"
 #include "ModelChecker.h"
-#include "ModelGenerator.h"
+#include "FSMBuilder.h"
 #include "SequenceExpressions.h"
 
 using std::map;
@@ -20,7 +20,7 @@ bool ModelChecker::IsUsageSafe(const tesla::Usage *use) {
   auto automaton = Manifest->FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
 
-  auto fsm = ModelGenerator(expr, Manifest).FSM().Deterministic().Relabeled();
+  auto fsm = FSMBuilder(expr, Manifest).FSM().Deterministic().Relabeled();
 
   auto work_queue = std::queue<int>{};
   for(auto i = 0; i < Depth; i++) {

@@ -27,6 +27,8 @@ public:
 
   static bool terminates(trace_type tr);
   std::shared_ptr<Function> from_trace(trace_type tr, ValueMap<Value *, std::string>& names) const;
+
+  static std::vector<const BasicBlock *> linear_trace(const Function& func);
 private:
   Function& function_;
   std::map<size_t, trace_set_type> trace_cache_;

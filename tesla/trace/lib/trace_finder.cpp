@@ -138,3 +138,17 @@ std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr, ValueMap<Value 
 
   return std::shared_ptr<Function>(trace_fn);
 }
+
+std::vector<const BasicBlock *> TraceFinder::linear_trace(const Function& func)
+{
+  auto sink = std::find_if(std::begin(func), std::end(func),
+    [](auto& BB) { return BB.getName() == "__tesla_sink"; });
+
+  auto trace = std::vector<const BasicBlock *>{};
+  for(auto& BB : func) {
+    if(&BB != sink) {
+      trace.push_back(&BB);
+    }
+  }
+  return trace;
+}

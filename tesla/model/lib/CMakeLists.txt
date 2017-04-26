@@ -9,7 +9,6 @@ add_llvm_library(TeslaModel
   ModelChecker.cpp
   FiniteTraces.cpp
   SequenceExpressions.cpp
-  ModelGenerator.cpp
   Inference.cpp
   ImplicationCheck.cpp
   BackwardsSearch.cpp

@@ -1,16 +1,16 @@
 #include "Debug.h"
-#include "ModelGenerator.h"
+#include "FSMBuilder.h"
 
-std::string ModelGenerator::NextLabel() {
+std::string FSMBuilder::NextLabel() {
   return "_s" + std::to_string(label++);
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::FSM()
+FiniteStateMachine<Expression *> FSMBuilder::FSM()
 {
   return ExpressionFSM(Expr);
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::ExpressionFSM(const Expression &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::ExpressionFSM(const Expression &ex) {
   switch(ex.type()) {
     case Expression_Type_NULL_EXPR:
       return NullFSM();
@@ -36,7 +36,7 @@ FiniteStateMachine<Expression *> ModelGenerator::ExpressionFSM(const Expression 
   }
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::BooleanFSM(const BooleanExpr &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::BooleanFSM(const BooleanExpr &ex) {
   auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
@@ -68,7 +68,7 @@ FiniteStateMachine<Expression *> ModelGenerator::BooleanFSM(const BooleanExpr &e
   return fsm;
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::SequenceOnceFSM(const Sequence &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::SequenceOnceFSM(const Sequence &ex) {
   auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
@@ -105,7 +105,7 @@ FiniteStateMachine<Expression *> ModelGenerator::SequenceOnceFSM(const Sequence 
   return fsm;
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::SequenceFSM(const Sequence &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::SequenceFSM(const Sequence &ex) {
   auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
@@ -165,7 +165,7 @@ FiniteStateMachine<Expression *> ModelGenerator::SequenceFSM(const Sequence &ex)
   return fsm;
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::AssertionSiteFSM(const AssertionSite &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::AssertionSiteFSM(const AssertionSite &ex) {
   auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
@@ -186,7 +186,7 @@ FiniteStateMachine<Expression *> ModelGenerator::AssertionSiteFSM(const Assertio
   return fsm;
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::FunctionEventFSM(const FunctionEvent &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::FunctionEventFSM(const FunctionEvent &ex) {
   auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
@@ -207,7 +207,7 @@ FiniteStateMachine<Expression *> ModelGenerator::FunctionEventFSM(const Function
   return fsm;
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::FieldAssignFSM(const FieldAssignment &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::FieldAssignFSM(const FieldAssignment &ex) {
   auto fsm = FiniteStateMachine<Expression *>{};
 
   auto initial_state = ::State{NextLabel()};
@@ -228,11 +228,11 @@ FiniteStateMachine<Expression *> ModelGenerator::FieldAssignFSM(const FieldAssig
   return fsm;
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::SubAutomatonFSM(const Automaton &ex) {
+FiniteStateMachine<Expression *> FSMBuilder::SubAutomatonFSM(const Automaton &ex) {
   return ExpressionFSM(ex.getAssertion().expression());
 }
 
-FiniteStateMachine<Expression *> ModelGenerator::NullFSM() {
+FiniteStateMachine<Expression *> FSMBuilder::NullFSM() {
   auto fsm = FiniteStateMachine<Expression *>{};
   auto accept = ::State{NextLabel()};
   accept.accepting = true;

@@ -13,8 +13,8 @@ using std::vector;
 using std::set;
 using namespace tesla;
 
-struct ModelGenerator {
-  ModelGenerator(Expression &e, Manifest *man) :
+struct FSMBuilder {
+  FSMBuilder(Expression &e, Manifest *man) :
     Man(man), Expr(e) {}
 
   FiniteStateMachine<Expression *> FSM();

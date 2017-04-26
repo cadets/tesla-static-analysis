@@ -17,7 +17,7 @@ public:
   Z3Visitor(Function &f, ValueMap<Value *, std::string>& ns) :
     function_(f), names_(ns), solver_(context_) {}
 
-  const std::map<CallInst *, long long> get_constraints() const { return constraints_; }
+  const std::map<const CallInst *, long long> get_constraints() const { return constraints_; }
 
   void run();
 
@@ -36,7 +36,7 @@ private:
 
   Value *reverse_name_lookup(std::string name) const;
 
-  std::map<CallInst *, long long> constraints_;
+  std::map<const CallInst *, long long> constraints_;
 };
 
 #endif

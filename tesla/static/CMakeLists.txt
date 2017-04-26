@@ -24,13 +24,17 @@ add_llvm_executable(tesla-static
   ReachabilityGraph.cpp
   SimpleCallGraph.cpp
   CallsFunctionOnce.cpp
+  Z3Pass.cpp
 )
 
 target_link_libraries(tesla-static
   TeslaCommon
   TeslaModel
+  z3
+  TeslaModelZ3
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/tesla/model/include")
+include_directories("${CMAKE_SOURCE_DIR}/tesla/trace/include")
 
 install(TARGETS tesla-static DESTINATION bin)
