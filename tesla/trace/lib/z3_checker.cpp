@@ -216,6 +216,20 @@ bool Z3TraceChecker::possibly_checked(const CallInst& CI) const
 
 bool Z3TraceChecker::is_safe() const
 {
+  auto no_asserts_checked = std::none_of(trace_.begin(), trace_.end(),
+    [](auto bb) {
+      return std::none_of(bb->begin(), bb->end(),
+        [](auto& I) {
+          if(auto ci = dyn_cast<CallInst>(&I)) {
+            return calledOrCastFunction(ci)->getName().str() == tesla::INLINE_ASSERTION;
+          }
+          return false;
+        }
+      );
+    }
+  );
+  if(no_asserts_checked) { return true; }
+
   auto state = fsm_.InitialState();
 
   for(const auto& bb : trace_) {
