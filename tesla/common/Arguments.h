@@ -40,10 +40,10 @@ llvm::Value* GetArgumentValue(llvm::Value* Param, const Argument& ArgDescrip,
  * Parse a @ref Location out of a @ref CallInst to the TESLA assertion
  * pseudo-call.
  */
-void ParseAssertionLocation(Location *Loc, llvm::CallInst*);
+void ParseAssertionLocation(Location *Loc, const llvm::CallInst*);
 
 }
 
-llvm::Function* calledOrCastFunction(llvm::CallInst *ci);
+llvm::Function* calledOrCastFunction(const llvm::CallInst *ci);
 
 #endif

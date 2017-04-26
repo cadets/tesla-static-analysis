@@ -15,18 +15,41 @@ using namespace llvm;
 
 class Z3Checker {
 public:
-  Z3Checker(tesla::Manifest &man, Module &mo);
+  Z3Checker(Function& bound, tesla::Manifest& man, 
+            tesla::Expression& expr, size_t depth);
 
-  bool check_usage(const tesla::Usage *use, size_t unroll, size_t bound);
+  bool is_safe() const;
+
 private:
-  tesla::Manifest& manifest_;
-  Module& module_;
+  Function& bound_;
+  size_t depth_;
+  const FiniteStateMachine<tesla::Expression *> fsm_;
+};
 
-  bool check_trace(TraceFinder::trace_type trace, 
-                   std::map<CallInst *, long long> constraints, 
-                   FiniteStateMachine<tesla::Expression *> fsm);
-  bool has_checkable_bounds(const tesla::Usage *use) const;
-  Function *bound_function(const tesla::Usage *use) const;
+class Z3TraceChecker {
+public:
+  Z3TraceChecker(Function& tf, Module& Mod,
+                 const std::map<const CallInst *, long long> cons,
+                 const FiniteStateMachine<tesla::Expression *>& fsm);
+
+  bool is_safe() const;
+private: 
+  bool check_event(const CallInst& CI, const tesla::Expression& expr) const;
+  bool check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const;
+  bool check_assert(const CallInst& CI, const tesla::AssertionSite& expr) const;
+
+  std::pair<std::shared_ptr<::State>, bool> 
+    next_state(const CallInst& CI, std::shared_ptr<::State> state) const;
+
+  std::string remove_stub(const std::string name) const;
+  bool possibly_checked(const CallInst& CI) const;
+
+  Function &bound_;
+  Module &module_;
+  std::set<std::string> checked_functions_;
+  std::vector<const BasicBlock *> trace_;
+  const std::map<const CallInst *, long long> constraints_;
+  const FiniteStateMachine<tesla::Expression *>& fsm_;
 };
 
 #endif

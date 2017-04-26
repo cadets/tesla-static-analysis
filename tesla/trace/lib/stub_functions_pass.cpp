@@ -14,6 +14,10 @@ void StubFunctionsPass::create_stubs(Module &M)
   auto stubs = std::vector<std::pair<std::string, FunctionType *>>{};
 
   for(auto& F : M) {
+    if(F.isDeclaration()) {
+      continue;
+    }
+
     auto fn_type = F.getFunctionType();
     auto fn_name = F.getName().str();
     stubs.push_back(std::make_pair(entry_prefix + fn_name, fn_type));
@@ -46,6 +50,10 @@ CallStubsVisitor::CallStubsVisitor(Module &M) :
 void CallStubsVisitor::visitCallInst(CallInst &CI)
 {
   if(auto fn = dyn_cast<Function>(CI.getCalledValue()->stripPointerCasts())) {
+    if(fn->isDeclaration()) {
+      return;
+    }
+
     auto args = std::vector<Value *>{};
     for(auto i = 0; i < CI.getNumArgOperands(); i++) {
       args.push_back(CI.getArgOperand(i));
