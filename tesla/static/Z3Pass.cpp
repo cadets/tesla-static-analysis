@@ -46,10 +46,14 @@ bool Z3Pass::CheckUsage(Manifest &man, Module &mod, const Usage *use)
   }
 
   if(inlined_functions_.find(bound) == inlined_functions_.end()) {
-    auto&& inliner = InlineAllPass(inline_depth_);
-    inliner.runOnFunction(*bound);
+    FunctionPassManager Passes(&mod);
+    Passes.add(new InlineAllPass(inline_depth_));
+    Passes.add(createCFGSimplificationPass());
+    Passes.run(*bound);
+
     inlined_functions_.insert(bound);
   }
+  bound->dump();
 
   auto automaton = man.FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
