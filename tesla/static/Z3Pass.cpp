@@ -53,7 +53,6 @@ bool Z3Pass::CheckUsage(Manifest &man, Module &mod, const Usage *use)
 
     inlined_functions_.insert(bound);
   }
-  bound->dump();
 
   auto automaton = man.FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
