@@ -186,17 +186,17 @@ bool Z3TraceChecker::check_assert(const CallInst& CI, const tesla::AssertionSite
   return false;
 }
 
-std::pair<std::shared_ptr<::State>, bool> 
+std::pair<std::shared_ptr<::State>, CheckResult> 
 Z3TraceChecker::next_state(const CallInst& CI, std::shared_ptr<::State> state) const
 {
   for(const auto& edge : fsm_.Edges(state)) {
     assert(!edge.IsEpsilon() && "FSM for checking must be deterministic");
     if(check_event(CI, *edge.Value())) {
-      return std::make_pair(edge.End(), true);
+      return std::make_pair(edge.End(), CheckResult{});
     }
   }
 
-  return std::make_pair(state, false);
+  return std::make_pair(state, CheckResult{CheckResult::Unexpected, trace_, &CI, state});
 }
 
 std::string Z3TraceChecker::remove_stub(const std::string name) const
@@ -218,7 +218,7 @@ bool Z3TraceChecker::possibly_checked(const CallInst& CI) const
   return found != std::end(checked_functions_);
 }
 
-bool Z3TraceChecker::is_safe() const
+CheckResult Z3TraceChecker::is_safe() const
 {
   auto no_asserts_checked = std::none_of(trace_.begin(), trace_.end(),
     [](auto bb) {
@@ -232,29 +232,33 @@ bool Z3TraceChecker::is_safe() const
       );
     }
   );
-  if(no_asserts_checked) { return true; }
+  if(no_asserts_checked) { return CheckResult{}; }
 
   auto state = fsm_.InitialState();
 
   for(const auto& bb : trace_) {
     for(const auto& I : *bb) {
       if(auto CI = dyn_cast<CallInst>(&I)) {
-        auto pair = next_state(*CI, state);
+        auto&& pair = next_state(*CI, state);
         state = pair.first;
 
         if(!pair.second && possibly_checked(*CI)) {
-          return false;
+          return pair.second;
         }
       }
     }
   }
   
-  return state->accepting;
+  if(state->accepting) {
+    return CheckResult{};
+  } else {
+    return CheckResult{CheckResult::Incomplete, trace_, nullptr, state};
+  }
 }
 
 std::vector<std::string> 
 CheckResult::call_stack_from_trace(std::vector<const BasicBlock *> trace, 
-                                   CallInst *fail)
+                                   const CallInst *fail)
 {
   return {};
 }
