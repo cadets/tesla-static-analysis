@@ -52,4 +52,31 @@ private:
   const FiniteStateMachine<tesla::Expression *>& fsm_;
 };
 
+class CheckResult {
+public:
+  enum FailureReason {
+    Constraint, Incomplete, Unexpected, None
+  };
+
+  CheckResult() :
+    reason_(None) {}
+
+  CheckResult(FailureReason fail, std::vector<const BasicBlock *> trace,
+              CallInst* event, tesla::Expression* expr) :
+    call_stack_(call_stack_from_trace(trace, event)),
+    event_(event), expr_(expr), reason_(fail) {}
+
+  void dump() const;
+
+  operator bool() const { return reason_ == None; }
+private:
+  static std::vector<std::string> call_stack_from_trace(
+      std::vector<const BasicBlock *> trace, CallInst *fail);
+
+  std::vector<std::string> call_stack_;
+  CallInst* event_;
+  tesla::Expression* expr_;
+  FailureReason reason_;
+};
+
 #endif

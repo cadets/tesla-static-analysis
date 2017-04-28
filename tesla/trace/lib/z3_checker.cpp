@@ -251,3 +251,14 @@ bool Z3TraceChecker::is_safe() const
   
   return state->accepting;
 }
+
+std::vector<std::string> 
+CheckResult::call_stack_from_trace(std::vector<const BasicBlock *> trace, 
+                                   CallInst *fail)
+{
+  return {};
+}
+
+void CheckResult::dump() const
+{
+}
