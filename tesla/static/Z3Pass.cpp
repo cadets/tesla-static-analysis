@@ -62,8 +62,9 @@ bool Z3Pass::CheckUsage(Manifest &man, Module &mod, const Usage *use)
   auto automaton = man.FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
 
-  auto safe = Z3Checker{*bound, man, expr, bmc_bound_}.is_safe();
+  auto&& safe = Z3Checker{*bound, man, expr, bmc_bound_}.is_safe();
   if(!safe && PrintCounterexamples) {
+    safe.dump();
   }
   return safe;
 }

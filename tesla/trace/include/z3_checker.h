@@ -36,6 +36,9 @@ private:
   static std::vector<std::string> call_stack_from_trace(
       std::vector<const BasicBlock *> trace, const CallInst *fail);
 
+  void dump_unexpected() const;
+  void dump_incomplete() const;
+
   std::vector<std::string> call_stack_;
   const CallInst* event_;
   std::shared_ptr<::State> state_;
@@ -47,7 +50,7 @@ public:
   Z3Checker(Function& bound, tesla::Manifest& man, 
             tesla::Expression& expr, size_t depth);
 
-  bool is_safe() const;
+  CheckResult is_safe() const;
 
 private:
   Function& bound_;
@@ -62,6 +65,8 @@ public:
                  const FiniteStateMachine<tesla::Expression *>& fsm);
 
   CheckResult is_safe() const;
+
+  static std::string remove_stub(const std::string name);
 private: 
   bool check_event(const CallInst& CI, const tesla::Expression& expr) const;
   bool check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const;
@@ -70,7 +75,6 @@ private:
   std::pair<std::shared_ptr<::State>, CheckResult> 
     next_state(const CallInst& CI, std::shared_ptr<::State> state) const;
 
-  std::string remove_stub(const std::string name) const;
   bool possibly_checked(const CallInst& CI) const;
 
   Function &bound_;
