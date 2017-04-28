@@ -177,9 +177,13 @@ bool Z3TraceChecker::check_function(const CallInst& CI, const tesla::FunctionEve
 
 bool Z3TraceChecker::check_assert(const CallInst& CI, const tesla::AssertionSite& expr) const
 {
-  auto loc = tesla::Location{};
-  tesla::ParseAssertionLocation(&loc, &CI);
-  return expr.location() == loc;
+  if(calledOrCastFunction(&CI)->getName().str() == tesla::INLINE_ASSERTION) {
+    auto loc = tesla::Location{};
+    tesla::ParseAssertionLocation(&loc, &CI);
+    return expr.location() == loc;
+  }
+
+  return false;
 }
 
 std::pair<std::shared_ptr<::State>, bool> 
