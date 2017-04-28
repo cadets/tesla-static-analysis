@@ -62,19 +62,20 @@ void Z3Visitor::visitBinaryOperator(BinaryOperator &BO)
 
   auto body = [&] {
     switch(BO.getOpcode()) {
-    case Instruction::Add: return lhs + rhs;
-    case Instruction::Sub: return lhs - rhs;
-    case Instruction::Mul: return lhs * rhs;
-    case Instruction::Xor: return lhs != rhs;
-    case Instruction::Or: return lhs || rhs;
-    case Instruction::And: return lhs && rhs;
+    case Instruction::Add: return std::make_pair(lhs + rhs, true);
+    case Instruction::Sub: return std::make_pair(lhs - rhs, true);
+    case Instruction::Mul: return std::make_pair(lhs * rhs, true);
+    case Instruction::Xor: return std::make_pair(lhs != rhs, true);
+    case Instruction::Or: return std::make_pair(lhs || rhs, true);
+    case Instruction::And: return std::make_pair(lhs && rhs, true);
     default:
-      BO.dump();
-      assert(false && "Unhandled operation");
+      return std::make_pair(z3::expr{context_}, false);
     }
   }();
 
-  solver_.add(result == body);
+  if(body.second) {
+    solver_.add(result == body.first);
+  }
 }
 
 void Z3Visitor::visitCmpInst(CmpInst &CI)

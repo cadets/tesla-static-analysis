@@ -75,7 +75,7 @@ function(add_tesla_executable C_SOURCES EXE_NAME STATIC)
   if(STATIC AND CMAKE_USE_STATIC)
     add_custom_command(
       OUTPUT ${EXE_NAME}.static.manifest
-      COMMAND tesla static ${EXE_NAME}.manifest ${EXE_NAME}.bc -modelcheck -bound=1000 -o ${EXE_NAME}.static.manifest
+      COMMAND tesla static ${EXE_NAME}.manifest ${EXE_NAME}.bc -z3 -bound=50 -o ${EXE_NAME}.static.manifest
       DEPENDS ${EXE_NAME}.manifest ${EXE_NAME}.bc
     )
     add_custom_target(${EXE_NAME}-static-manifest
