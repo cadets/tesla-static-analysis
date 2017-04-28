@@ -1,4 +1,5 @@
 #include <llvm/PassManager.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
 
@@ -6,6 +7,10 @@
 #include "stub_functions_pass.h"
 #include "z3_checker.h"
 #include "Z3Pass.h"
+
+static cl::opt<bool>
+PrintCounterexamples("print-counter", cl::desc("Print counterexample info to stderr"),
+                     cl::init(false));                     
 
 namespace tesla {
 
@@ -57,7 +62,10 @@ bool Z3Pass::CheckUsage(Manifest &man, Module &mod, const Usage *use)
   auto automaton = man.FindAutomaton(use->identifier());
   auto expr = automaton->getAssertion().expression();
 
-  return Z3Checker{*bound, man, expr, bmc_bound_}.is_safe();
+  auto safe = Z3Checker{*bound, man, expr, bmc_bound_}.is_safe();
+  if(!safe && PrintCounterexamples) {
+  }
+  return safe;
 }
 
 bool Z3Pass::has_checkable_bounds(const tesla::Usage *use) const
