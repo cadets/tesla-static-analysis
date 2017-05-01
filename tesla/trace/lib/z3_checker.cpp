@@ -2,6 +2,7 @@
 #include <string>
 
 #include <llvm/PassManager.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
 
@@ -12,6 +13,33 @@
 #include "stub_functions_pass.h"
 #include "z3_checker.h"
 #include "z3_solve.h"
+
+static cl::opt<bool>
+PrintCounterexamples("print-counter", cl::desc("Print counterexample info to stderr"),
+                     cl::init(false));
+CheckResult::CheckResult(FailureReason r, const Z3TraceChecker c, 
+                         std::shared_ptr<::State> s, const CallInst *e) :
+  checker_(std::make_unique<decltype(c)>(c)), reason_(r),
+  state_(s), event_(e)
+{
+}
+
+CheckResult::CheckResult() :
+  checker_(nullptr), reason_(None),
+  state_(nullptr), event_(nullptr)
+{
+}
+
+CheckResult::CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s) :
+  CheckResult(Incomplete, c, s, nullptr)
+{
+}
+
+CheckResult::CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s, 
+                         const CallInst *e) :
+  CheckResult(Unexpected, c, s, e)
+{
+}
 
 Z3Checker::Z3Checker(Function& bound, tesla::Manifest& man, 
                      tesla::Expression& expr, size_t depth) :
@@ -186,17 +214,17 @@ bool Z3TraceChecker::check_assert(const CallInst& CI, const tesla::AssertionSite
   return false;
 }
 
-std::pair<std::shared_ptr<::State>, bool> 
+std::pair<std::shared_ptr<::State>, CheckResult> 
 Z3TraceChecker::next_state(const CallInst& CI, std::shared_ptr<::State> state) const
 {
   for(const auto& edge : fsm_.Edges(state)) {
     assert(!edge.IsEpsilon() && "FSM for checking must be deterministic");
     if(check_event(CI, *edge.Value())) {
-      return std::make_pair(edge.End(), true);
+      return std::make_pair(edge.End(), CheckResult{});
     }
   }
 
-  return std::make_pair(state, false);
+  return std::make_pair(state, CheckResult{*this, state});
 }
 
 std::string Z3TraceChecker::remove_stub(const std::string name) const
@@ -250,4 +278,8 @@ bool Z3TraceChecker::is_safe() const
   }
   
   return state->accepting;
+}
+
+void CheckResult::dump() const
+{
 }

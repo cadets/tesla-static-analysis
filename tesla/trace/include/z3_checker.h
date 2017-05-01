@@ -13,6 +13,31 @@
 
 using namespace llvm;
 
+class Z3TraceChecker;
+
+class CheckResult {
+public:
+  enum FailureReason {
+    Unexpected, Incomplete, None
+  };
+
+  CheckResult();
+  CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s);
+  CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s, const CallInst *e);
+
+  void dump() const;
+
+  operator bool() const { return reason_ == None; }
+private:
+  CheckResult(FailureReason r, const Z3TraceChecker c, 
+              std::shared_ptr<::State> s, const CallInst *e);
+
+  std::unique_ptr<const Z3TraceChecker> checker_;
+  FailureReason reason_;
+  std::shared_ptr<::State> state_;
+  const CallInst* event_;
+};
+
 class Z3Checker {
 public:
   Z3Checker(Function& bound, tesla::Manifest& man, 
@@ -27,18 +52,20 @@ private:
 };
 
 class Z3TraceChecker {
+  friend class CheckResult;
+
 public:
   Z3TraceChecker(Function& tf, Module& Mod,
                  const std::map<const CallInst *, long long> cons,
                  const FiniteStateMachine<tesla::Expression *>& fsm);
 
   bool is_safe() const;
-private: 
+protected: 
   bool check_event(const CallInst& CI, const tesla::Expression& expr) const;
   bool check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const;
   bool check_assert(const CallInst& CI, const tesla::AssertionSite& expr) const;
 
-  std::pair<std::shared_ptr<::State>, bool> 
+  std::pair<std::shared_ptr<::State>, CheckResult> 
     next_state(const CallInst& CI, std::shared_ptr<::State> state) const;
 
   std::string remove_stub(const std::string name) const;
