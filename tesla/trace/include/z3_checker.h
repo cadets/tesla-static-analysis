@@ -31,12 +31,14 @@ public:
   void dump() const;
   static void dump_many(const std::vector<CheckResult>& results);
 
-  static std::string pretty_event(const CallInst* ci);
+  std::vector<std::string> call_stack() const;
 
   operator bool() const { return reason_ == None; }
 private:
   CheckResult(FailureReason r, const Z3TraceChecker c, 
               std::shared_ptr<::State> s, const CallInst *e);
+
+  static std::string pretty_event(const CallInst* ci);
 
   std::unique_ptr<const Z3TraceChecker> checker_;
   FailureReason reason_;

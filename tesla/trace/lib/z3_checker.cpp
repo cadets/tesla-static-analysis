@@ -339,6 +339,12 @@ void CheckResult::dump() const
   }
   errs() << "FSM:\n";
   errs() << checker_->fsm_.Dot() << '\n';
+
+  errs() << "Call stack:\n";
+  for(const auto& call : call_stack()) {
+    errs() << "  " << call << '\n';
+  }
+  errs() << '\n';
 }
 
 void CheckResult::dump_many(const std::vector<CheckResult>& results)
@@ -357,6 +363,12 @@ void CheckResult::dump_many(const std::vector<CheckResult>& results)
 
   errs() << "FSM:\n";
   errs() << fail.checker_->fsm_.Dot() << '\n';
+
+  errs() << "Call stack:\n";
+  for(const auto& call : fail.call_stack()) {
+    errs() << "  " << call << '\n';
+  }
+  errs() << '\n';
 }
 
 std::string CheckResult::pretty_event(const CallInst* ci)
@@ -375,4 +387,31 @@ std::string CheckResult::pretty_event(const CallInst* ci)
   }
 
   return ss.str();
+}
+
+std::vector<std::string> CheckResult::call_stack() const
+{
+  auto call_stack = std::vector<std::string>{};
+
+  for(auto&& BB : checker_->trace_) {
+    for(auto&& I : *BB) {
+      if(&I == event_) {
+        return call_stack;
+      }
+
+      if(auto ci = dyn_cast<CallInst>(&I)) {
+        auto name = calledOrCastFunction(ci)->getName().str();
+
+        if(is_entry(ci)) {
+          call_stack.push_back(Z3TraceChecker::remove_stub(name));
+        }
+
+        if(is_return(ci)) {
+          call_stack.pop_back();
+        }
+      }
+    }
+  }
+
+  return call_stack;
 }
