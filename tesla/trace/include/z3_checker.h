@@ -1,6 +1,8 @@
 #ifndef Z3_CHECKER_H
 #define Z3_CHECKER_H
 
+#include <set>
+
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
@@ -52,7 +54,7 @@ public:
   Z3Checker(Function& bound, tesla::Manifest& man, 
             tesla::Expression& expr, size_t depth);
 
-  bool is_safe() const;
+  CheckResult is_safe() const;
 
 private:
   Function& bound_;
@@ -74,7 +76,7 @@ protected:
   bool check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const;
   bool check_assert(const CallInst& CI, const tesla::AssertionSite& expr) const;
 
-  std::pair<std::shared_ptr<::State>, bool> 
+  std::pair<std::shared_ptr<::State>, CheckResult> 
     next_state(const CallInst& CI, std::shared_ptr<::State> state) const;
 
   std::vector<CheckResult>

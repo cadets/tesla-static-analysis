@@ -5,6 +5,7 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
+#include <llvm/Transforms/Utils/Cloning.h>
 
 #include "Arguments.h"
 #include "FSMBuilder.h"
@@ -46,11 +47,11 @@ Z3TraceChecker::Z3TraceChecker(Function& tf, Module& mod,
   }
 }
 
-bool Z3Checker::is_safe() const
+CheckResult Z3Checker::is_safe() const
 {
   auto finder = TraceFinder{bound_};
 
-  auto all_safe = true;
+  auto all_safe = CheckResult{};
   for(auto i = 0; i < depth_; i++) {
     auto traces = finder.of_length(i);
 
@@ -65,7 +66,7 @@ bool Z3Checker::is_safe() const
       }
 
       if(!all_safe) { 
-        return false;
+        return all_safe;
       }
     }
   }
@@ -191,17 +192,24 @@ bool Z3TraceChecker::check_assert(const CallInst& CI, const tesla::AssertionSite
   return false;
 }
 
-std::pair<std::shared_ptr<::State>, bool> 
+std::pair<std::shared_ptr<::State>, CheckResult> 
 Z3TraceChecker::next_state(const CallInst& CI, std::shared_ptr<::State> state) const
 {
   for(const auto& edge : fsm_.Edges(state)) {
     assert(!edge.IsEpsilon() && "FSM for checking must be deterministic");
     if(check_event(CI, *edge.Value())) {
-      return std::make_pair(edge.End(), true);
+      return std::make_pair(edge.End(), CheckResult{});
     }
   }
 
-  return std::make_pair(state, false);
+  ValueToValueMapTy VMap;
+  auto tc = CloneFunction(&bound_, VMap, false);
+  auto clone = cast<CallInst>(VMap[&CI]);
+
+  return std::make_pair(
+    state, 
+    CheckResult{CheckResult::Unexpected, TraceFinder::linear_trace(*tc), clone, state}
+  );
 }
 
 std::vector<CheckResult>
@@ -234,7 +242,7 @@ bool Z3TraceChecker::possibly_checked(const CallInst& CI) const
   return found != std::end(checked_functions_);
 }
 
-bool Z3TraceChecker::is_safe() const
+CheckResult Z3TraceChecker::is_safe() const
 {
   auto no_asserts_checked = std::none_of(trace_.begin(), trace_.end(),
     [](auto bb) {
@@ -248,14 +256,14 @@ bool Z3TraceChecker::is_safe() const
       );
     }
   );
-  if(no_asserts_checked) { return true; }
+  if(no_asserts_checked) { return CheckResult{}; }
 
   auto state = fsm_.InitialState();
 
   for(const auto& bb : trace_) {
     for(const auto& I : *bb) {
       if(auto CI = dyn_cast<CallInst>(&I)) {
-        auto pair = next_state(*CI, state);
+        auto&& pair = next_state(*CI, state);
         state = pair.first;
 
         if(!pair.second && possibly_checked(*CI)) {
