@@ -14,6 +14,23 @@
 #include "z3_checker.h"
 #include "z3_solve.h"
 
+static bool is_assert(const CallInst* ci)
+{
+  return calledOrCastFunction(ci)->getName().str() == tesla::INLINE_ASSERTION; 
+};
+
+static bool is_entry(const CallInst* ci)
+{
+  using namespace std::string_literals;
+  return has_prefix(calledOrCastFunction(ci)->getName().str(), "__entry_stub_"s);
+};
+
+static bool is_return(const CallInst* ci)
+{
+  using namespace std::string_literals;
+  return has_prefix(calledOrCastFunction(ci)->getName().str(), "__return_stub_"s);
+};
+
 static cl::opt<bool>
 PrintCounterexamples("print-counter", cl::desc("Print counterexample info to stderr"),
                      cl::init(false));
@@ -35,9 +52,17 @@ CheckResult::CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s) :
 {
 }
 
-CheckResult::CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s, 
+CheckResult::CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s,
                          const CallInst *e) :
   CheckResult(Unexpected, c, s, e)
+{
+}
+
+CheckResult::CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s, 
+                         const CallInst *e, const tesla::Expression expr) :
+  checker_(std::make_unique<decltype(c)>(c)), 
+  reason_(Unexpected), state_(s), event_(e),
+  expr_(std::make_unique<const tesla::Expression>(expr))
 {
 }
 
@@ -214,20 +239,31 @@ bool Z3TraceChecker::check_assert(const CallInst& CI, const tesla::AssertionSite
   return false;
 }
 
-std::pair<std::shared_ptr<::State>, CheckResult> 
+std::pair<std::shared_ptr<::State>, bool> 
 Z3TraceChecker::next_state(const CallInst& CI, std::shared_ptr<::State> state) const
 {
   for(const auto& edge : fsm_.Edges(state)) {
     assert(!edge.IsEpsilon() && "FSM for checking must be deterministic");
     if(check_event(CI, *edge.Value())) {
-      return std::make_pair(edge.End(), CheckResult{});
+      return std::make_pair(edge.End(), true);
     }
   }
 
-  return std::make_pair(state, CheckResult{*this, state});
+  return std::make_pair(state, false);
 }
 
-std::string Z3TraceChecker::remove_stub(const std::string name) const
+std::vector<CheckResult>
+Z3TraceChecker::edge_failures(const CallInst& CI, std::shared_ptr<::State> state) const
+{
+  auto fails = std::vector<CheckResult>{};
+  for(const auto& edge : fsm_.Edges(state)) {
+    assert(!edge.IsEpsilon() && "FSM for checking must be deterministic");
+    fails.emplace_back(*this, state, &CI, *edge.Value());
+  }
+  return fails;
+}
+
+std::string Z3TraceChecker::remove_stub(const std::string name)
 {
   const auto prefixes = std::array<std::string, 2>{{"__entry_stub_", "__return_stub_"}};
   for(const auto& prefix : prefixes) {
@@ -271,10 +307,22 @@ bool Z3TraceChecker::is_safe() const
         state = pair.first;
 
         if(!pair.second && possibly_checked(*CI)) {
+          if(PrintCounterexamples) {
+            auto&& failures = edge_failures(*CI, state);
+            if(failures.empty()) {
+              CheckResult{*this, state, CI}.dump();
+            } else {
+              CheckResult::dump_many(failures);
+            }
+          }
           return false;
         }
       }
     }
+  }
+  
+  if(!state->accepting && PrintCounterexamples) {
+    CheckResult{*this, state}.dump();
   }
   
   return state->accepting;
@@ -282,4 +330,49 @@ bool Z3TraceChecker::is_safe() const
 
 void CheckResult::dump() const
 {
+  if(reason_ == CheckResult::Incomplete) {
+    errs() << "Full trace not accepted by automaton (ended in state " 
+           << state_->name << ")\n";
+  } else {
+    errs() << "No possible transitions from state " << state_->name << '\n';
+    errs() << "Received event: " << pretty_event(event_) << '\n';
+  }
+  errs() << "FSM:\n";
+  errs() << checker_->fsm_.Dot() << '\n';
+}
+
+void CheckResult::dump_many(const std::vector<CheckResult>& results)
+{
+  auto&& fail = results.front();
+  errs() << "Unexpected event in state " << fail.state_->name << '\n';
+
+  errs() << "Received event: " << pretty_event(fail.event_);
+  if(is_return(fail.event_)) {
+    auto found = fail.checker_->constraints_.find(fail.event_);
+    if(found != std::end(fail.checker_->constraints_)) {
+      errs() << " (return value == " << found->second << ")";
+    }
+  }
+  errs() << '\n';
+
+  errs() << "FSM:\n";
+  errs() << fail.checker_->fsm_.Dot() << '\n';
+}
+
+std::string CheckResult::pretty_event(const CallInst* ci)
+{
+  using namespace std::string_literals;
+  std::stringstream ss;
+
+  if(is_assert(ci)) {
+    ss << "assertion site";
+  } else if(is_entry(ci)) {
+    ss << "entry to " 
+       << Z3TraceChecker::remove_stub(calledOrCastFunction(ci)->getName().str());
+  } else if(is_return(ci)) {
+    ss << "return from " 
+       << Z3TraceChecker::remove_stub(calledOrCastFunction(ci)->getName().str());
+  }
+
+  return ss.str();
 }

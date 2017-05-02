@@ -23,9 +23,15 @@ public:
 
   CheckResult();
   CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s);
-  CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s, const CallInst *e);
+  CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s,
+              const CallInst *e);
+  CheckResult(const Z3TraceChecker c, std::shared_ptr<::State> s, 
+              const CallInst *e, const tesla::Expression expr);
 
   void dump() const;
+  static void dump_many(const std::vector<CheckResult>& results);
+
+  static std::string pretty_event(const CallInst* ci);
 
   operator bool() const { return reason_ == None; }
 private:
@@ -36,6 +42,7 @@ private:
   FailureReason reason_;
   std::shared_ptr<::State> state_;
   const CallInst* event_;
+  std::unique_ptr<const tesla::Expression> expr_;
 };
 
 class Z3Checker {
@@ -65,10 +72,13 @@ protected:
   bool check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const;
   bool check_assert(const CallInst& CI, const tesla::AssertionSite& expr) const;
 
-  std::pair<std::shared_ptr<::State>, CheckResult> 
+  std::pair<std::shared_ptr<::State>, bool> 
     next_state(const CallInst& CI, std::shared_ptr<::State> state) const;
 
-  std::string remove_stub(const std::string name) const;
+  std::vector<CheckResult>
+    edge_failures(const CallInst& CI, std::shared_ptr<::State> state) const;
+
+  static std::string remove_stub(const std::string name);
   bool possibly_checked(const CallInst& CI) const;
 
   Function &bound_;
