@@ -128,11 +128,11 @@ std::vector<std::string> CheckResult::call_stack() const
         auto name = calledOrCastFunction(ci)->getName().str();
 
         if(is_entry(ci)) {
-          call_stack.push_back(Z3TraceChecker::remove_stub(name));
+          call_stack.push_back("call: " + Z3TraceChecker::remove_stub(name));
         }
 
         if(is_return(ci)) {
-          call_stack.pop_back();
+          call_stack.push_back("return: " + Z3TraceChecker::remove_stub(name));
         }
       }
     }
