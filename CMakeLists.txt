@@ -17,12 +17,14 @@ include(cmake/Tesla.cmake)
 find_package(LLVM REQUIRED)
 include(AddLLVM)
 
+set(LLVM_TOOL_VERSION "${LLVM_VERSION_MAJOR}${LLVM_VERSION_MINOR}")
+
 if(NOT CMAKE_LLVM_CONFIG)
-	set(CMAKE_LLVM_CONFIG llvm-config)
+  set(CMAKE_LLVM_CONFIG llvm-config${LLVM_TOOL_VERSION})
 endif()
 
 if(NOT CMAKE_LLVM_LIT)
-	set(CMAKE_LLVM_LIT llvm-lit)
+  set(CMAKE_LLVM_LIT llvm-lit${LLVM_TOOL_VERSION})
 endif()
 
 # Make sure we can find llvm-config!
@@ -190,10 +192,6 @@ add_subdirectory(include)
 add_subdirectory(libtesla)
 add_subdirectory(tesla)
 add_subdirectory(scripts)
-
-if(BUILD_EXPERIMENTS)
-  add_subdirectory(experiments)
-endif()
 
 # A top-level 'check' target to drive all tests of TESLA subdirectories.
 add_custom_target(check DEPENDS libtesla-test tesla-test run-demos)
