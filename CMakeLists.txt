@@ -11,20 +11,17 @@ set(CMAKE_MODULE_PATH
 #
 include(cmake/Concatenate.cmake)
 include(cmake/CopyFiles.cmake)
-include(cmake/Tesla.cmake)
 
 # Include LLVM configuration:
 find_package(LLVM REQUIRED)
 include(AddLLVM)
 
-set(LLVM_TOOL_VERSION "${LLVM_VERSION_MAJOR}${LLVM_VERSION_MINOR}")
-
 if(NOT CMAKE_LLVM_CONFIG)
-  set(CMAKE_LLVM_CONFIG llvm-config${LLVM_TOOL_VERSION})
+  set(CMAKE_LLVM_CONFIG llvm-config)
 endif()
 
 if(NOT CMAKE_LLVM_LIT)
-  set(CMAKE_LLVM_LIT llvm-lit${LLVM_TOOL_VERSION})
+  set(CMAKE_LLVM_LIT llvm-lit)
 endif()
 
 # Make sure we can find llvm-config!

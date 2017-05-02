@@ -24,25 +24,18 @@ Currently building TESLA from source is a fairly involved task that is currently
 only known to work reliably on FreeBSD 11. In the future I aim to improve the
 portability of TESLA so that it can be built and installed more easily by users.
 
-## Install LLVM
+## Dependencies
 
-TESLA depends on LLVM 3.4, both for building from source and when using the
-TESLA workflow to compile programs with instrumentation added. To install these:
-
-```
-pkg install llvm34 clang34
-```
-
-Then ensure that you are able to run the LLVM executables by running a test
-command (you may need to modify your `PATH` to do this):
-
-```
-llvm-config34 --libdir
-```
+* **LLVM 3.4**: can be installed using `pkg` on FreeBSD. Other platforms are not
+  currently supported, but it's likely that a source installation of LLVM 3.4
+  will work, provided that the correct paths are given to cmake.
+* **Z3**: currently required to be installed globally (tested as a from-source
+  installation).
+* **Protobuf**
 
 ## Build TESLA
 
-Once LLVM is installed, TESLA can be built from source:
+Once all dependencies are installed, TESLA can be built from source:
 
 ```
 git clone https://github.com/cadets/tesla-static-analysis.git
@@ -50,16 +43,16 @@ cd tesla-static-analysis
 mkdir build
 cd build
 cmake \
-  -G Ninja \
-  -DCMAKE_C_COMPILER=clang34 \
-  -DCMAKE_CXX_COMPILER=clang++34 \
-  -DLLVM_DIR=/usr/local/share/llvm34/cmake ..
-ninja
+  -DLLVM_DIR=<llvm cmake directory> \
+  -DCMAKE_LLVM_CONFIG=<path to llvm-config> \
+  -DCMAKE_LLVM_LIT=<path to llvm-lit> \
+  ..
+make
 ```
 
-I believe that `LLVM_DIR` should be detected automatically, but I haven't got
-round to debugging the build system yet to work out why it isn't. Additionally,
-note that the C and C++ compilers must be the ones based on LLVM 3.4.
+In order to build against LLVM, TESLA has to be pointed to the correct
+locations. If LLVM is installed globally, it's possible that these will be
+discovered automatically.
 
 ## Installation
 
@@ -68,28 +61,10 @@ To install the TESLA build artefacts (by default, they will be installed to
 
 ```
 cmake -D CMAKE_INSTALL_PREFIX=/some/sensible/path .
-ninja install
+make install
 ```
 
-## Z3 Solver
+# Programming with TESLA
 
-A newer version of the TESLA model checker is being developed that uses the [Z3
-theorem prover](https://github.com/Z3Prover/z3) to prove properties of LLVM IR.
-Using this newer version requires that you have Z3 installed globally on your
-system - you can do this following the instructions
-[here](https://github.com/Z3Prover/z3#building-z3-using-make-and-gccclang).
-
-Once Z3 is installed, the new model checker can be enabled by:
-```
-cmake -D USE_Z3_SOLVER=On .
-```
-
-## Options
-
-My research project into static analysis for TESLA produced a set of experiments
-and investigations that can be built as part of the TESLA source tree. These are
-probably not useful to an end user of TESLA, but can be enabled with:
-
-```
-cmake -DBUILD_EXPERIMENTS=On .
-```
+Once TESLA is installed, we can start to write programs that include TESLA
+assertions.
