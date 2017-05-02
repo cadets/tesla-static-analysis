@@ -47,11 +47,11 @@ Z3TraceChecker::Z3TraceChecker(Function& tf, Module& mod,
   }
 }
 
-CheckResult Z3Checker::is_safe() const
+bool Z3Checker::is_safe() const
 {
   auto finder = TraceFinder{bound_};
 
-  auto all_safe = CheckResult{};
+  auto all_safe = true;
   for(auto i = 0; i < depth_; i++) {
     auto traces = finder.of_length(i);
 
@@ -192,24 +192,17 @@ bool Z3TraceChecker::check_assert(const CallInst& CI, const tesla::AssertionSite
   return false;
 }
 
-std::pair<std::shared_ptr<::State>, CheckResult> 
+std::pair<std::shared_ptr<::State>, bool> 
 Z3TraceChecker::next_state(const CallInst& CI, std::shared_ptr<::State> state) const
 {
   for(const auto& edge : fsm_.Edges(state)) {
     assert(!edge.IsEpsilon() && "FSM for checking must be deterministic");
     if(check_event(CI, *edge.Value())) {
-      return std::make_pair(edge.End(), CheckResult{});
+      return std::make_pair(edge.End(), true);
     }
   }
 
-  ValueToValueMapTy VMap;
-  auto tc = CloneFunction(&bound_, VMap, false);
-  auto clone = cast<CallInst>(VMap[&CI]);
-
-  return std::make_pair(
-    state, 
-    CheckResult{CheckResult::Unexpected, TraceFinder::linear_trace(*tc), clone, state}
-  );
+  return std::make_pair(state, false);
 }
 
 std::vector<CheckResult>
@@ -242,7 +235,7 @@ bool Z3TraceChecker::possibly_checked(const CallInst& CI) const
   return found != std::end(checked_functions_);
 }
 
-CheckResult Z3TraceChecker::is_safe() const
+bool Z3TraceChecker::is_safe() const
 {
   auto no_asserts_checked = std::none_of(trace_.begin(), trace_.end(),
     [](auto bb) {

@@ -54,7 +54,7 @@ public:
   Z3Checker(Function& bound, tesla::Manifest& man, 
             tesla::Expression& expr, size_t depth);
 
-  CheckResult is_safe() const;
+  bool is_safe() const;
 
 private:
   Function& bound_;
@@ -76,7 +76,7 @@ protected:
   bool check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const;
   bool check_assert(const CallInst& CI, const tesla::AssertionSite& expr) const;
 
-  std::pair<std::shared_ptr<::State>, CheckResult> 
+  std::pair<std::shared_ptr<::State>, bool> 
     next_state(const CallInst& CI, std::shared_ptr<::State> state) const;
 
   std::vector<CheckResult>
