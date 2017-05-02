@@ -10,6 +10,7 @@ add_llvm_library(TeslaModelZ3
   inline_all_pass.cpp
   z3_solve.cpp
   z3_checker.cpp
+  check_result.cpp
 )
 
 target_link_libraries(TeslaModelZ3

@@ -2,6 +2,7 @@
 #include <string>
 
 #include <llvm/PassManager.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
 #include <llvm/Transforms/Utils/Cloning.h>
@@ -13,6 +14,10 @@
 #include "stub_functions_pass.h"
 #include "z3_checker.h"
 #include "z3_solve.h"
+
+static cl::opt<bool>
+PrintCounterexamples("print-counter", cl::desc("Print counterexample info to stderr"),
+                     cl::init(false));
 
 Z3Checker::Z3Checker(Function& bound, tesla::Manifest& man, 
                      tesla::Expression& expr, size_t depth) :
@@ -207,6 +212,17 @@ Z3TraceChecker::next_state(const CallInst& CI, std::shared_ptr<::State> state) c
   );
 }
 
+std::vector<CheckResult>
+Z3TraceChecker::edge_failures(const CallInst& CI, std::shared_ptr<::State> state) const
+{
+  auto fails = std::vector<CheckResult>{};
+  for(const auto& edge : fsm_.Edges(state)) {
+    assert(!edge.IsEpsilon() && "FSM for checking must be deterministic");
+    fails.emplace_back(*this, state, &CI, *edge.Value());
+  }
+  return fails;
+}
+
 std::string Z3TraceChecker::remove_stub(const std::string name)
 {
   const auto prefixes = std::array<std::string, 2>{{"__entry_stub_", "__return_stub_"}};
@@ -251,88 +267,23 @@ CheckResult Z3TraceChecker::is_safe() const
         state = pair.first;
 
         if(!pair.second && possibly_checked(*CI)) {
-          return pair.second;
+          if(PrintCounterexamples) {
+            auto&& failures = edge_failures(*CI, state);
+            if(failures.empty()) {
+              CheckResult{*this, state, CI}.dump();
+            } else {
+              CheckResult::dump_many(failures);
+            }
+          }
+          return false;
         }
       }
     }
   }
   
-  if(state->accepting) {
-    return CheckResult{};
-  } else {
-    return CheckResult{CheckResult::Incomplete, trace_, nullptr, state};
-  }
-}
-
-std::vector<std::string> 
-CheckResult::call_stack_from_trace(std::vector<const BasicBlock *> trace, 
-                                   const CallInst *fail)
-{
-  using namespace std::string_literals;
-
-  std::vector<std::string> call_stack;
-
-  for(auto&& BB : trace) {
-    for(auto&& I : *BB) {
-      if(&I == fail) {
-        return call_stack;
-      }
-
-      if(auto ci = dyn_cast<CallInst>(&I)) {
-        auto name = calledOrCastFunction(ci)->getName().str();
-
-        if(has_prefix(name, "__entry_stub_"s)) {
-          call_stack.push_back(Z3TraceChecker::remove_stub(name));
-        }
-
-        if(has_prefix(name, "__return_stub_"s)) {
-          call_stack.pop_back();
-        }
-      }
-    }
-  }
-
-  assert(false && "Event not found on call stack!");
-}
-
-void CheckResult::dump() const
-{
-  assert(reason_ != None && "Shouldn't dump if safe");
-
-  errs() << "Counterexample found, ";
-  switch(reason_) {
-    case Incomplete: dump_incomplete(); break;
-    case Unexpected: dump_unexpected(); break;
-    default: errs() << "Unknown failure reason\n";
+  if(!state->accepting && PrintCounterexamples) {
+    CheckResult{*this, state}.dump();
   }
   
-  errs() << "Call stack was:\n";
-  for(auto s : call_stack_) {
-    errs() << "  " << s << '\n';
-  }
-
-  errs() << '\n';
-}
-
-void CheckResult::dump_unexpected() const
-{
-  using namespace std::string_literals;
-
-  errs() << "unexpected event:\n";
-  auto name = calledOrCastFunction(event_)->getName().str();
-  auto called_name = Z3TraceChecker::remove_stub(name);
-
-  if(called_name == tesla::INLINE_ASSERTION) {
-    errs() << "  " << "Assertion site\n";
-  } else if(has_prefix(name, "__entry_stub"s)) {
-    errs() << "  " << "Call to " << called_name << '\n';
-  } else if(has_prefix(name, "__return_stub"s)) {
-    errs() << "  " << "Return from " << called_name << '\n';
-    errs() << "  " << "(return value may not be constrained)\n";
-  }
-}
-
-void CheckResult::dump_incomplete() const
-{
-  errs() << "incomplete event sequence:\n";
+  return state->accepting;
 }
