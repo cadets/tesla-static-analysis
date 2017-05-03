@@ -9,11 +9,11 @@
 
 #include "Arguments.h"
 #include "FSMBuilder.h"
-#include "inline_all_pass.h"
+#include "InlineAllPass.h"
 #include "Names.h"
-#include "stub_functions_pass.h"
-#include "z3_checker.h"
-#include "z3_solve.h"
+#include "StubFunctionsPass.h"
+#include "ModelChecker.h"
+#include "Z3Solver.h"
 
 static cl::opt<bool>
 PrintCounterexamples("print-counter", cl::desc("Print counterexample info to stderr"),

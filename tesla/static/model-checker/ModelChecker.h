@@ -11,7 +11,7 @@
 
 #include "Manifest.h"
 #include "tesla.pb.h"
-#include "trace_finder.h"
+#include "TraceFinder.h"
 
 using namespace llvm;
 

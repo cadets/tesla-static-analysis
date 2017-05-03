@@ -62,10 +62,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D GOOGLE_PROTOBUF_NO_RTTI")
 
 #
-# TESLA uses C++14, with the standards flag set to c++1y rather than c++14
-# because clang++34 isn't ISO compatible. Upgrading LLVM fully will fix this.
+# TESLA uses C++14
 #
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 #
 # Global include directories for all of TESLA:
@@ -122,13 +121,16 @@ else ()
   set(LIT_OPTIONS "-qv")
 endif ()
 
-set(EXPORT_XUNIT_XML true CACHE BOOL "Export test results as XUnit XML")
-if (EXPORT_XUNIT_XML)
-  message(STATUS "Will export test results XUnit XML")
-  set(LIT_EXTRA "--xunit-xml-output=tesla.xml;${LIT_EXTRA}")
-else ()
-  message(STATUS "Will not export test results XUnit XML")
-endif ()
+#
+# llvm-lit34 doesn't seem to support XUnit output, so this is disabled for now.
+#
+#set(EXPORT_XUNIT_XML true CACHE BOOL "Export test results as XUnit XML")
+#if (EXPORT_XUNIT_XML)
+#  message(STATUS "Will export test results XUnit XML")
+#  set(LIT_EXTRA "--xunit-xml-output=tesla.xml;${LIT_EXTRA}")
+#else ()
+#  message(STATUS "Will not export test results XUnit XML")
+#endif ()
 
 set(TEST_UNDER_VALGRIND false CACHE BOOL "Run tests under Valgrind")
 if (TEST_UNDER_VALGRIND)

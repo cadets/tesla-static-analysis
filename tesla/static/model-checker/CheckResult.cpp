@@ -2,7 +2,7 @@
 
 #include "Arguments.h"
 #include "Names.h"
-#include "z3_checker.h"
+#include "ModelChecker.h"
 
 static bool is_assert(const CallInst* ci)
 {

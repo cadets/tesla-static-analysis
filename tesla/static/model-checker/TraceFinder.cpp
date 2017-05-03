@@ -4,7 +4,7 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 
-#include "trace_finder.h"
+#include "TraceFinder.h"
 
 TraceFinder::trace_set_type TraceFinder::of_length(size_t n)
 {

@@ -2,9 +2,9 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
 
-#include "inline_all_pass.h"
-#include "stub_functions_pass.h"
-#include "z3_checker.h"
+#include "InlineAllPass.h"
+#include "StubFunctionsPass.h"
+#include "ModelChecker.h"
 #include "Z3Pass.h"
 
 namespace tesla {

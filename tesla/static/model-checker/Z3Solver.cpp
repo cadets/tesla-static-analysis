@@ -1,4 +1,4 @@
-#include "z3_solve.h"
+#include "Z3Solver.h"
 
 #include <iostream>
 
