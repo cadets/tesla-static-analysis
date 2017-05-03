@@ -43,9 +43,9 @@ cd tesla-static-analysis
 mkdir build
 cd build
 cmake \
-  -DLLVM_DIR=<llvm cmake directory> \
-  -DCMAKE_LLVM_CONFIG=<path to llvm-config> \
-  -DCMAKE_LLVM_LIT=<path to llvm-lit> \
+  -D LLVM_DIR=<llvm cmake directory> \
+  -D CMAKE_LLVM_CONFIG=<path to llvm-config> \
+  -D CMAKE_LLVM_LIT=<path to llvm-lit> \
   ..
 make
 ```
@@ -63,6 +63,17 @@ To install the TESLA build artefacts (by default, they will be installed to
 cmake -D CMAKE_INSTALL_PREFIX=/some/sensible/path .
 make install
 ```
+
+## Building Documentation
+
+Building TESLA documentation is disabled by default, but it can be enabled
+using:
+```
+cmake -D BUILD_DOCS=On .
+```
+This requires some extra dependencies:
+* **Doxygen**
+* **ucampas**
 
 # Programming with TESLA
 
