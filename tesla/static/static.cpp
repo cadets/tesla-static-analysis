@@ -1,10 +1,10 @@
-#include "AcquireReleasePass.h"
-#include "CallSequencePass.h"
 #include "Debug.h"
 #include "Manifest.h"
 #include "ManifestPassManager.h"
 #include "Z3Pass.h"
 #include "tesla.pb.h"
+
+#include "mutex/AcquireReleasePass.h"
 
 #include <google/protobuf/text_format.h>
 
@@ -32,10 +32,6 @@ static cl::OptionCategory PassCat("Pass selection flags",
 static cl::opt<bool>
 EnableAcqRelPass("acqrel", cl::desc("Run hand-coded acquire-release pass"),
                  cl::init(false), cl::cat(PassCat));
-
-static cl::opt<bool>
-EnableCallSeqPass("callseq", cl::desc("Run obsolete call sequence pass"),
-                  cl::init(false), cl::cat(PassCat));
 
 static cl::opt<bool>
 EnableZ3Checker("z3", cl::desc("Run new Z3-based pass"),
@@ -80,7 +76,6 @@ int main(int argc, char **argv) {
   tesla::ManifestPassManager PM(std::move(Manifest), std::move(Mod));
   
   if(EnableAcqRelPass) PM.addPass(new tesla::AcquireReleasePass);
-  if(EnableCallSeqPass) PM.addPass(new tesla::CallSequencePass);
   if(EnableZ3Checker) PM.addPass(new tesla::Z3Pass(UnrollDepth, TraceBound));
 
   PM.runPasses();

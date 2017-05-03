@@ -1,7 +1,7 @@
 #ifndef ACQUIRE_RELEASE_PASS_H
 #define ACQUIRE_RELEASE_PASS_H
 
-#include "ManifestPass.h"
+#include "../ManifestPass.h"
 
 using std::unique_ptr;
 using std::set;
