@@ -184,8 +184,14 @@ configure_file(cmake/config.h.in include/config.h)
 #
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
+#
+# Don't build documentation by default as it depends on ucampas and doxygen.
+#
+set(BUILD_DOCS false CACHE BOOL "Build TESLA documentation")
+if(BUILD_DOCS)
+  add_subdirectory(doc)
+endif()
 
-# add_subdirectory(doc)
 add_subdirectory(demos)
 add_subdirectory(include)
 add_subdirectory(libtesla)
