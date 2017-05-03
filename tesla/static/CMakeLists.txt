@@ -17,12 +17,12 @@ set(mutex_sources
 )
 
 set(model_checker_sources
-  model-checker/check_result.cpp
-  model-checker/inline_all_pass.cpp
-  model-checker/stub_functions_pass.cpp
-  model-checker/trace_finder.cpp
-  model-checker/z3_checker.cpp
-  model-checker/z3_solve.cpp
+  model-checker/CheckResult.cpp
+  model-checker/InlineAllPass.cpp
+  model-checker/StubFunctionsPass.cpp
+  model-checker/TraceFinder.cpp
+  model-checker/ModelChecker.cpp
+  model-checker/Z3Solver.cpp
   model-checker/Z3Pass.cpp
 )
 

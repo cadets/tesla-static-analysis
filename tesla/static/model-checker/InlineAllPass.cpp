@@ -3,7 +3,7 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/Transforms/Utils/Cloning.h>
 
-#include "inline_all_pass.h"
+#include "InlineAllPass.h"
 
 InlineAllPass::InlineAllPass(size_t d) :
   FunctionPass(ID), depth_(d)

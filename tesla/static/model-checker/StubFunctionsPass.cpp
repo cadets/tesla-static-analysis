@@ -2,7 +2,7 @@
 
 #include <llvm/Support/raw_ostream.h>
 
-#include "stub_functions_pass.h"
+#include "StubFunctionsPass.h"
 
 StubFunctionsPass::StubFunctionsPass() :
   ModulePass(ID)

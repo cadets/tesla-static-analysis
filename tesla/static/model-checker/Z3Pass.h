@@ -7,7 +7,7 @@
 
 #include "Debug.h"
 #include "../ManifestPass.h"
-#include "z3_checker.h"
+#include "ModelChecker.h"
 
 using std::unique_ptr;
 using std::set;
