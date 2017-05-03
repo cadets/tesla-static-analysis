@@ -185,7 +185,7 @@ configure_file(cmake/config.h.in include/config.h)
 ADD_DEFINITIONS(-DHAVE_CONFIG_H)
 
 
-# add_subdirectory(doc)
+add_subdirectory(doc)
 add_subdirectory(demos)
 add_subdirectory(include)
 add_subdirectory(libtesla)
