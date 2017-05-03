@@ -1,4 +1,4 @@
-#include "ManifestPassManager.h"
+#include "ManifestPass.h"
 
 #include <llvm/Support/raw_ostream.h>
 

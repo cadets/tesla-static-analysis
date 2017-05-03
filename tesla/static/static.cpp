@@ -1,6 +1,5 @@
 #include "Debug.h"
 #include "Manifest.h"
-#include "ManifestPassManager.h"
 #include "tesla.pb.h"
 
 #include "model-checker/Z3Pass.h"
