@@ -1,9 +1,9 @@
 #include "Debug.h"
 #include "Manifest.h"
 #include "ManifestPassManager.h"
-#include "Z3Pass.h"
 #include "tesla.pb.h"
 
+#include "model-checker/Z3Pass.h"
 #include "mutex/AcquireReleasePass.h"
 
 #include <google/protobuf/text_format.h>

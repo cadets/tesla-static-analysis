@@ -1,9 +1,4 @@
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS tesla.proto)
-
-set(LLVM_LINK_COMPONENTS ${LLVM_TARGETS_TO_BUILD}
-)
-
-set(mutex_analyses
+set(mutex_sources
   mutex/Analysis.cpp
   mutex/AcquireReleasePass.cpp
   mutex/AcquireReleaseCheck.cpp
@@ -21,18 +16,27 @@ set(mutex_analyses
   mutex/CallsFunctionOnce.cpp
 )
 
+set(model_checker_sources
+  model-checker/check_result.cpp
+  model-checker/inline_all_pass.cpp
+  model-checker/stub_functions_pass.cpp
+  model-checker/trace_finder.cpp
+  model-checker/z3_checker.cpp
+  model-checker/z3_solve.cpp
+  model-checker/Z3Pass.cpp
+)
+
 add_llvm_executable(tesla-static
   static.cpp
   ManifestPass.cpp
   ManifestPassManager.cpp
-  Z3Pass.cpp
-  ${mutex_analyses}
+  ${model_checker_sources}
+  ${mutex_sources}
 )
 
 target_link_libraries(tesla-static
   TeslaCommon
   z3
-  TeslaModelZ3
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/tesla/trace/include")
