@@ -26,7 +26,12 @@ void Z3Visitor::run()
     }
   }
 
-  solver_.check();
+  auto result = solver_.check();
+  if(result != z3::sat) {
+    std::cerr << "Unsatisfiable return constraints - bad things happening\n";
+    return;
+  }
+
   auto m = solver_.get_model();
 
   for(auto i = 0; i < m.size(); i++) {
