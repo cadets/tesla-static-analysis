@@ -19,6 +19,8 @@
 using namespace llvm;
 using std::string;
 
+// Command Line Options
+
 static cl::opt<std::string>
 ManifestFilename(cl::Positional, cl::desc("manifest"), cl::Required);
 
@@ -33,7 +35,7 @@ EnableAcqRelPass("acqrel", cl::desc("Run hand-coded acquire-release pass"),
                  cl::init(false), cl::cat(PassCat));
 
 static cl::opt<bool>
-EnableZ3Checker("z3", cl::desc("Run new Z3-based pass"),
+EnableZ3Checker("mc", cl::desc("Run the model checker"),
                 cl::init(false), cl::cat(PassCat));
 
 static cl::OptionCategory ModelCat("Model checker options",
@@ -44,8 +46,8 @@ UnrollDepth("unroll", cl::desc("Event graph recursion depth (default=32)"),
             cl::init(32), cl::cat(ModelCat));
 
 static cl::opt<int>
-TraceBound("bound", cl::desc("Finite model checking bound (default=500)"),
-            cl::init(500), cl::cat(ModelCat));
+TraceBound("bound", cl::desc("Finite model checking bound (default=50)"),
+            cl::init(50), cl::cat(ModelCat));
 
 static cl::opt<std::string>
 OutputFilename("o", cl::desc("Specify output filename"), 
@@ -60,6 +62,7 @@ int main(int argc, char **argv) {
 
   SMDiagnostic Err;
   
+  // Load manifest and bitcode from disk
   std::unique_ptr<tesla::Manifest> Manifest(tesla::Manifest::load(
     llvm::errs(), tesla::Automaton::Deterministic, ManifestFilename));
   if(!Manifest) {
@@ -72,18 +75,19 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  // Run analysis passes
   tesla::ManifestPassManager PM(std::move(Manifest), std::move(Mod));
-  
   if(EnableAcqRelPass) PM.addPass(new tesla::AcquireReleasePass);
   if(EnableZ3Checker) PM.addPass(new tesla::Z3Pass(UnrollDepth, TraceBound));
 
   PM.runPasses();
-  if(!PM.Manifest) {
+  if(!PM.successful()) {
     tesla::panic("Error applying manifest passes");
   }
 
+  // Dump new manifest file
   std::string ProtobufText;
-  google::protobuf::TextFormat::PrintToString(PM.Manifest->getProtobuf(), &ProtobufText);
+  google::protobuf::TextFormat::PrintToString(PM.getResult().getProtobuf(), &ProtobufText);
 
   std::unique_ptr<raw_fd_ostream> outfile;
   if(OutputFilename != "-") {

@@ -29,4 +29,12 @@ void ManifestPassManager::runPasses() {
   Manifest = std::move(result);
 }
 
+const tesla::Manifest& ManifestPassManager::getResult() const {
+  return *Manifest;
+}
+
+bool ManifestPassManager::successful() const {
+  return static_cast<bool>(Manifest);
+}
+
 }

@@ -21,7 +21,7 @@ static bool is_return(const CallInst* ci)
   return has_prefix(calledOrCastFunction(ci)->getName().str(), "__return_stub_"s);
 };
 
-CheckResult::CheckResult(FailureReason r, const Z3TraceChecker c, 
+CheckResult::CheckResult(Status r, const Z3TraceChecker c, 
                          std::shared_ptr<::State> s, const CallInst *e) :
   checker_(std::make_unique<decltype(c)>(c)), reason_(r),
   state_(s), event_(e)
@@ -29,7 +29,7 @@ CheckResult::CheckResult(FailureReason r, const Z3TraceChecker c,
 }
 
 CheckResult::CheckResult() :
-  checker_(nullptr), reason_(None),
+  checker_(nullptr), reason_(Success),
   state_(nullptr), event_(nullptr)
 {
 }
