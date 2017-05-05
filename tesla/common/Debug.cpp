@@ -108,7 +108,9 @@ std::string tesla::ProtoDump(google::protobuf::Message *m) {
   return ProtobufText;
 }
 
-std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression* ex) {
+std::string tesla::LabelString(const tesla::Expression* ex) {
+  std::stringstream stream;
+
   switch(ex->type()) {
     case Expression_Type_NULL_EXPR:
     case Expression_Type_BOOLEAN_EXPR:
@@ -141,7 +143,8 @@ std::ostream& tesla::operator<<(std::ostream& stream, const tesla::Expression* e
       stream << "field";
       break;
   }
-  return stream;
+
+  return stream.str();
 }
 
 #ifndef NDEBUG
