@@ -1,8 +1,10 @@
-#include <llvm/Support/raw_ostream.h>
+#include "ModelChecker.h"
 
 #include "Arguments.h"
+#include "Debug.h"
 #include "Names.h"
-#include "ModelChecker.h"
+
+#include <llvm/Support/raw_ostream.h>
 
 static bool is_assert(const CallInst* ci)
 {
@@ -63,7 +65,7 @@ void CheckResult::dump() const
     errs() << "Received event: " << pretty_event(event_) << '\n';
   }
   errs() << "FSM:\n";
-  errs() << checker_->fsm_.Dot() << '\n';
+  errs() << checker_->fsm_.Dot(tesla::LabelString) << '\n';
 
   errs() << "Call stack:\n";
   for(const auto& call : call_stack()) {
@@ -87,7 +89,7 @@ void CheckResult::dump_many(const std::vector<CheckResult>& results)
   errs() << '\n';
 
   errs() << "FSM:\n";
-  errs() << fail.checker_->fsm_.Dot() << '\n';
+  errs() << fail.checker_->fsm_.Dot(tesla::LabelString) << '\n';
 
   errs() << "Call stack:\n";
   for(const auto& call : fail.call_stack()) {

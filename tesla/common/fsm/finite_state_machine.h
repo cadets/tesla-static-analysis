@@ -49,7 +49,7 @@ public:
 
   bool operator<(const Edge& other) const;
 
-  std::string Dot() const;
+  std::string Dot(std::function<std::string (T)> printer) const;
 private:
   std::shared_ptr<State> end_;
   std::shared_ptr<T> edge_value_;
@@ -99,6 +99,7 @@ public:
                                    std::function<O (E,T)> output);
 
   std::string Dot() const;
+  std::string Dot(std::function<std::string (T)> printer) const;
 private:
   std::map<std::shared_ptr<State>, std::set<Edge<T>>> adjacency_; 
 };
@@ -481,7 +482,7 @@ std::vector<O> FiniteStateMachine<T>::TransduceSequence(Iterator begin, Iterator
 }
 
 template<class T>
-std::string FiniteStateMachine<T>::Dot() const
+std::string FiniteStateMachine<T>::Dot(std::function<std::string (T)> printer) const
 {
   std::stringstream out;
 
@@ -491,12 +492,23 @@ std::string FiniteStateMachine<T>::Dot() const
   for(const auto& adj_list : adjacency_) {
     out << "  " << adj_list.first->Dot() << '\n';
     for(const auto& edge : adj_list.second) {
-      out << "  \"" << adj_list.first->name << "\" -> " << edge.Dot() << "\n";
+      out << "  \"" << adj_list.first->name << "\" -> " << edge.Dot(printer) << "\n";
     }
   }
   out << "}";
 
   return out.str();
+}
+
+template<class T>
+std::string FiniteStateMachine<T>::Dot() const
+{
+  const auto id_printer = [](auto v) {
+    std::stringstream ss;
+    ss << v;
+    return ss.str();
+  };
+  return Dot(id_printer);
 }
 
 /**
@@ -561,13 +573,14 @@ bool Edge<T>::Accepts(E val, std::function<bool (E,T)> acceptor) const
 }
 
 template<class T>
-std::string Edge<T>::Dot() const {
+std::string Edge<T>::Dot(std::function<std::string (T)> printer) const
+{
   std::stringstream out;
 
   out << "\"" << end_->name << "\"";
   out << " [label=\"  ";
   if(edge_value_) {
-    out << *edge_value_;
+    out << printer(*edge_value_);
   } else {
     out << "&#949;";
   }
