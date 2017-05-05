@@ -54,7 +54,7 @@ link_directories(${LLVM_LIBDIR})
 
 # Always build with all warnings.
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wstrict-prototypes")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fvisibility=hidden")
 
 # Disable RTTI usage in protocol buffers.
 #
