@@ -1,3 +1,3 @@
-[submodule "tesla/model/include/fsm"]
-	path = tesla/model/include/fsm
+[submodule "tesla/common/fsm"]
+	path = tesla/common/fsm
 	url = https://github.com/Baltoli/FSM.git
