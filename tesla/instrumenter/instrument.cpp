@@ -101,8 +101,7 @@ int main(int argc, char **argv) {
     tesla::panic("unable to load TESLA manifest");
 
   // Load the input module...
-  std::auto_ptr<Module> M;
-  M.reset(ParseIRFile(InputFilename, Err, Context));
+  std::unique_ptr<Module> M(parseIRFile(InputFilename, Err, Context));
 
   if (M.get() == 0) {
     Err.print(argv[0], errs());
@@ -114,11 +113,11 @@ int main(int argc, char **argv) {
   if (OutputFilename.empty())
     OutputFilename = "-";
 
-  std::string ErrorInfo;
+  std::error_code ErrorInfo;
   Out.reset(new tool_output_file(OutputFilename.c_str(), ErrorInfo,
                                    sys::fs::F_RW));
-  if (!ErrorInfo.empty()) {
-    errs() << ErrorInfo << '\n';
+  if (ErrorInfo) {
+    errs() << ErrorInfo.message() << '\n';
     return 1;
   }
 
@@ -140,13 +139,10 @@ int main(int argc, char **argv) {
   Passes.add(TLI);
 
   // Add an appropriate DataLayout instance for this module.
-  DataLayoutPass *TD = nullptr;
   const auto ModuleDataLayout = M.get()->getDataLayout();
-  if (ModuleDataLayout && !ModuleDataLayout->getStringRepresentation().empty())
-    TD = new DataLayoutPass(*ModuleDataLayout);
-
-  if (TD)
-    Passes.add(TD);
+  if (!ModuleDataLayout) {
+    // FIXME: what to do here?
+  }
 
   // Just add TESLA instrumentation passes.
   if(Manifest->HasInstrumentation()) {

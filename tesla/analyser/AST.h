@@ -64,7 +64,7 @@ class TeslaAction : public clang::ASTFrontendAction {
 public:
   TeslaAction(llvm::StringRef OutFilename) : OutFile(OutFilename) {}
 
-  clang::ASTConsumer* CreateASTConsumer(
+  std::unique_ptr<clang::ASTConsumer> CreateASTConsumer(
     clang::CompilerInstance &Compiler, llvm::StringRef InFile);
 
 private:
