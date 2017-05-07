@@ -104,7 +104,7 @@ bool AssertionSiteInstrumenter::runOnModule(Module &M) {
   // Find all calls to TESLA assertion pseudo-function (before we modify IR).
   set<CallInst*> AssertCalls;
   for (auto I = AssertFn->use_begin(); I != AssertFn->use_end(); ++I)
-    AssertCalls.insert(cast<CallInst>(*I));
+    AssertCalls.insert(cast<CallInst>(I->getUser()));
 
   return ConvertAssertions(AssertCalls, M);
 }

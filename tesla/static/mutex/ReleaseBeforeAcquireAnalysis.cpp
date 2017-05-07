@@ -2,7 +2,7 @@
 #include "Debug.h"
 #include "ReleaseBeforeAcquireAnalysis.h"
 
-#include <llvm/Analysis/Dominators.h>
+#include <llvm/IR/Dominators.h>
 #include <llvm/IR/Instructions.h>
 
 /**
@@ -21,7 +21,6 @@ bool ReleaseBeforeAcquireAnalysis::run() {
 
 bool ReleaseBeforeAcquireAnalysis::runOnFunction(Function *F) {
   DominatorTree DT;
-  DT.runOnFunction(*F);
 
   auto acqFn = Mod.getFunction("lock_acquire");
   auto relFn = Mod.getFunction("lock_release");

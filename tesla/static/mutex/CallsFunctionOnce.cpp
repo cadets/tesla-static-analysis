@@ -2,7 +2,7 @@
 #include "ReachabilityGraph.h"
 #include "SimpleCallGraph.h"
 
-#include <llvm/Analysis/Dominators.h>
+#include <llvm/IR/Dominators.h>
 #include <llvm/Support/raw_ostream.h>
 
 set<Function *> tesla::TransitiveCallsOnce(Module &M, Function *callee) {
@@ -74,7 +74,6 @@ bool tesla::TransitiveCallsTo(Function *callee, Function *caller) {
 bool tesla::ExitsDominated(Function *caller, set<ReturnInst *> exits,
                            set<CallInst *> calls) {
   DominatorTree DT;
-  DT.runOnFunction(*caller);
 
   for (auto exit : exits) {
     int dominanceCount = 0;

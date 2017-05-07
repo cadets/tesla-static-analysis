@@ -22,17 +22,19 @@
 #include "Remove.h"
 
 #include <llvm/ADT/Triple.h>
-#include <llvm/Analysis/Verifier.h>
 #include <llvm/Analysis/CallGraph.h>
-#include <llvm/Assembly/PrintModulePass.h>
+#include <llvm/Bitcode/BitcodeWriterPass.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/DataLayout.h>
+#include <llvm/IR/IRPrintingPasses.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
+#include <llvm/IR/Verifier.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Target/TargetLibraryInfo.h>
 #include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/PrettyStackTrace.h>
@@ -78,7 +80,7 @@ static inline void addPass(PassManagerBase &PM, Pass *P) {
   if (VerifyEach) PM.add(createVerifierPass());
 
   // Optionally print the result of each pass...
-  if (PrintEachXForm) PM.add(createPrintModulePass(&errs()));
+  if (PrintEachXForm) PM.add(createPrintModulePass(errs()));
 }
 
 //===----------------------------------------------------------------------===//
@@ -94,7 +96,7 @@ int main(int argc, char **argv) {
   SMDiagnostic Err;
 
   // Load TESLA manifest file.
-  OwningPtr<tesla::Manifest> Manifest(tesla::Manifest::load(llvm::errs()));
+  std::unique_ptr<tesla::Manifest> Manifest(tesla::Manifest::load(llvm::errs()));
   if (!Manifest)
     tesla::panic("unable to load TESLA manifest");
 
@@ -108,13 +110,13 @@ int main(int argc, char **argv) {
   }
 
   // Output stream...
-  OwningPtr<tool_output_file> Out;
+  std::unique_ptr<tool_output_file> Out;
   if (OutputFilename.empty())
     OutputFilename = "-";
 
   std::string ErrorInfo;
   Out.reset(new tool_output_file(OutputFilename.c_str(), ErrorInfo,
-                                   sys::fs::F_Binary));
+                                   sys::fs::F_RW));
   if (!ErrorInfo.empty()) {
     errs() << ErrorInfo << '\n';
     return 1;
@@ -138,10 +140,10 @@ int main(int argc, char **argv) {
   Passes.add(TLI);
 
   // Add an appropriate DataLayout instance for this module.
-  DataLayout *TD = 0;
-  const std::string &ModuleDataLayout = M.get()->getDataLayout();
-  if (!ModuleDataLayout.empty())
-    TD = new DataLayout(ModuleDataLayout);
+  DataLayoutPass *TD = nullptr;
+  const auto ModuleDataLayout = M.get()->getDataLayout();
+  if (ModuleDataLayout && !ModuleDataLayout->getStringRepresentation().empty())
+    TD = new DataLayoutPass(*ModuleDataLayout);
 
   if (TD)
     Passes.add(TD);
@@ -159,7 +161,7 @@ int main(int argc, char **argv) {
   // Write bitcode or assembly to the output as the last step...
   if (!NoOutput) {
     if (OutputAssembly)
-      Passes.add(createPrintModulePass(&Out->os()));
+      Passes.add(createPrintModulePass(Out->os()));
     else
       Passes.add(createBitcodeWriterPass(Out->os()));
   }

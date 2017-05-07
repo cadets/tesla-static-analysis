@@ -65,7 +65,7 @@ void TeslaConsumer::HandleTranslationUnit(ASTContext &Context) {
     panic("error analysing '" + InFile + "'");
 
   string ErrorInfo;
-  llvm::raw_fd_ostream Out(OutFile.str().c_str(), ErrorInfo);
+  llvm::raw_fd_ostream Out(OutFile.str().c_str(), ErrorInfo, llvm::sys::fs::F_RW);
   if (Out.has_error())
     panic("unable to open '" + OutFile + "': " + ErrorInfo);
 

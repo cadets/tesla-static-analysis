@@ -102,7 +102,7 @@ public:
    * @param[out]  Out    where to store the NFA
    * @param[in]   id     an integer ID for the resulting NFA
    */
-  void Parse(OwningPtr<NFA>& Out, unsigned int id);
+  void Parse(std::unique_ptr<NFA>& Out, unsigned int id);
 
 private:
   State* Parse(const Expression&, State& InitialState,
@@ -322,23 +322,23 @@ bool Automaton::Lifetime::operator == (const Automaton::Lifetime& other) const {
 // ---- NFA implementation ----------------------------------------------------
 NFA* NFA::Parse(const AutomatonDescription *A, const Usage *Use,
                 unsigned int id) {
-  OwningPtr<NFA> N;
+  std::unique_ptr<NFA> N;
   internal::NFAParser(*A, Use).Parse(N, id);
   assert(N);
 
-  return N.take();
+  return N.release();
 }
 
 NFA* NFA::Link(const AutomataMap& Descriptions) {
   assert(id < 1000);
 
-  OwningPtr<NFA> N;
+  std::unique_ptr<NFA> N;
   internal::NFAParser(assertion, use, &Descriptions)
     .AllowSubAutomata(false)
     .Parse(N, id);
   assert(N);
 
-  return N.take();
+  return N.release();
 }
 
 NFA::NFA(size_t id, const AutomatonDescription& A,
@@ -357,7 +357,7 @@ NFAParser& NFAParser::AllowSubAutomata(bool Allow) {
   return *this;
 }
 
-void NFAParser::Parse(OwningPtr<NFA>& Out, unsigned int id) {
+void NFAParser::Parse(std::unique_ptr<NFA>& Out, unsigned int id) {
   debugs("tesla.automata.parsing")
     << "Parsing '" << ShortName(Automaton.identifier()) << "'...\n";
 

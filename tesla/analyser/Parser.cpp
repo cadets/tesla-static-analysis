@@ -52,7 +52,7 @@ using namespace tesla;
 Parser* Parser::AssertionParser(CallExpr *Call, ASTContext& Ctx) {
   assert(Call->getDirectCallee()->getName().compare(INLINE_ASSERTION) == 0);
 
-  OwningPtr<Parser> Bootstrap(new Parser(Ctx));
+  std::unique_ptr<Parser> Bootstrap(new Parser(Ctx));
 
   if (Call->getNumArgs() != 8) {
     Bootstrap->ReportError(
@@ -103,7 +103,7 @@ Parser* Parser::AutomatonParser(FunctionDecl *F, ASTContext& Ctx) {
   Identifier ID;
   ID.set_name(F->getName());
 
-  OwningPtr<Parser> Bootstrap(new Parser(Ctx));
+  std::unique_ptr<Parser> Bootstrap(new Parser(Ctx));
 
   // We should reference one variable: the struct pointer.
   if (F->getNumParams() != 1) {
@@ -138,7 +138,7 @@ Parser* Parser::MappingParser(FunctionDecl *F, ASTContext& Ctx) {
   assert(F != NULL);
   assert(F->doesThisDeclarationHaveABody());
 
-  OwningPtr<Parser> Bootstrap(new Parser(Ctx));
+  std::unique_ptr<Parser> Bootstrap(new Parser(Ctx));
 
   auto Body = dyn_cast<CompoundStmt>(F->getBody());
   if (!Body) {
@@ -289,13 +289,13 @@ bool Parser::Parse(AutomatonDescription::Context *Context, Expr *E) {
 }
 
 
-bool Parser::Parse(OwningPtr<AutomatonDescription>& Description,
-                   OwningPtr<Usage>& Use) {
-  OwningPtr<AutomatonDescription> A(new AutomatonDescription);
+bool Parser::Parse(std::unique_ptr<AutomatonDescription>& Description,
+                   std::unique_ptr<Usage>& Use) {
+  std::unique_ptr<AutomatonDescription> A(new AutomatonDescription);
   *A->mutable_identifier() = ID;
   A->set_context(TeslaContext);
 
-  OwningPtr<Usage> U(new Usage);
+  std::unique_ptr<Usage> U(new Usage);
   *U->mutable_identifier() = ID;
 
   if (!SourceCode.empty())
@@ -406,7 +406,7 @@ bool Parser::Parse(Expression *E, const CallExpr *Call, Flags F) {
     return false;
   }
 
-  const Type *RetTy = Fun->getResultType().getTypePtr();
+  const Type *RetTy = Fun->getReturnType().getTypePtr();
   auto *PtrTy = dyn_cast<PointerType>(RetTy);
   if (!PtrTy) {
      ReportError("expected modifier or sub-automaton", Call);
@@ -831,7 +831,7 @@ bool Parser::ParseFunctionDetails(FunctionEvent *Event, const CallExpr *CE,
       return false;
 
     auto *Method = OME->getMethodDecl();
-    ResultType = Method->getResultType();
+    ResultType = Method->getReturnType();
     ParamBegin = Method->param_begin();
     ParamEnd = Method->param_end();
 
@@ -873,7 +873,7 @@ bool Parser::ParseFunctionDetails(FunctionEvent *Event, const CallExpr *CE,
     if (!Parse(Event->mutable_function(), CFn, F))
       return false;
 
-    ResultType = CFn->getResultType();
+    ResultType = CFn->getReturnType();
     ParamBegin = CFn->param_begin();
     ParamEnd = CFn->param_end();
   }
@@ -1257,7 +1257,7 @@ void Parser::ReportError(StringRef Message, const SourceLocation& Start,
   static const DiagnosticsEngine::Level Level = DiagnosticsEngine::Error;
 
   DiagnosticsEngine& Diag = Ctx.getDiagnostics();
-  int DiagID = Diag.getCustomDiagID(Level, ("TESLA: " + Message).str());
+  int DiagID = Diag.getCustomDiagID(Level, "TESLA");
 
   Diag.Report(Start, DiagID) << Range;
 }

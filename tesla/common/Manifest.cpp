@@ -45,9 +45,10 @@
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/system_error.h>
 
 #include <google/protobuf/text_format.h>
+
+#include <system_error>
 
 using namespace llvm;
 
@@ -146,23 +147,23 @@ Manifest::construct(raw_ostream& ErrorStream,
     const Identifier& ID = i.first;
     const AutomatonDescription *Descrip = i.second;
 
-    OwningPtr<NFA> N(NFA::Parse(Descrip, Uses[ID], id++));
+    std::unique_ptr<NFA> N(NFA::Parse(Descrip, Uses[ID], id++));
     if (!N) {
       for (auto i : Automata) delete i.second;
       for (auto i : Descriptions) delete i.second;
       return NULL;
     }
 
-    OwningPtr<Automaton> Result;
+    std::unique_ptr<Automaton> Result;
 
     if (T == Automaton::Unlinked)
-      Result.reset(N.take());
+      Result.reset(N.release());
 
     else {
       N.reset(N->Link(Descriptions));
 
       if (T == Automaton::Linked)
-        Result.reset(N.take());
+        Result.reset(N.release());
 
       else
         Result.reset(DFA::Convert(N.get()));
@@ -176,7 +177,7 @@ Manifest::construct(raw_ostream& ErrorStream,
         assert(Lifetimes.back() == L);
     }
 
-    Automata[ID] = Result.take();
+    Automata[ID] = Result.release();
   }
 
   raw_ostream& debug = debugs("tesla.manifest.lifetimes");
@@ -191,17 +192,17 @@ Manifest::construct(raw_ostream& ErrorStream,
 Manifest*
 Manifest::load(raw_ostream& ErrorStream, Automaton::Type T, StringRef Path) {
   llvm::SourceMgr SM;
-  OwningPtr<MemoryBuffer> Buffer;
 
-  error_code Error = MemoryBuffer::getFile(Path, Buffer);
-  if (Error != 0) {
+  auto Error = MemoryBuffer::getFile(Path);
+  if (!Error) {
     ErrorStream
       << "Failed to open TESLA analysis file '" << Path << "': "
-      << Error.message() << "\n"
+      << Error.getError().message() << "\n"
       ;
 
     return NULL;
   }
+  std::unique_ptr<MemoryBuffer> Buffer(std::move(Error.get()));
 
   unique_ptr<ManifestFile> Protobuf(new ManifestFile);
 

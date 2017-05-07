@@ -1,8 +1,8 @@
 #ifndef INLINE_ALL_PASS_H
 #define INLINE_ALL_PASS_H
 
-#include <llvm/InstVisitor.h>
 #include <llvm/Pass.h>
+#include <llvm/IR/InstVisitor.h>
 
 using namespace llvm;
 

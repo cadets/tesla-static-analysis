@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.9)
 
 project(TESLA)
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules"
+  "${LLVM_DIR}")
 
 #
 # CMake helpers.
@@ -12,8 +13,16 @@ set(CMAKE_MODULE_PATH
 include(cmake/Concatenate.cmake)
 include(cmake/CopyFiles.cmake)
 
+
 # Include LLVM configuration:
-find_package(LLVM REQUIRED)
+find_package(LLVM 3.5 
+  REQUIRED
+  PATHS /usr/local/llvm35/share/llvm/cmake
+)
+set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/tesla)
+set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/tesla)
+set(LLVM_PLUGIN_EXT “so”)
+set(LLVM_ENABLE_PLUGINS ON)
 include(AddLLVM)
 
 if(NOT CMAKE_LLVM_CONFIG)

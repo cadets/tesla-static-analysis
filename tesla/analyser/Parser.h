@@ -35,7 +35,6 @@
 #include <tesla.pb.h>
 
 #include <llvm/ADT/APInt.h>
-#include <llvm/ADT/OwningPtr.h>
 
 #include <functional>
 #include <string>
@@ -87,8 +86,8 @@ public:
    *
    * @return true on success, false on failure
    */
-  bool Parse(llvm::OwningPtr<AutomatonDescription>& Descrip,
-             llvm::OwningPtr<Usage>& Usage);
+  bool Parse(std::unique_ptr<AutomatonDescription>& Descrip,
+             std::unique_ptr<Usage>& Usage);
 
 
 private:

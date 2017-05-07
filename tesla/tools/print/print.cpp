@@ -39,6 +39,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Pass.h>
 
@@ -91,17 +92,17 @@ main(int argc, char *argv[]) {
   cl::ParseCommandLineOptions(argc, argv);
 
   bool UseFile = (OutputFile != "-");
-  OwningPtr<raw_fd_ostream> outfile;
+  std::unique_ptr<raw_fd_ostream> outfile;
 
   if (UseFile) {
     string OutErrorInfo;
-    outfile.reset(new raw_fd_ostream(OutputFile.c_str(), OutErrorInfo));
+    outfile.reset(new raw_fd_ostream(OutputFile.c_str(), OutErrorInfo, llvm::sys::fs::F_RW));
   }
 
   raw_ostream& out = UseFile ? *outfile : llvm::outs();
   auto& err = llvm::errs();
 
-  OwningPtr<Manifest> Manifest(
+  std::unique_ptr<Manifest> Manifest(
     Manifest::load(llvm::errs(), Determinism, ManifestName));
 
   if (!Manifest) {

@@ -49,7 +49,7 @@ namespace tesla {
 
 void Transition::Create(State& From, State& To, TransitionVector& Transitions,
                         bool Init, bool Cleanup) {
-  OwningPtr<Transition> T(new NullTransition(From, To, Init, Cleanup));
+  std::unique_ptr<Transition> T(new NullTransition(From, To, Init, Cleanup));
   Register(T, From, To, Transitions);
 }
 
@@ -63,7 +63,7 @@ void Transition::Create(State& From, State& To, const AssertionSite& A,
     if (not A.free())
       Refs.push_back(&A);
 
-  OwningPtr<Transition> T(
+  std::unique_ptr<Transition> T(
     new AssertTransition(From, To, A, Refs, Init, Cleanup));
   Register(T, From, To, Transitions);
 }
@@ -72,7 +72,7 @@ void Transition::Create(State& From, State& To, const FunctionEvent& Ev,
                         TransitionVector& Transitions, bool Init, bool Cleanup,
                         bool OutOfScope) {
 
-  OwningPtr<Transition> T(
+  std::unique_ptr<Transition> T(
     new FnTransition(From, To, Ev, Init, Cleanup, OutOfScope));
 
   Register(T, From, To, Transitions);
@@ -82,7 +82,7 @@ void Transition::Create(State& From, State& To, const FieldAssignment& A,
                         TransitionVector& Transitions, bool Init, bool Cleanup,
                         bool OutOfScope) {
 
-  OwningPtr<Transition> T(
+  std::unique_ptr<Transition> T(
     new FieldAssignTransition(From, To, A, Init, Cleanup, OutOfScope));
 
   Register(T, From, To, Transitions);
@@ -92,14 +92,14 @@ void Transition::CreateSubAutomaton(State& From, State& To,
                                     const Identifier& ID,
                                     TransitionVector& Transitions) {
 
-  OwningPtr<Transition> T(new SubAutomatonTransition(From, To, ID));
+  std::unique_ptr<Transition> T(new SubAutomatonTransition(From, To, ID));
   Register(T, From, To, Transitions);
 }
 
 void Transition::Copy(State &From, State& To, const Transition* Other,
                       TransitionVector& Transitions, bool OutOfScope) {
 
-  OwningPtr<Transition> New;
+  std::unique_ptr<Transition> New;
   bool Init = Other->RequiresInit();
   bool Cleanup = Other->RequiresCleanup();
 
@@ -140,7 +140,7 @@ void Transition::Copy(State &From, State& To, const Transition* Other,
   Register(New, From, To, Transitions);
 }
 
-void Transition::Register(OwningPtr<Transition>& T, State& From, State& To,
+void Transition::Register(std::unique_ptr<Transition>& T, State& From, State& To,
                           TransitionVector& Transitions) {
 
   Transitions.push_back(T.get());
@@ -178,7 +178,7 @@ void Transition::GroupClasses(const TransitionVector& Ungrouped,
 }
 
 
-void Transition::ReferencesThusFar(OwningArrayPtr<const Argument*>& Args,
+void Transition::ReferencesThusFar(std::unique_ptr<const Argument*[]>& Args,
                                    ReferenceVector& Ref) const {
 
   // Put this transition's *variable* references in var-index order.

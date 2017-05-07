@@ -78,7 +78,7 @@ private:
   CallerInstrumentation* GetOrCreateInstr(llvm::Module&, llvm::Function*,
                                           FunctionEvent);
 
-  llvm::OwningPtr<InstrContext> InstrCtx;
+  std::unique_ptr<InstrContext> InstrCtx;
 
   llvm::StringMap<CallerInstrumentation*> Calls;
   llvm::StringMap<CallerInstrumentation*> Returns;
@@ -106,7 +106,7 @@ public:
   bool Instrument(llvm::CallSite);
 
 private:
-  llvm::OwningPtr<TranslationFn> TransFn;
+  std::unique_ptr<TranslationFn> TransFn;
   FunctionEvent Ev;
 };
 
