@@ -64,10 +64,10 @@ void TeslaConsumer::HandleTranslationUnit(ASTContext &Context) {
   if (!Visitor.TraverseDecl(Context.getTranslationUnitDecl()))
     panic("error analysing '" + InFile + "'");
 
-  string ErrorInfo;
+  std::error_code ErrorInfo;
   llvm::raw_fd_ostream Out(OutFile.str().c_str(), ErrorInfo, llvm::sys::fs::F_RW);
-  if (Out.has_error())
-    panic("unable to open '" + OutFile + "': " + ErrorInfo);
+  if (ErrorInfo)
+    panic("unable to open '" + OutFile + "': " + ErrorInfo.message());
 
   ManifestFile Result;
   for (const AutomatonDescription *A : Visitor.GetAutomata())
@@ -87,10 +87,10 @@ void TeslaConsumer::HandleTranslationUnit(ASTContext &Context) {
 }
 
 
-ASTConsumer* TeslaAction::CreateASTConsumer(CompilerInstance &C,
+std::unique_ptr<ASTConsumer> TeslaAction::CreateASTConsumer(CompilerInstance &C,
                                             llvm::StringRef InFile)
 {
-  return new TeslaConsumer(InFile, OutFile);
+  return std::unique_ptr<ASTConsumer>(new TeslaConsumer(InFile, OutFile));
 }
 
 

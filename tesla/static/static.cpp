@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     tesla::panic("unable to load TESLA manifest");
   }
 
-  std::unique_ptr<Module> Mod(ParseIRFile(BitcodeFilename, Err, Context));
+  std::unique_ptr<Module> Mod(parseIRFile(BitcodeFilename, Err, Context));
   if(Mod.get() == nullptr) {
     Err.print(argv[0], errs());
     return 1;
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
 
   std::unique_ptr<raw_fd_ostream> outfile;
   if(OutputFilename != "-") {
-    string OutErrorInfo;
+    std::error_code OutErrorInfo;
     outfile.reset(new raw_fd_ostream(OutputFilename.c_str(), OutErrorInfo, llvm::sys::fs::F_RW));
   }
   raw_ostream& out = (OutputFilename == "-") ? llvm::outs() : *outfile;

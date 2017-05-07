@@ -109,7 +109,7 @@ main(int argc, char *argv[]) {
   std::unique_ptr<raw_fd_ostream> outfile;
 
   if (UseFile) {
-    string OutErrorInfo;
+    std::error_code OutErrorInfo;
     outfile.reset(new raw_fd_ostream(OutputFile.c_str(), OutErrorInfo, llvm::sys::fs::F_RW));
   }
   raw_ostream& out = UseFile ? *outfile : llvm::outs();

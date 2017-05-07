@@ -134,10 +134,11 @@ bool FnCallerInstrumenter::doInitialization(Module &Mod) {
           className = FnEvent.receiver().name();
         case FunctionEvent::ObjCInstanceMessage: {
           std::string SelName = FnEvent.function().name();
-          llvm::Value *impMD[] = {
+          llvm::Metadata *impMD[] = {
             llvm::MDString::get(Ctx, SelName),
             llvm::MDString::get(Ctx, isClassMessage ? className : ""),
-            llvm::ConstantInt::get(llvm::Type::getInt1Ty(Ctx), isClassMessage)
+            llvm::ConstantAsMetadata::getIfExists(
+              llvm::ConstantInt::get(llvm::Type::getInt1Ty(Ctx), isClassMessage))
           };
           auto Metadata = llvm::MDNode::getIfExists(Ctx, impMD);
           if (!Metadata) continue;
