@@ -56,7 +56,7 @@ class Usage;
 /// A description of TESLA instrumentation to perform.
 class Manifest {
 public:
-  Manifest(const Manifest&) LLVM_DELETED_FUNCTION;
+  Manifest(const Manifest&) = delete;
   ~Manifest();
 
   //! Top-level automata (named explicitly in code).

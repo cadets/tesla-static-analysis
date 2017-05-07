@@ -113,7 +113,7 @@ Value* tesla::GetArgumentValue(Value* Param, const Argument& ArgDescrip,
       + "." + Field.name()
     ).str();
 
-    Param = Builder.CreateConstInBoundsGEP2_32(Base, 0, Field.index());
+    Param = Builder.CreateConstInBoundsGEP2_32(nullptr, Base, 0, Field.index());
     Param = Builder.CreateLoad(Param, Name);
 
     return Param;

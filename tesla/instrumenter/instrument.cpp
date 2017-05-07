@@ -23,16 +23,17 @@
 
 #include <llvm/ADT/Triple.h>
 #include <llvm/Analysis/CallGraph.h>
+#include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/Bitcode/BitcodeWriterPass.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/IRPrintingPasses.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IRReader/IRReader.h>
-#include <llvm/Target/TargetLibraryInfo.h>
 #include <llvm/Target/TargetMachine.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/SourceMgr.h>
@@ -41,9 +42,9 @@
 #include <llvm/Support/SystemUtils.h>
 #include <llvm/Support/TargetRegistry.h>
 #include <llvm/Support/ToolOutputFile.h>
-#include <llvm/PassManager.h>
 
 using namespace llvm;
+using llvm::legacy::PassManager;
 
 // Command line options.
 //
@@ -135,14 +136,11 @@ int main(int argc, char **argv) {
   PassManager Passes;
 
   // Add an appropriate TargetLibraryInfo pass for the module's triple.
-  TargetLibraryInfo *TLI = new TargetLibraryInfo(Triple(M->getTargetTriple()));
+  auto TLI = new TargetLibraryInfoWrapperPass(Triple(M->getTargetTriple()));
   Passes.add(TLI);
 
   // Add an appropriate DataLayout instance for this module.
-  const auto ModuleDataLayout = M.get()->getDataLayout();
-  if (!ModuleDataLayout) {
-    // FIXME: what to do here?
-  }
+  // ???: const auto ModuleDataLayout = M.get()->getDataLayout();
 
   // Just add TESLA instrumentation passes.
   if(Manifest->HasInstrumentation()) {

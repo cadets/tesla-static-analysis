@@ -3,12 +3,13 @@
 #include "Debug.h"
 
 #include <llvm/Analysis/CallGraph.h>
-#include <llvm/PassManager.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
 #include <vector>
 
+using llvm::legacy::PassManager;
 using std::unique_ptr;
 using std::set;
 
