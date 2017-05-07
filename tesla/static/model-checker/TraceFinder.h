@@ -6,8 +6,8 @@
 #include <set>
 #include <vector>
 
-#include <llvm/ADT/ValueMap.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/ValueMap.h>
 
 using namespace llvm;
 

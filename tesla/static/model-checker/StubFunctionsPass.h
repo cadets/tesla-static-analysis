@@ -1,9 +1,9 @@
 #ifndef STUB_FUNCTIONS_PASS_H
 #define STUB_FUNCTIONS_PASS_H
 
-#include <llvm/InstVisitor.h>
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Module.h>
 
 using namespace llvm;

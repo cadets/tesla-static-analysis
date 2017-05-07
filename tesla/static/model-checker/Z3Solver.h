@@ -3,10 +3,10 @@
 
 #include <sstream>
 
-#include <llvm/InstVisitor.h>
-#include <llvm/ADT/ValueMap.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/InstVisitor.h>
+#include <llvm/IR/ValueMap.h>
 
 #include <z3++.h>
 
