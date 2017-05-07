@@ -54,10 +54,11 @@ static cl::opt<std::string>
 OutputFilename("o", cl::desc("Specify output filename"), 
                cl::value_desc("filename"), cl::init("-"));
 
+static LLVMContext Context;
+
 int main(int argc, char **argv) {
   PrettyStackTraceProgram X(argc, argv);
   llvm_shutdown_obj Y;
-  LLVMContext &Context = getGlobalContext();
 
   cl::ParseCommandLineOptions(argc, argv, "TESLA Static Analyser\n");
 

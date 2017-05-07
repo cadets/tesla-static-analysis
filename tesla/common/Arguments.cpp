@@ -16,7 +16,7 @@ vector<Value*> tesla::CollectArgs(
   // Find named values to be passed to instrumentation.
   std::map<string,Value*> ValuesInScope;
   for (auto G = Mod.global_begin(); G != Mod.global_end(); G++)
-    ValuesInScope[G->getName()] = G;
+    ValuesInScope[G->getName()] = &*G;
 
   auto *Fn = Before->getParent()->getParent();
   for (auto& Arg : Fn->getArgumentList())

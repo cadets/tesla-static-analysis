@@ -39,8 +39,8 @@ void context() {
 			 * CHECK:           context: Callee
 			 * CHECK:           argument {
 			 * CHECK-NEXT:        type: Constant
+			 * CHECK-NEXT:        name: "BAR | FOO"
 			 * CHECK-NEXT:        value: 3
-			 * CHECK2-NEXT:        name: "BAR | FOO"
 			 * CHECK-NEXT:        constantMatch: Flags
 			 * CHECK:           }
 			 * CHECK:         }
@@ -58,8 +58,8 @@ void context() {
 			 * CHECK:           context: Callee
 			 * CHECK:           argument {
 			 * CHECK-NEXT:        type: Constant
+			 * CHECK-NEXT:        name: "FOO | BAZ"
 			 * CHECK-NEXT:        value: 5
-			 * CHECK2-NEXT:        name: "FOO | BAZ"
 			 * CHECK-NEXT:        constantMatch: Mask
 			 * CHECK:           }
 			 * CHECK:         }

@@ -634,7 +634,7 @@ bool Parser::ParseFunctionCall(Expression *E, const BinaryOperator *Bop,
 
   const auto CreateNewArg = std::bind(&FunctionEvent::add_argument, FnEvent);
   for (auto I = FnCallExpr->arg_begin(); I != FnCallExpr->arg_end(); ++I) {
-    if (!ParseArg(CreateNewArg, I->IgnoreImplicit(), F))
+    if (!ParseArg(CreateNewArg, (*I)->IgnoreImplicit(), F))
       return false;
   }
 
@@ -655,7 +655,7 @@ bool Parser::ParseObjCMessageSend(FunctionEvent *FnEvent,
 
   auto CreateNewArg = std::bind(&FunctionEvent::add_argument, FnEvent);
   for (auto I = OME->arg_begin(); I != OME->arg_end(); ++I) {
-    if (!ParseArg(CreateNewArg, I->IgnoreImplicit(), F))
+    if (!ParseArg(CreateNewArg, (*I)->IgnoreImplicit(), F))
       return false;
   }
 

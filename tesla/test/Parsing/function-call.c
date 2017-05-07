@@ -177,10 +177,12 @@ int foo(int x) {
 			 * CHECK:           }
 			 * CHECK:           argument {
 			 * CHECK-NEXT:        type: Constant
+                         * CHECK-NEXT:        name: "PI"
 			 * CHECK-NEXT:        value: 3
 			 * CHECK:           }
 			 * CHECK:           expectedReturnValue {
 			 * CHECK-NEXT:        type: Constant
+                         * CHECK-NEXT:        name: "PI"
 			 * CHECK-NEXT:        value: 3
 			 * CHECK-NEXT:      }
 			 * CHECK:         }

@@ -238,7 +238,7 @@ class ObjCInstrumentation
     }
     auto AI = Fn->arg_begin();
     ++(++AI);
-    B.CreateStore(B.CreateBitCast(AI, IMPTy), MethodCache);
+    B.CreateStore(B.CreateBitCast(&*AI, IMPTy), MethodCache);
     B.CreateRet(B.CreateBitCast(Interpose, IMPTy));
 
     bool isVoidRet = Type::getVoidTy(Ctx) == MethodType->getReturnType();
@@ -284,7 +284,7 @@ class ObjCInstrumentation
     BasicBlock *Return = BasicBlock::Create(Ctx, "return", Interpose);
     SmallVector<Value*, 16> Args;
     for (auto I=Interpose->arg_begin(), E=Interpose->arg_end() ; I!=E ; ++I) {
-      Args.push_back(I);
+      Args.push_back(&*I);
     }
     AttributeSet RetAttrs = AS.getRetAttributes();
     AS = AS.removeAttributes(Ctx, AttributeSet::ReturnIndex, RetAttrs);

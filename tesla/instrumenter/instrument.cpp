@@ -84,13 +84,14 @@ static inline void addPass(PassManagerBase &PM, Pass *P) {
   if (PrintEachXForm) PM.add(createPrintModulePass(errs()));
 }
 
+static LLVMContext Context;
+
 //===----------------------------------------------------------------------===//
 //
 int main(int argc, char **argv) {
   llvm::PrettyStackTraceProgram X(argc, argv);
 
   llvm_shutdown_obj Y;  // Call llvm_shutdown() on exit.
-  LLVMContext &Context = getGlobalContext();
 
   cl::ParseCommandLineOptions(argc, argv, "TESLA bitcode instrumenter\n");
 
@@ -133,7 +134,7 @@ int main(int argc, char **argv) {
   // Create a PassManager to hold and optimize the collection of passes we are
   // about to build.
   //
-  PassManager Passes;
+  legacy::PassManager Passes;
 
   // Add an appropriate TargetLibraryInfo pass for the module's triple.
   auto TLI = new TargetLibraryInfoWrapperPass(Triple(M->getTargetTriple()));
