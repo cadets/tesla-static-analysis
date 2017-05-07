@@ -75,7 +75,7 @@ int main(int argc, const char **argv) {
 
   argv = args.data();
 
-  OwningPtr<CompilationDatabase> Compilations(
+  std::unique_ptr<CompilationDatabase> Compilations(
     FixedCompilationDatabase::loadFromCommandLine(argc, argv));
 
   if (!Compilations)
@@ -84,7 +84,7 @@ int main(int argc, const char **argv) {
 
   cl::ParseCommandLineOptions(argc, argv);
 
-  OwningPtr<TeslaActionFactory> Factory(new TeslaActionFactory(OutputFile));
+  std::unique_ptr<TeslaActionFactory> Factory(new TeslaActionFactory(OutputFile));
 
   ClangTool Tool(*Compilations, SourcePaths);
   return Tool.run(Factory.get());

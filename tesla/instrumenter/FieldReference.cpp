@@ -121,7 +121,7 @@ bool FieldReferenceInstrumenter::runOnModule(Module &Mod) {
 
     for (auto i = Fn.use_begin(); i != Fn.use_end(); i++) {
       // We should be able to do some parsing of all annotations.
-      OwningPtr<PtrAnnotation> A(PtrAnnotation::Interpret(*i));
+      std::unique_ptr<PtrAnnotation> A(PtrAnnotation::Interpret(i->getUser()));
       assert(A);
 
       // We only care about struct field annotations; ignore everything else.
@@ -135,22 +135,22 @@ bool FieldReferenceInstrumenter::runOnModule(Module &Mod) {
       if (Instr == NULL)
         continue;
 
-      for (User *U : *Annotation) {
-        auto *Cast = dyn_cast<CastInst>(U);
+      for (Use &U : *Annotation) {
+        auto *Cast = dyn_cast<CastInst>(U.getUser());
         if (!Cast) {
           U->dump();
           panic("annotation user not a bitcast", false);
         }
 
         for (auto k = Cast->use_begin(); k != Cast->use_end(); k++) {
-          if (auto *Load = dyn_cast<LoadInst>(*k))
+          if (auto *Load = dyn_cast<LoadInst>(k->getUser()))
             Loads.insert(std::make_pair(Load, Instr));
 
-          else if (auto *Store = dyn_cast<StoreInst>(*k))
+          else if (auto *Store = dyn_cast<StoreInst>(k->getUser()))
             Stores.insert(std::make_pair(Store, Instr));
 
           else {
-            k->dump();
+            k->getUser()->dump();
             panic("expected load or store with annotated value", false);
           }
         }

@@ -44,7 +44,7 @@ using std::string;
 namespace tesla {
 
 State* State::Builder::Build() {
-  llvm::OwningPtr<State> New(new State(States.size(), Start, Accept, Name));
+  std::unique_ptr<State> New(new State(States.size(), Start, Accept, Name));
   States.push_back(New.get());
 
   if (RefCount >= 0) {
@@ -55,16 +55,16 @@ State* State::Builder::Build() {
     New->Refs = MutableReferenceVector(Refs.get(), RefCount);
   }
 
-  return New.take();
+  return New.release();
 }
 
 State::~State() {
   for (Transition *T : Transitions) delete T;
 }
 
-void State::AddTransition(OwningPtr<Transition>& T)
+void State::AddTransition(std::unique_ptr<Transition>& T)
 {
-  Transitions.push_back(T.take());
+  Transitions.push_back(T.release());
 }
 
 void State::UpdateReferences(const Transition& T)
@@ -72,7 +72,7 @@ void State::UpdateReferences(const Transition& T)
   if (VariableReferences && !T.InScope())
     return;
 
-  OwningArrayPtr<const Argument*> Args;
+  std::unique_ptr<const Argument*[]> Args;
   ReferenceVector NewRefs;
   T.ReferencesThusFar(Args, NewRefs);
 

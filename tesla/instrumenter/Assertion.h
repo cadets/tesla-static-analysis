@@ -80,7 +80,7 @@ private:
                                         const Automaton&, llvm::Module&,
                                         llvm::IRBuilder<>&);
 
-  llvm::OwningPtr<InstrContext> InstrCtx;
+  std::unique_ptr<InstrContext> InstrCtx;
 
   //! The TESLA pseudo-function used to declare assertions.
   llvm::Function *AssertFn = NULL;

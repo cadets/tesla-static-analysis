@@ -43,15 +43,15 @@
 #include <llvm/ADT/SmallPtrSet.h>
 #include <llvm/Bitcode/ReaderWriter.h>
 #include <llvm/IR/Function.h>
+#include <llvm/IR/InstIterator.h>
+#include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
-#include <llvm/Support/InstIterator.h>
-#include <llvm/Support/system_error.h>
 #include <llvm/Support/MemoryBuffer.h>
 #include <llvm/Transforms/Utils/ModuleUtils.h>
-#include <llvm/InstVisitor.h>
 
+#include <system_error>
 
 using namespace llvm;
 

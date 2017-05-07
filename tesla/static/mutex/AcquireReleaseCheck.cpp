@@ -21,7 +21,7 @@ AcquireReleaseCheck::AcquireReleaseCheck(const tesla::Automaton &A,
 }
 
 void AcquireReleaseCheck::getAnalysisUsage(AnalysisUsage &AU) const {
-  AU.addRequired<CallGraph>();
+  AU.addRequired<CallGraphWrapperPass>();
 }
 
 bool AcquireReleaseCheck::runOnModule(Module &M) {

@@ -36,7 +36,6 @@
 #include "Types.h"
 
 #include <llvm/ADT/ArrayRef.h>
-#include <llvm/ADT/OwningPtr.h>
 
 namespace tesla {
 
@@ -77,7 +76,7 @@ public:
 
   ~State();
 
-  void AddTransition(llvm::OwningPtr<Transition>&);
+  void AddTransition(std::unique_ptr<Transition>&);
 
   size_t ID() const { return id; }
   std::string Name(bool QuoteNonNumeric = true) const;
@@ -106,7 +105,7 @@ private:
   const bool accept;
 
   //! What variables this state references (how an instance is named).
-  llvm::OwningArrayPtr<const Argument*> VariableReferences;
+  std::unique_ptr<const Argument*[]> VariableReferences;
   MutableReferenceVector Refs;
 
   llvm::SmallVector<Transition*, 1> Transitions;

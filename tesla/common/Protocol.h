@@ -54,9 +54,8 @@ std::string BaseName(const Argument&);
 bool operator == (const ::google::protobuf::Message&,
                   const ::google::protobuf::Message&);
 
-//! != is defined as !(==).
-template<class T>
-inline bool operator != (const T& x, const T& y) { return !(x == y); }
+bool operator != (const ::google::protobuf::Message&,
+                  const ::google::protobuf::Message&);
 
 inline bool operator < (const Location& x, const Location& y) {
   // Again, don't trust operator<(string&,string&) because of NULL funniness.

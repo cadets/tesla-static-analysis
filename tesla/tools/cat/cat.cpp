@@ -42,6 +42,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Pass.h>
 
@@ -68,7 +69,7 @@ main(int argc, char *argv[]) {
   std::map<Identifier,const Usage*> Usages;
 
   for (auto& Filename : InputFiles) {
-    OwningPtr<Manifest> Manifest(Manifest::load(llvm::errs(),
+    std::unique_ptr<Manifest> Manifest(Manifest::load(llvm::errs(),
                                                 Automaton::Unlinked,
                                                 Filename));
     if (!Manifest) {
@@ -105,11 +106,11 @@ main(int argc, char *argv[]) {
   google::protobuf::TextFormat::PrintToString(Result, &ProtobufText);
 
   bool UseFile = (OutputFile != "-");
-  OwningPtr<raw_fd_ostream> outfile;
+  std::unique_ptr<raw_fd_ostream> outfile;
 
   if (UseFile) {
     string OutErrorInfo;
-    outfile.reset(new raw_fd_ostream(OutputFile.c_str(), OutErrorInfo));
+    outfile.reset(new raw_fd_ostream(OutputFile.c_str(), OutErrorInfo, llvm::sys::fs::F_RW));
   }
   raw_ostream& out = UseFile ? *outfile : llvm::outs();
   out << ProtobufText;

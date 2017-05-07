@@ -68,7 +68,7 @@ bool AcquireReleasePass::ShouldDelete(const Automaton *A,
   }
 
   PassManager passes;
-  passes.add(new CallGraph);
+  passes.add(new CallGraphWrapperPass);
   auto check = new AcquireReleaseCheck(*A, args);
   passes.add(check);
   passes.run(Mod);

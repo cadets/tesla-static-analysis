@@ -36,7 +36,6 @@
 #include "Names.h"
 
 #include <llvm/ADT/ArrayRef.h>
-#include <llvm/ADT/OwningPtr.h>
 #include <llvm/ADT/StringRef.h>
 
 #include <map>

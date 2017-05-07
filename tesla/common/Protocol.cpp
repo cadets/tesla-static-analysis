@@ -84,6 +84,10 @@ bool tesla::operator == (const Message& x, const Message& y) {
   return true;
 }
 
+bool tesla::operator != (const Message& x, const Message& y) {
+  return !(x == y);
+}
+
 bool tesla::FieldEq(const Message& x, const Message& y, const Reflection& r,
                     const FieldDescriptor *field, int i) {
 

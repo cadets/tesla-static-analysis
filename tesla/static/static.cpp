@@ -11,6 +11,7 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/raw_ostream.h>
@@ -92,7 +93,7 @@ int main(int argc, char **argv) {
   std::unique_ptr<raw_fd_ostream> outfile;
   if(OutputFilename != "-") {
     string OutErrorInfo;
-    outfile.reset(new raw_fd_ostream(OutputFilename.c_str(), OutErrorInfo));
+    outfile.reset(new raw_fd_ostream(OutputFilename.c_str(), OutErrorInfo, llvm::sys::fs::F_RW));
   }
   raw_ostream& out = (OutputFilename == "-") ? llvm::outs() : *outfile;
   out << ProtobufText;

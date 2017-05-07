@@ -40,11 +40,11 @@
 #include "TranslationFn.h"
 
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/InstVisitor.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
 
 #include <llvm/Support/raw_ostream.h>
-#include <llvm/InstVisitor.h>
 
 using namespace llvm;
 

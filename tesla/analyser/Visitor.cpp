@@ -44,8 +44,9 @@ namespace tesla {
 template<class T>
 void ReportError(ASTContext& Ctx, StringRef Message, T *Subject) {
   DiagnosticsEngine& Diag = Ctx.getDiagnostics();
-  int DiagID = Diag.getCustomDiagID(DiagnosticsEngine::Error,
-                                    ("TESLA: " + Message).str());
+  // The previous usage of the diagnostics engine was incorrect - the format
+  // string passed has to be constant.
+  int DiagID = Diag.getCustomDiagID(DiagnosticsEngine::Error, "TESLA");
 
   Diag.Report(Subject->getLocStart(), DiagID) << Subject->getSourceRange();
 }
@@ -73,17 +74,17 @@ bool TeslaVisitor::VisitCallExpr(CallExpr *E) {
 
   // TESLA function calls might be inline assertions.
   if (FnName == INLINE_ASSERTION) {
-    OwningPtr<Parser> P(Parser::AssertionParser(E, *Context));
+    std::unique_ptr<Parser> P(Parser::AssertionParser(E, *Context));
     if (!P)
       return false;
 
-    OwningPtr<AutomatonDescription> Description;
-    OwningPtr<Usage> Use;
+    std::unique_ptr<AutomatonDescription> Description;
+    std::unique_ptr<Usage> Use;
     if (!P->Parse(Description, Use))
       return false;
 
-    Automata.push_back(Description.take());
-    Roots.push_back(Use.take());
+    Automata.push_back(Description.release());
+    Roots.push_back(Use.release());
     return true;
   }
 
@@ -98,7 +99,7 @@ bool TeslaVisitor::VisitFunctionDecl(FunctionDecl *F) {
 
 
   // We only parse functions that return __tesla_automaton_description*.
-  const Type *RetTy = F->getResultType().getTypePtr();
+  const Type *RetTy = F->getReturnType().getTypePtr();
   if (!RetTy->isPointerType())
     return true;
 
@@ -107,7 +108,7 @@ bool TeslaVisitor::VisitFunctionDecl(FunctionDecl *F) {
   if (!TypeID)
     return true;
 
-  OwningPtr<Parser> P;
+  std::unique_ptr<Parser> P;
   StringRef FnName = F->getName();
 
   // Build a Parser appropriate to what we're parsing.
@@ -126,16 +127,16 @@ bool TeslaVisitor::VisitFunctionDecl(FunctionDecl *F) {
   if (!P)
     return false;
 
-  OwningPtr<AutomatonDescription> Description;
-  OwningPtr<Usage> Use;
+  std::unique_ptr<AutomatonDescription> Description;
+  std::unique_ptr<Usage> Use;
   if (!P->Parse(Description, Use))
     return false;
 
   if (Description)
-    Automata.push_back(Description.take());
+    Automata.push_back(Description.release());
 
   if (Use)
-    Roots.push_back(Use.take());
+    Roots.push_back(Use.release());
 
   return true;
 }
