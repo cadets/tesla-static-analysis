@@ -1045,6 +1045,12 @@ bool Parser::ParseArg(ArgFactory NextArg, const Expr *E, Flags F,
     // Find an appropriate string representation for the value.
     SourceLocation Loc = P->getLocStart();
     if (Loc.isMacroID()) {
+      if(isa<BinaryOperator>(P)) {
+        // TODO: logic for parsing expanded macros in a binary operation doesn't
+        // exist at the moment - if we see one, give up and don't assign a name
+        // for now
+        return true;
+      }
       //
       // The constant's SourceLocation is within a macro; check if the macro
       // represents the value itself (e.g. #define FOO 1) or if a literal
