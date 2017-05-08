@@ -62,8 +62,7 @@ cl::opt<OutputFormat> Format("format", cl::desc("output format"),
     clEnumVal(names,      "automata names"),
     clEnumVal(source,     "automata definitions from the original source code"),
     clEnumVal(summary,    "succinct summaries"),
-    clEnumVal(text,       "textual automata representations"),
-    NULL
+    clEnumVal(text,       "textual automata representations")
   ),
   cl::init(summary)
 );
@@ -72,8 +71,7 @@ cl::opt<Automaton::Type> Determinism(cl::desc("automata determinism:"),
       cl::values(
         clEnumValN(Automaton::Unlinked,      "r", "raw (unlinked) NFA"),
         clEnumValN(Automaton::Linked,        "n", "NFA"),
-        clEnumValN(Automaton::Deterministic, "d", "DFA"),
-        clEnumValEnd),
+        clEnumValN(Automaton::Deterministic, "d", "DFA")),
       cl::init(Automaton::Deterministic));
 
 

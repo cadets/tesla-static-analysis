@@ -66,7 +66,7 @@ public:
     : Instrumenter(M, SuppressDI), FunctionPass(ID) {}
   ~FnCallerInstrumenter();
 
-  const char* getPassName() const {
+  llvm::StringRef getPassName() const {
     return "TESLA function instrumenter (caller-side)";
   }
 

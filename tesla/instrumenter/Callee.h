@@ -62,7 +62,7 @@ public:
     : Instrumenter(M, SuppressDI), ModulePass(ID), ObjC(0) {}
   ~FnCalleeInstrumenter();
 
-  const char* getPassName() const {
+  llvm::StringRef getPassName() const {
     return "TESLA function instrumenter (callee-side)";
   }
 
