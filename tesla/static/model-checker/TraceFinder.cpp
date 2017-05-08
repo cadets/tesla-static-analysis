@@ -98,7 +98,7 @@ std::shared_ptr<Function> TraceFinder::from_trace(trace_type tr, ValueMap<Value 
     auto clone = CloneBasicBlock(tr[i].first, arg_map, "", trace_fn);
     clones.push_back(clone);
     for(auto &inst : *clone) {
-      RemapInstruction(&inst, arg_map, RF_IgnoreMissingEntries);
+      RemapInstruction(&inst, arg_map, RF_IgnoreMissingLocals);
     }
   }
 
@@ -142,7 +142,7 @@ std::vector<const BasicBlock *> TraceFinder::linear_trace(const Function& func)
 
   auto trace = std::vector<const BasicBlock *>{};
   for(auto& BB : func) {
-    if(&BB != sink) {
+    if(&BB != &*sink) {
       trace.push_back(&BB);
     }
   }

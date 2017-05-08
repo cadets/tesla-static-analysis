@@ -1,4 +1,4 @@
-#include <llvm/PassManager.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
 
@@ -6,6 +6,9 @@
 #include "StubFunctionsPass.h"
 #include "ModelChecker.h"
 #include "Z3Pass.h"
+
+using llvm::legacy::FunctionPassManager;
+using llvm::legacy::PassManager;
 
 namespace tesla {
 

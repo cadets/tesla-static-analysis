@@ -31,18 +31,18 @@ void foo(struct obj1 *op) {
  * TODO: use CHECK-DAG once we switch to LLVM 3.4:
  *
  * First, we need to look up op->child_of_1->child_of_2:
- * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj1* %op
- * CHECK: [[C:%[_a-zA-Z0-9\.]+]] = load %struct.obj2** [[PTR]]
+ * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj1, %struct.obj1* %op
+ * CHECK: [[C:%[_a-zA-Z0-9\.]+]] = load %struct.obj2*, %struct.obj2** [[PTR]]
  *
- * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj2* [[C]]
- * CHECK: [[CHILD:%[_a-zA-Z0-9\.]+]] = load %struct.obj1** [[PTR]]
+ * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj2, %struct.obj2* [[C]]
+ * CHECK: [[CHILD:%[_a-zA-Z0-9\.]+]] = load %struct.obj1*, %struct.obj1** [[PTR]]
  *
  * Next, we look up op->child_of_1->value:
- * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj1* %op
- * CHECK: [[C:%[_a-zA-Z0-9\.]+]] = load %struct.obj2** [[PTR]]
+ * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj1, %struct.obj1* %op
+ * CHECK: [[C:%[_a-zA-Z0-9\.]+]] = load %struct.obj2*, %struct.obj2** [[PTR]]
  *
- * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj2* [[C]]
- * CHECK: [[VALUE:%[_a-zA-Z0-9\.]+]] = load i32* [[PTR]]
+ * CHECK: [[PTR:%[_a-zA-Z0-9\.]+]] = getelementptr inbounds %struct.obj2, %struct.obj2* [[C]]
+ * CHECK: [[VALUE:%[_a-zA-Z0-9\.]+]] = load i32, i32* [[PTR]]
  *
  * CHECK: call void [[INSTR:@.*_tesla_instr.*assert.*]](%struct.obj1* [[CHILD]], [[INT:i[3264]+]] [[VALUE]])
  */

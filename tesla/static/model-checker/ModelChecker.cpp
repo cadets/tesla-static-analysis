@@ -1,7 +1,7 @@
 #include <array>
 #include <string>
 
-#include <llvm/PassManager.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
@@ -14,6 +14,8 @@
 #include "StubFunctionsPass.h"
 #include "ModelChecker.h"
 #include "Z3Solver.h"
+
+using llvm::legacy::PassManager;
 
 static cl::opt<bool>
 PrintCounterexamples("print-counter", cl::desc("Print counterexample info to stderr"),

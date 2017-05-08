@@ -1,22 +1,27 @@
-; ModuleID = '/Users/jon/Documents/TESLA/tesla/test/Integration/call.c'
+; ModuleID = 'missing-now.bc'
 ; RUN: tesla instrument -S -tesla-manifest %p/Inputs/missing-now.tesla %s -o %t.instr.ll 2> %t.err || true
 ; RUN: %filecheck -input-file %t.err %s
 
 ; Ensure that we output a sensible error message:
 ; CHECK: TESLA: automaton '{{.*}}' has no assertion site event
 
+source_filename = "missing-now.bc"
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-freebsd11.0"
+
 %struct.__tesla_locality = type {}
 
-@.empty = private unnamed_addr constant [1 x i8] c"\00", align 1
+@.empty = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 @.str = private unnamed_addr constant [57 x i8] c"/Users/jon/Documents/TESLA/tesla/test/Integration/call.c\00", align 1
 
+; Function Attrs: nounwind ssp uwtable
 define i32 @main(i32 %argc, i8** %argv) #0 {
 entry:
   %retval = alloca i32, align 4
   store i32 0, i32* %retval
-  %call = call i32 (i32 (i32, i8**)*, ...)* bitcast (i32 (...)* @__tesla_call to i32 (i32 (i32, i8**)*, ...)*)(i32 (i32, i8**)* @main)
-  %call1 = call i32 (i32 (i32, i8**)*, ...)* bitcast (i32 (...)* @__tesla_return to i32 (i32 (i32, i8**)*, ...)*)(i32 (i32, i8**)* @main)
-  call void (i8*, i8*, i32, i32, %struct.__tesla_locality*, ...)* @__tesla_inline_assertion(i8* getelementptr inbounds ([1 x i8]* @.empty, i32 0, i32 0), i8* getelementptr inbounds ([57 x i8]* @.str, i32 0, i32 0), i32 62, i32 0, %struct.__tesla_locality* null, i32 %call, i32 %call1, i32 1)
+  %call = call i32 (i32 (i32, i8**)*, ...) bitcast (i32 (...)* @__tesla_call to i32 (i32 (i32, i8**)*, ...)*)(i32 (i32, i8**)* @main)
+  %call1 = call i32 (i32 (i32, i8**)*, ...) bitcast (i32 (...)* @__tesla_return to i32 (i32 (i32, i8**)*, ...)*)(i32 (i32, i8**)* @main)
+  call void (i8*, i8*, i32, i32, %struct.__tesla_locality*, ...) @__tesla_inline_assertion(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @.empty, i32 0, i32 0), i8* getelementptr inbounds ([57 x i8], [57 x i8]* @.str, i32 0, i32 0), i32 62, i32 0, %struct.__tesla_locality* null, i32 %call, i32 %call1, i32 1)
   ret i32 0
 }
 

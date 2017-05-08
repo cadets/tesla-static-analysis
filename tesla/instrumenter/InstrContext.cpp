@@ -340,7 +340,7 @@ Constant* InstrContext::BuildTransitions(const TEquivalenceClass& Tr) {
 Constant* InstrContext::ConstArrayPointer(Constant *Array) {
   static Constant *Zero = ConstantInt::get(Int32Ty, 0);
   static Constant *Zeroes[] = { Zero, Zero };
-  return ConstantExpr::getInBoundsGetElementPtr(Array, Zeroes);
+  return ConstantExpr::getInBoundsGetElementPtr(nullptr, Array, Zeroes);
 }
 
 

@@ -1,9 +1,10 @@
 ; RUN: tesla instrument -S -tesla-manifest %p/kern-args.tesla %s -o %t
 ; RUN: %filecheck -input-file %t %s
 
-; ModuleID = 'kern-args.bc'
-target datalayout = "e-i64:64-f80:128-n8:16:32:64-S128"
-target triple = "x86_64-portbld-freebsd11.0"
+; ModuleID = 'kern_args.bc'
+source_filename = "kern_args.bc"
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-freebsd11.0"
 
 module asm ".ident\09\22$FreeBSD: head/sys/security/mac/mac_cred.c 191731 2009-05-01 21:05:40Z rwatson $\22"
 module asm ".globl __start_set_pcpu"
@@ -741,7 +742,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @.str4 = private unnamed_addr constant [7 x i8] c"kernel\00", align 1
 @.str5 = private unnamed_addr constant [19 x i8] c"cred_check_relabel\00", align 1
 @.str6 = private unnamed_addr constant [14 x i8] c"mac-check-err\00", align 1
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str5, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str5, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to i8*) }, align 8
@@ -759,7 +760,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str7 = private unnamed_addr constant [13 x i8] c"mac-check-ok\00", align 1
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str5, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str5, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to i8*) }, align 8
@@ -778,7 +779,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @sdt_probe_func = external global void (i32, i64, i64, i64, i64, i64)*
 @.str8 = private unnamed_addr constant [18 x i8] c"cred_check_setuid\00", align 1
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8]* @.str8, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str8, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to i8*) }, align 8
@@ -795,7 +796,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8]* @.str8, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str8, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to i8*) }, align 8
@@ -813,7 +814,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str9 = private unnamed_addr constant [19 x i8] c"cred_check_seteuid\00", align 1
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str9, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str9, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to i8*) }, align 8
@@ -830,7 +831,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str9, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str9, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to i8*) }, align 8
@@ -848,7 +849,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str10 = private unnamed_addr constant [18 x i8] c"cred_check_setgid\00", align 1
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8]* @.str10, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str10, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to i8*) }, align 8
@@ -865,7 +866,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8]* @.str10, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str10, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to i8*) }, align 8
@@ -883,7 +884,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str11 = private unnamed_addr constant [19 x i8] c"cred_check_setegid\00", align 1
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str11, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str11, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to i8*) }, align 8
@@ -900,7 +901,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str11, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str11, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to i8*) }, align 8
@@ -918,7 +919,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str12 = private unnamed_addr constant [21 x i8] c"cred_check_setgroups\00", align 1
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8]* @.str12, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str12, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to i8*) }, align 8
@@ -939,7 +940,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8]* @.str12, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str12, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to i8*) }, align 8
@@ -961,7 +962,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str13 = private unnamed_addr constant [20 x i8] c"cred_check_setreuid\00", align 1
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8]* @.str13, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str13, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to i8*) }, align 8
@@ -982,7 +983,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8]* @.str13, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str13, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to i8*) }, align 8
@@ -1004,7 +1005,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str14 = private unnamed_addr constant [20 x i8] c"cred_check_setregid\00", align 1
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8]* @.str14, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str14, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to i8*) }, align 8
@@ -1025,7 +1026,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8]* @.str14, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str14, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to i8*) }, align 8
@@ -1047,7 +1048,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str15 = private unnamed_addr constant [21 x i8] c"cred_check_setresuid\00", align 1
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8]* @.str15, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str15, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to i8*) }, align 8
@@ -1072,7 +1073,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8]* @.str15, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str15, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to i8*) }, align 8
@@ -1098,7 +1099,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str16 = private unnamed_addr constant [21 x i8] c"cred_check_setresgid\00", align 1
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8]* @.str16, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str16, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to i8*) }, align 8
@@ -1123,7 +1124,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8]* @.str16, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str16, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to i8*) }, align 8
@@ -1149,7 +1150,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
 @.str17 = private unnamed_addr constant [19 x i8] c"cred_check_visible\00", align 1
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str17, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_err = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str17, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str6, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_visible_mac_check_err_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_visible_mac_check_err_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to i8*) }, align 8
@@ -1166,7 +1167,7 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err2_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err2_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_visible_mac_check_err2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8]* @.str17, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok = global <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }> <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } { i32 88, i32 0, %struct.sdt_provider* getelementptr inbounds ([1 x %struct.sdt_provider], [1 x %struct.sdt_provider]* @sdt_provider_mac_framework, i32 0, i32 0), %struct.anon.72 zeroinitializer, %struct.argtype_list_head zeroinitializer, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.str4, i32 0, i32 0), i8* getelementptr inbounds ([19 x i8], [19 x i8]* @.str17, i32 0, i32 0), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str7, i32 0, i32 0), i64 0, i32 0, [4 x i8] undef } }>, align 16
 @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok_init_sys_init = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_register, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to i8*) }, align 8
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 2, void (i8*)* @sdt_probe_deregister, i8* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to i8*) }, align 8
@@ -1183,147 +1184,147 @@ module asm ".globl __stop_set_sysuninit_set"
 @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2_init_sys_init = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2_init_sys_init to i8*), section "set_sysinit_set", align 8
 @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2_uninit_sys_uninit = internal global %struct.sysinit { i32 34865152, i32 3, void (i8*)* @sdt_argtype_deregister, i8* bitcast ([1 x %struct.sdt_argtype]* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2 to i8*) }, align 8
 @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2_uninit_sys_uninit = internal constant i8* bitcast (%struct.sysinit* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2_uninit_sys_uninit to i8*), section "set_sysuninit_set", align 8
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to %struct.sdt_probe*) }], align 16
 @.str18 = private unnamed_addr constant [15 x i8] c"struct ucred *\00", align 1
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok to %struct.sdt_probe*) }], align 16
 @.str19 = private unnamed_addr constant [4 x i8] c"int\00", align 1
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_visible_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_visible_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
 @.str20 = private unnamed_addr constant [6 x i8] c"gid_t\00", align 1
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
 @.str21 = private unnamed_addr constant [6 x i8] c"uid_t\00", align 1
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([8 x i8]* @.str22, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 4, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setregid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str22, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
 @.str22 = private unnamed_addr constant [8 x i8] c"gid_t *\00", align 1
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([8 x i8]* @.str22, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8]* @.str23, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 3, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str22, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setegid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str20, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setgid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str21, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_setuid_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str23, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to %struct.sdt_probe*) }], align 16
 @.str23 = private unnamed_addr constant [15 x i8] c"struct label *\00", align 1
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8]* @.str23, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to %struct.sdt_probe*) }], align 16
-@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 2, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str23, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err1 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 1, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str18, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to %struct.sdt_probe*) }], align 16
+@sdt_mac_framework_kernel_cred_check_relabel_mac_check_err0 = internal global [1 x %struct.sdt_argtype] [%struct.sdt_argtype { i32 0, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str19, i32 0, i32 0), %struct.anon.73 zeroinitializer, %struct.sdt_probe* bitcast (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err to %struct.sdt_probe*) }], align 16
 @llvm.used = appending global [204 x i8*] [i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_err3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err4_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok4_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err4_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok3_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok3_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok4_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_err2_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok0_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok0_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok1_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok1_uninit_sys_uninit to i8*), i8* bitcast (i8** @__set_sysinit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2_init_sys_init to i8*), i8* bitcast (i8** @__set_sysuninit_set_sym_sdt_mac_framework_kernel_cred_check_visible_mac_check_ok2_uninit_sys_uninit to i8*)], section "llvm.metadata"
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define %struct.label* @mac_cred_label_alloc() #0 {
   %1 = tail call %struct.label* @mac_labelzone_alloc(i32 2) #3
-  %mpc.03 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.03 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %2 = icmp eq %struct.mac_policy_conf* %mpc.03, null
   br i1 %2, label %._crit_edge7, label %.lr.ph6
 
 .lr.ph6:                                          ; preds = %9, %0
   %mpc.04 = phi %struct.mac_policy_conf* [ %mpc.0, %9 ], [ %mpc.03, %0 ]
-  %3 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
-  %4 = load %struct.mac_policy_ops** %3, align 8
-  %5 = getelementptr inbounds %struct.mac_policy_ops* %4, i64 0, i32 28
-  %6 = load void (%struct.label*)** %5, align 8
+  %3 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
+  %4 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %3, align 8
+  %5 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %4, i64 0, i32 28
+  %6 = load void (%struct.label*)*, void (%struct.label*)** %5, align 8
   %7 = icmp eq void (%struct.label*)* %6, null
   br i1 %7, label %9, label %8
 
-; <label>:8                                       ; preds = %.lr.ph6
+; <label>:8:                                      ; preds = %.lr.ph6
   tail call void %6(%struct.label* %1) #3
   br label %9
 
-; <label>:9                                       ; preds = %8, %.lr.ph6
-  %10 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %10, align 8
+; <label>:9:                                      ; preds = %8, %.lr.ph6
+  %10 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %10, align 8
   %11 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %11, label %._crit_edge7, label %.lr.ph6
 
 ._crit_edge7:                                     ; preds = %9, %0
-  %12 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %12 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %13 = icmp eq %struct.mac_policy_conf* %12, null
   br i1 %13, label %25, label %14
 
-; <label>:14                                      ; preds = %._crit_edge7
+; <label>:14:                                     ; preds = %._crit_edge7
   tail call void @mac_policy_slock_sleep() #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %15 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %15, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %22, %14
   %mpc.12 = phi %struct.mac_policy_conf* [ %mpc.1, %22 ], [ %mpc.11, %14 ]
-  %16 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
-  %17 = load %struct.mac_policy_ops** %16, align 8
-  %18 = getelementptr inbounds %struct.mac_policy_ops* %17, i64 0, i32 28
-  %19 = load void (%struct.label*)** %18, align 8
+  %16 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
+  %17 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %16, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %17, i64 0, i32 28
+  %19 = load void (%struct.label*)*, void (%struct.label*)** %18, align 8
   %20 = icmp eq void (%struct.label*)* %19, null
   br i1 %20, label %22, label %21
 
-; <label>:21                                      ; preds = %.lr.ph
+; <label>:21:                                     ; preds = %.lr.ph
   tail call void %19(%struct.label* %1) #3
   br label %22
 
-; <label>:22                                      ; preds = %21, %.lr.ph
-  %23 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %23, align 8
+; <label>:22:                                     ; preds = %21, %.lr.ph
+  %23 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %23, align 8
   %24 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %24, label %._crit_edge, label %.lr.ph
 
@@ -1331,7 +1332,7 @@ define %struct.label* @mac_cred_label_alloc() #0 {
   tail call void @mac_policy_sunlock_sleep() #3
   br label %25
 
-; <label>:25                                      ; preds = %._crit_edge, %._crit_edge7
+; <label>:25:                                     ; preds = %._crit_edge, %._crit_edge7
   ret %struct.label* %1
 }
 
@@ -1346,95 +1347,95 @@ declare void @mac_policy_sunlock_sleep() #1
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_init(%struct.ucred* nocapture %cred) #0 {
-  %1 = load i64* @mac_labeled, align 8
+  %1 = load i64, i64* @mac_labeled, align 8
   %2 = and i64 %1, 1
   %3 = icmp eq i64 %2, 0
   br i1 %3, label %7, label %4
 
-; <label>:4                                       ; preds = %0
+; <label>:4:                                      ; preds = %0
   %5 = tail call %struct.label* @mac_cred_label_alloc() #4
-  %6 = getelementptr inbounds %struct.ucred* %cred, i64 0, i32 13
+  %6 = getelementptr inbounds %struct.ucred, %struct.ucred* %cred, i64 0, i32 13
   store %struct.label* %5, %struct.label** %6, align 8
   br label %9
 
-; <label>:7                                       ; preds = %0
-  %8 = getelementptr inbounds %struct.ucred* %cred, i64 0, i32 13
+; <label>:7:                                      ; preds = %0
+  %8 = getelementptr inbounds %struct.ucred, %struct.ucred* %cred, i64 0, i32 13
   store %struct.label* null, %struct.label** %8, align 8
   br label %9
 
-; <label>:9                                       ; preds = %7, %4
+; <label>:9:                                      ; preds = %7, %4
   ret void
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_label_free(%struct.label* %label) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.03 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.03 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.03, null
   br i1 %1, label %._crit_edge7, label %.lr.ph6
 
 .lr.ph6:                                          ; preds = %8, %0
   %mpc.04 = phi %struct.mac_policy_conf* [ %mpc.0, %8 ], [ %mpc.03, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 26
-  %5 = load void (%struct.label*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 26
+  %5 = load void (%struct.label*)*, void (%struct.label*)** %4, align 8
   %6 = icmp eq void (%struct.label*)* %5, null
   br i1 %6, label %8, label %7
 
-; <label>:7                                       ; preds = %.lr.ph6
+; <label>:7:                                      ; preds = %.lr.ph6
   call void %5(%struct.label* %label) #3
   br label %8
 
-; <label>:8                                       ; preds = %7, %.lr.ph6
-  %9 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %9, align 8
+; <label>:8:                                      ; preds = %7, %.lr.ph6
+  %9 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %9, align 8
   %10 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %10, label %._crit_edge7, label %.lr.ph6
 
 ._crit_edge7:                                     ; preds = %8, %0
-  %11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %12 = icmp eq %struct.mac_policy_conf* %11, null
   br i1 %12, label %25, label %13
 
-; <label>:13                                      ; preds = %._crit_edge7
+; <label>:13:                                     ; preds = %._crit_edge7
   %14 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %14) #2
+  call void @llvm.lifetime.start(i64 56, i8* %14) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %15 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %15, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %22, %13
   %mpc.12 = phi %struct.mac_policy_conf* [ %mpc.1, %22 ], [ %mpc.11, %13 ]
-  %16 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
-  %17 = load %struct.mac_policy_ops** %16, align 8
-  %18 = getelementptr inbounds %struct.mac_policy_ops* %17, i64 0, i32 26
-  %19 = load void (%struct.label*)** %18, align 8
+  %16 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
+  %17 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %16, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %17, i64 0, i32 26
+  %19 = load void (%struct.label*)*, void (%struct.label*)** %18, align 8
   %20 = icmp eq void (%struct.label*)* %19, null
   br i1 %20, label %22, label %21
 
-; <label>:21                                      ; preds = %.lr.ph
+; <label>:21:                                     ; preds = %.lr.ph
   call void %19(%struct.label* %label) #3
   br label %22
 
-; <label>:22                                      ; preds = %21, %.lr.ph
-  %23 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %23, align 8
+; <label>:22:                                     ; preds = %21, %.lr.ph
+  %23 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %23, align 8
   %24 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %24, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %22, %13
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %14) #2
+  call void @llvm.lifetime.end(i64 56, i8* %14) #5
   br label %25
 
-; <label>:25                                      ; preds = %._crit_edge, %._crit_edge7
+; <label>:25:                                     ; preds = %._crit_edge, %._crit_edge7
   call void @mac_labelzone_free(%struct.label* %label) #3
   ret void
 }
 
-; Function Attrs: nounwind
+; Function Attrs: argmemonly nounwind
 declare void @llvm.lifetime.start(i64, i8* nocapture) #2
 
 ; Function Attrs: noimplicitfloat noredzone
@@ -1443,7 +1444,7 @@ declare void @mac_policy_slock_nosleep(%struct.rm_priotracker*) #1
 ; Function Attrs: noimplicitfloat noredzone
 declare void @mac_policy_sunlock_nosleep(%struct.rm_priotracker*) #1
 
-; Function Attrs: nounwind
+; Function Attrs: argmemonly nounwind
 declare void @llvm.lifetime.end(i64, i8* nocapture) #2
 
 ; Function Attrs: noimplicitfloat noredzone
@@ -1451,218 +1452,218 @@ declare void @mac_labelzone_free(%struct.label*) #1
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_destroy(%struct.ucred* nocapture %cred) #0 {
-  %1 = getelementptr inbounds %struct.ucred* %cred, i64 0, i32 13
-  %2 = load %struct.label** %1, align 8
+  %1 = getelementptr inbounds %struct.ucred, %struct.ucred* %cred, i64 0, i32 13
+  %2 = load %struct.label*, %struct.label** %1, align 8
   %3 = icmp eq %struct.label* %2, null
   br i1 %3, label %5, label %4
 
-; <label>:4                                       ; preds = %0
+; <label>:4:                                      ; preds = %0
   tail call void @mac_cred_label_free(%struct.label* %2) #4
   store %struct.label* null, %struct.label** %1, align 8
   br label %5
 
-; <label>:5                                       ; preds = %4, %0
+; <label>:5:                                      ; preds = %4, %0
   ret void
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_associate_nfsd(%struct.ucred* %cred) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.03 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.03 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.03, null
   br i1 %1, label %._crit_edge7, label %.lr.ph6
 
 .lr.ph6:                                          ; preds = %8, %0
   %mpc.04 = phi %struct.mac_policy_conf* [ %mpc.0, %8 ], [ %mpc.03, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 8
-  %5 = load void (%struct.ucred*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 8
+  %5 = load void (%struct.ucred*)*, void (%struct.ucred*)** %4, align 8
   %6 = icmp eq void (%struct.ucred*)* %5, null
   br i1 %6, label %8, label %7
 
-; <label>:7                                       ; preds = %.lr.ph6
+; <label>:7:                                      ; preds = %.lr.ph6
   call void %5(%struct.ucred* %cred) #3
   br label %8
 
-; <label>:8                                       ; preds = %7, %.lr.ph6
-  %9 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %9, align 8
+; <label>:8:                                      ; preds = %7, %.lr.ph6
+  %9 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %9, align 8
   %10 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %10, label %._crit_edge7, label %.lr.ph6
 
 ._crit_edge7:                                     ; preds = %8, %0
-  %11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %12 = icmp eq %struct.mac_policy_conf* %11, null
   br i1 %12, label %25, label %13
 
-; <label>:13                                      ; preds = %._crit_edge7
+; <label>:13:                                     ; preds = %._crit_edge7
   %14 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %14) #2
+  call void @llvm.lifetime.start(i64 56, i8* %14) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %15 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %15, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %22, %13
   %mpc.12 = phi %struct.mac_policy_conf* [ %mpc.1, %22 ], [ %mpc.11, %13 ]
-  %16 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
-  %17 = load %struct.mac_policy_ops** %16, align 8
-  %18 = getelementptr inbounds %struct.mac_policy_ops* %17, i64 0, i32 8
-  %19 = load void (%struct.ucred*)** %18, align 8
+  %16 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
+  %17 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %16, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %17, i64 0, i32 8
+  %19 = load void (%struct.ucred*)*, void (%struct.ucred*)** %18, align 8
   %20 = icmp eq void (%struct.ucred*)* %19, null
   br i1 %20, label %22, label %21
 
-; <label>:21                                      ; preds = %.lr.ph
+; <label>:21:                                     ; preds = %.lr.ph
   call void %19(%struct.ucred* %cred) #3
   br label %22
 
-; <label>:22                                      ; preds = %21, %.lr.ph
-  %23 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %23, align 8
+; <label>:22:                                     ; preds = %21, %.lr.ph
+  %23 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %23, align 8
   %24 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %24, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %22, %13
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %14) #2
+  call void @llvm.lifetime.end(i64 56, i8* %14) #5
   br label %25
 
-; <label>:25                                      ; preds = %._crit_edge, %._crit_edge7
+; <label>:25:                                     ; preds = %._crit_edge, %._crit_edge7
   ret void
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_create_swapper(%struct.ucred* %cred) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.03 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.03 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.03, null
   br i1 %1, label %._crit_edge7, label %.lr.ph6
 
 .lr.ph6:                                          ; preds = %8, %0
   %mpc.04 = phi %struct.mac_policy_conf* [ %mpc.0, %8 ], [ %mpc.03, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 24
-  %5 = load void (%struct.ucred*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 24
+  %5 = load void (%struct.ucred*)*, void (%struct.ucred*)** %4, align 8
   %6 = icmp eq void (%struct.ucred*)* %5, null
   br i1 %6, label %8, label %7
 
-; <label>:7                                       ; preds = %.lr.ph6
+; <label>:7:                                      ; preds = %.lr.ph6
   call void %5(%struct.ucred* %cred) #3
   br label %8
 
-; <label>:8                                       ; preds = %7, %.lr.ph6
-  %9 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %9, align 8
+; <label>:8:                                      ; preds = %7, %.lr.ph6
+  %9 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %9, align 8
   %10 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %10, label %._crit_edge7, label %.lr.ph6
 
 ._crit_edge7:                                     ; preds = %8, %0
-  %11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %12 = icmp eq %struct.mac_policy_conf* %11, null
   br i1 %12, label %25, label %13
 
-; <label>:13                                      ; preds = %._crit_edge7
+; <label>:13:                                     ; preds = %._crit_edge7
   %14 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %14) #2
+  call void @llvm.lifetime.start(i64 56, i8* %14) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %15 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %15, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %22, %13
   %mpc.12 = phi %struct.mac_policy_conf* [ %mpc.1, %22 ], [ %mpc.11, %13 ]
-  %16 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
-  %17 = load %struct.mac_policy_ops** %16, align 8
-  %18 = getelementptr inbounds %struct.mac_policy_ops* %17, i64 0, i32 24
-  %19 = load void (%struct.ucred*)** %18, align 8
+  %16 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
+  %17 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %16, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %17, i64 0, i32 24
+  %19 = load void (%struct.ucred*)*, void (%struct.ucred*)** %18, align 8
   %20 = icmp eq void (%struct.ucred*)* %19, null
   br i1 %20, label %22, label %21
 
-; <label>:21                                      ; preds = %.lr.ph
+; <label>:21:                                     ; preds = %.lr.ph
   call void %19(%struct.ucred* %cred) #3
   br label %22
 
-; <label>:22                                      ; preds = %21, %.lr.ph
-  %23 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %23, align 8
+; <label>:22:                                     ; preds = %21, %.lr.ph
+  %23 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %23, align 8
   %24 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %24, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %22, %13
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %14) #2
+  call void @llvm.lifetime.end(i64 56, i8* %14) #5
   br label %25
 
-; <label>:25                                      ; preds = %._crit_edge, %._crit_edge7
+; <label>:25:                                     ; preds = %._crit_edge, %._crit_edge7
   ret void
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_create_init(%struct.ucred* %cred) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.03 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.03 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.03, null
   br i1 %1, label %._crit_edge7, label %.lr.ph6
 
 .lr.ph6:                                          ; preds = %8, %0
   %mpc.04 = phi %struct.mac_policy_conf* [ %mpc.0, %8 ], [ %mpc.03, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 25
-  %5 = load void (%struct.ucred*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 25
+  %5 = load void (%struct.ucred*)*, void (%struct.ucred*)** %4, align 8
   %6 = icmp eq void (%struct.ucred*)* %5, null
   br i1 %6, label %8, label %7
 
-; <label>:7                                       ; preds = %.lr.ph6
+; <label>:7:                                      ; preds = %.lr.ph6
   call void %5(%struct.ucred* %cred) #3
   br label %8
 
-; <label>:8                                       ; preds = %7, %.lr.ph6
-  %9 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %9, align 8
+; <label>:8:                                      ; preds = %7, %.lr.ph6
+  %9 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %9, align 8
   %10 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %10, label %._crit_edge7, label %.lr.ph6
 
 ._crit_edge7:                                     ; preds = %8, %0
-  %11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %12 = icmp eq %struct.mac_policy_conf* %11, null
   br i1 %12, label %25, label %13
 
-; <label>:13                                      ; preds = %._crit_edge7
+; <label>:13:                                     ; preds = %._crit_edge7
   %14 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %14) #2
+  call void @llvm.lifetime.start(i64 56, i8* %14) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %15 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %15, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %22, %13
   %mpc.12 = phi %struct.mac_policy_conf* [ %mpc.1, %22 ], [ %mpc.11, %13 ]
-  %16 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
-  %17 = load %struct.mac_policy_ops** %16, align 8
-  %18 = getelementptr inbounds %struct.mac_policy_ops* %17, i64 0, i32 25
-  %19 = load void (%struct.ucred*)** %18, align 8
+  %16 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
+  %17 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %16, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %17, i64 0, i32 25
+  %19 = load void (%struct.ucred*)*, void (%struct.ucred*)** %18, align 8
   %20 = icmp eq void (%struct.ucred*)* %19, null
   br i1 %20, label %22, label %21
 
-; <label>:21                                      ; preds = %.lr.ph
+; <label>:21:                                     ; preds = %.lr.ph
   call void %19(%struct.ucred* %cred) #3
   br label %22
 
-; <label>:22                                      ; preds = %21, %.lr.ph
-  %23 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %23, align 8
+; <label>:22:                                     ; preds = %21, %.lr.ph
+  %23 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %23, align 8
   %24 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %24, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %22, %13
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %14) #2
+  call void @llvm.lifetime.end(i64 56, i8* %14) #5
   br label %25
 
-; <label>:25                                      ; preds = %._crit_edge, %._crit_edge7
+; <label>:25:                                     ; preds = %._crit_edge, %._crit_edge7
   ret void
 }
 
@@ -1672,7 +1673,7 @@ define i32 @mac_cred_externalize_label(%struct.label* %label, i8* %elements, i8*
   %element_temp = alloca i8*, align 8
   %sb = alloca %struct.sbuf, align 8
   %1 = bitcast %struct.sbuf* %sb to i8*
-  call void @llvm.lifetime.start(i64 64, i8* %1) #2
+  call void @llvm.lifetime.start(i64 64, i8* %1) #5
   %2 = trunc i64 %outbuflen to i32
   %3 = call %struct.sbuf* @sbuf_new(%struct.sbuf* %sb, i8* %outbuf, i32 %2, i32 0) #3
   store i8* %elements, i8** %element_temp, align 8
@@ -1680,7 +1681,7 @@ define i32 @mac_cred_externalize_label(%struct.label* %label, i8* %elements, i8*
 
 .outer:                                           ; preds = %58, %0
   %first.0.ph = phi i32 [ 1, %0 ], [ 0, %58 ]
-  %4 = call i8* @strsep(i8** %element_temp, i8* getelementptr inbounds ([2 x i8]* @.str, i64 0, i64 0)) #3
+  %4 = call i8* @strsep(i8** %element_temp, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str, i64 0, i64 0)) #3
   %5 = icmp eq i8* %4, null
   br i1 %5, label %.loopexit, label %.lr.ph11
 
@@ -1688,87 +1689,87 @@ define i32 @mac_cred_externalize_label(%struct.label* %label, i8* %elements, i8*
   %6 = icmp eq i32 %first.0.ph, 0
   br label %7
 
-; <label>:7                                       ; preds = %53, %.lr.ph11
+; <label>:7:                                      ; preds = %53, %.lr.ph11
   %8 = phi i8* [ %4, %.lr.ph11 ], [ %56, %53 ]
-  %9 = load i8* %8, align 1
+  %9 = load i8, i8* %8, align 1
   %10 = icmp eq i8 %9, 63
-  %11 = getelementptr inbounds i8* %8, i64 1
+  %11 = getelementptr inbounds i8, i8* %8, i64 1
   %element_name.0 = select i1 %10, i8* %11, i8* %8
   %12 = call i64 @sbuf_len(%struct.sbuf* %sb) #3
   br i1 %6, label %15, label %13
 
-; <label>:13                                      ; preds = %7
-  %14 = call i32 (%struct.sbuf*, i8*, ...)* @sbuf_printf(%struct.sbuf* %sb, i8* getelementptr inbounds ([4 x i8]* @.str1, i64 0, i64 0), i8* %element_name.0) #3
+; <label>:13:                                     ; preds = %7
+  %14 = call i32 (%struct.sbuf*, i8*, ...) @sbuf_printf(%struct.sbuf* %sb, i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str1, i64 0, i64 0), i8* %element_name.0) #3
   br label %17
 
-; <label>:15                                      ; preds = %7
-  %16 = call i32 (%struct.sbuf*, i8*, ...)* @sbuf_printf(%struct.sbuf* %sb, i8* getelementptr inbounds ([5 x i8]* @.str2, i64 0, i64 0), i8* %element_name.0) #3
+; <label>:15:                                     ; preds = %7
+  %16 = call i32 (%struct.sbuf*, i8*, ...) @sbuf_printf(%struct.sbuf* %sb, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.str2, i64 0, i64 0), i8* %element_name.0) #3
   br label %17
 
-; <label>:17                                      ; preds = %15, %13
+; <label>:17:                                     ; preds = %15, %13
   %error.1 = phi i32 [ %14, %13 ], [ %16, %15 ]
   %18 = icmp eq i32 %error.1, -1
   br i1 %18, label %.loopexit, label %19
 
-; <label>:19                                      ; preds = %17
+; <label>:19:                                     ; preds = %17
   store i32 0, i32* %claimed, align 4
-  %mpc.01 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.01 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %20 = icmp eq %struct.mac_policy_conf* %mpc.01, null
   br i1 %20, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %29, %19
   %mpc.03 = phi %struct.mac_policy_conf* [ %mpc.0, %29 ], [ %mpc.01, %19 ]
   %error.22 = phi i32 [ %error.3, %29 ], [ 0, %19 ]
-  %21 = getelementptr inbounds %struct.mac_policy_conf* %mpc.03, i64 0, i32 2
-  %22 = load %struct.mac_policy_ops** %21, align 8
-  %23 = getelementptr inbounds %struct.mac_policy_ops* %22, i64 0, i32 27
-  %24 = load i32 (%struct.label*, i8*, %struct.sbuf*, i32*)** %23, align 8
+  %21 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.03, i64 0, i32 2
+  %22 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %21, align 8
+  %23 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %22, i64 0, i32 27
+  %24 = load i32 (%struct.label*, i8*, %struct.sbuf*, i32*)*, i32 (%struct.label*, i8*, %struct.sbuf*, i32*)** %23, align 8
   %25 = icmp eq i32 (%struct.label*, i8*, %struct.sbuf*, i32*)* %24, null
   br i1 %25, label %29, label %26
 
-; <label>:26                                      ; preds = %.lr.ph
+; <label>:26:                                     ; preds = %.lr.ph
   %27 = call i32 %24(%struct.label* %label, i8* %element_name.0, %struct.sbuf* %sb, i32* %claimed) #3
   %28 = call i32 @mac_error_select(i32 %27, i32 %error.22) #3
   br label %29
 
-; <label>:29                                      ; preds = %26, %.lr.ph
+; <label>:29:                                     ; preds = %26, %.lr.ph
   %error.3 = phi i32 [ %28, %26 ], [ %error.22, %.lr.ph ]
-  %30 = getelementptr inbounds %struct.mac_policy_conf* %mpc.03, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %30, align 8
+  %30 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.03, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %30, align 8
   %31 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %31, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %29, %19
   %error.2.lcssa = phi i32 [ 0, %19 ], [ %error.3, %29 ]
-  %32 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %32 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %33 = icmp eq %struct.mac_policy_conf* %32, null
   br i1 %33, label %47, label %34
 
-; <label>:34                                      ; preds = %._crit_edge
+; <label>:34:                                     ; preds = %._crit_edge
   call void @mac_policy_slock_sleep() #3
-  %mpc.14 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.14 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %35 = icmp eq %struct.mac_policy_conf* %mpc.14, null
   br i1 %35, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %44, %34
   %mpc.16 = phi %struct.mac_policy_conf* [ %mpc.1, %44 ], [ %mpc.14, %34 ]
   %error.45 = phi i32 [ %error.5, %44 ], [ %error.2.lcssa, %34 ]
-  %36 = getelementptr inbounds %struct.mac_policy_conf* %mpc.16, i64 0, i32 2
-  %37 = load %struct.mac_policy_ops** %36, align 8
-  %38 = getelementptr inbounds %struct.mac_policy_ops* %37, i64 0, i32 27
-  %39 = load i32 (%struct.label*, i8*, %struct.sbuf*, i32*)** %38, align 8
+  %36 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.16, i64 0, i32 2
+  %37 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %36, align 8
+  %38 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %37, i64 0, i32 27
+  %39 = load i32 (%struct.label*, i8*, %struct.sbuf*, i32*)*, i32 (%struct.label*, i8*, %struct.sbuf*, i32*)** %38, align 8
   %40 = icmp eq i32 (%struct.label*, i8*, %struct.sbuf*, i32*)* %39, null
   br i1 %40, label %44, label %41
 
-; <label>:41                                      ; preds = %.lr.ph8
+; <label>:41:                                     ; preds = %.lr.ph8
   %42 = call i32 %39(%struct.label* %label, i8* %element_name.0, %struct.sbuf* %sb, i32* %claimed) #3
   %43 = call i32 @mac_error_select(i32 %42, i32 %error.45) #3
   br label %44
 
-; <label>:44                                      ; preds = %41, %.lr.ph8
+; <label>:44:                                     ; preds = %41, %.lr.ph8
   %error.5 = phi i32 [ %43, %41 ], [ %error.45, %.lr.ph8 ]
-  %45 = getelementptr inbounds %struct.mac_policy_conf* %mpc.16, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %45, align 8
+  %45 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.16, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %45, align 8
   %46 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %46, label %._crit_edge9, label %.lr.ph8
 
@@ -1777,34 +1778,34 @@ define i32 @mac_cred_externalize_label(%struct.label* %label, i8* %elements, i8*
   call void @mac_policy_sunlock_sleep() #3
   br label %47
 
-; <label>:47                                      ; preds = %._crit_edge9, %._crit_edge
+; <label>:47:                                     ; preds = %._crit_edge9, %._crit_edge
   %error.6 = phi i32 [ %error.2.lcssa, %._crit_edge ], [ %error.4.lcssa, %._crit_edge9 ]
   %48 = icmp eq i32 %error.6, 0
   br i1 %48, label %49, label %.loopexit
 
-; <label>:49                                      ; preds = %47
-  %50 = load i32* %claimed, align 4
+; <label>:49:                                     ; preds = %47
+  %50 = load i32, i32* %claimed, align 4
   %51 = icmp ne i32 %50, 0
   %52 = xor i1 %10, true
   %or.cond = or i1 %51, %52
   br i1 %or.cond, label %58, label %53
 
-; <label>:53                                      ; preds = %49
+; <label>:53:                                     ; preds = %49
   %sext = shl i64 %12, 32
   %54 = ashr exact i64 %sext, 32
   %55 = call i32 @sbuf_setpos(%struct.sbuf* %sb, i64 %54) #3
-  %56 = call i8* @strsep(i8** %element_temp, i8* getelementptr inbounds ([2 x i8]* @.str, i64 0, i64 0)) #3
+  %56 = call i8* @strsep(i8** %element_temp, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str, i64 0, i64 0)) #3
   %57 = icmp eq i8* %56, null
   br i1 %57, label %.loopexit, label %7
 
-; <label>:58                                      ; preds = %49
+; <label>:58:                                     ; preds = %49
   %59 = icmp eq i32 %50, 1
   br i1 %59, label %.outer, label %.loopexit
 
 .loopexit:                                        ; preds = %58, %53, %47, %17, %.outer
   %error.7 = phi i32 [ %error.6, %47 ], [ 22, %17 ], [ 0, %53 ], [ 0, %.outer ], [ 22, %58 ]
   %60 = call i32 @sbuf_finish(%struct.sbuf* %sb) #3
-  call void @llvm.lifetime.end(i64 64, i8* %1) #2
+  call void @llvm.lifetime.end(i64 64, i8* %1) #5
   ret i32 %error.7
 }
 
@@ -1837,79 +1838,79 @@ define i32 @mac_cred_internalize_label(%struct.label* %label, i8* %string) #0 {
   store i8* %string, i8** %element, align 8
   br label %1
 
-; <label>:1                                       ; preds = %40, %0
-  %2 = call i8* @strsep(i8** %element, i8* getelementptr inbounds ([2 x i8]* @.str, i64 0, i64 0)) #3
+; <label>:1:                                      ; preds = %40, %0
+  %2 = call i8* @strsep(i8** %element, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str, i64 0, i64 0)) #3
   %3 = icmp eq i8* %2, null
   br i1 %3, label %43, label %4
 
-; <label>:4                                       ; preds = %1
+; <label>:4:                                      ; preds = %1
   store i8* %2, i8** %element_data, align 8
-  %5 = call i8* @strsep(i8** %element_data, i8* getelementptr inbounds ([2 x i8]* @.str3, i64 0, i64 0)) #3
-  %6 = load i8** %element_data, align 8
+  %5 = call i8* @strsep(i8** %element_data, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str3, i64 0, i64 0)) #3
+  %6 = load i8*, i8** %element_data, align 8
   %7 = icmp eq i8* %6, null
   br i1 %7, label %43, label %8
 
-; <label>:8                                       ; preds = %4
+; <label>:8:                                      ; preds = %4
   store i32 0, i32* %claimed, align 4
-  %mpc.01 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.01 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %9 = icmp eq %struct.mac_policy_conf* %mpc.01, null
   br i1 %9, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %19, %8
   %mpc.03 = phi %struct.mac_policy_conf* [ %mpc.0, %19 ], [ %mpc.01, %8 ]
   %error.12 = phi i32 [ %error.2, %19 ], [ 0, %8 ]
-  %10 = getelementptr inbounds %struct.mac_policy_conf* %mpc.03, i64 0, i32 2
-  %11 = load %struct.mac_policy_ops** %10, align 8
-  %12 = getelementptr inbounds %struct.mac_policy_ops* %11, i64 0, i32 29
-  %13 = load i32 (%struct.label*, i8*, i8*, i32*)** %12, align 8
+  %10 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.03, i64 0, i32 2
+  %11 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %10, align 8
+  %12 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %11, i64 0, i32 29
+  %13 = load i32 (%struct.label*, i8*, i8*, i32*)*, i32 (%struct.label*, i8*, i8*, i32*)** %12, align 8
   %14 = icmp eq i32 (%struct.label*, i8*, i8*, i32*)* %13, null
   br i1 %14, label %19, label %15
 
-; <label>:15                                      ; preds = %.lr.ph
-  %16 = load i8** %element_data, align 8
+; <label>:15:                                     ; preds = %.lr.ph
+  %16 = load i8*, i8** %element_data, align 8
   %17 = call i32 %13(%struct.label* %label, i8* %5, i8* %16, i32* %claimed) #3
   %18 = call i32 @mac_error_select(i32 %17, i32 %error.12) #3
   br label %19
 
-; <label>:19                                      ; preds = %15, %.lr.ph
+; <label>:19:                                     ; preds = %15, %.lr.ph
   %error.2 = phi i32 [ %18, %15 ], [ %error.12, %.lr.ph ]
-  %20 = getelementptr inbounds %struct.mac_policy_conf* %mpc.03, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %20, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.03, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %20, align 8
   %21 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %21, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %19, %8
   %error.1.lcssa = phi i32 [ 0, %8 ], [ %error.2, %19 ]
-  %22 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %22 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %23 = icmp eq %struct.mac_policy_conf* %22, null
   br i1 %23, label %38, label %24
 
-; <label>:24                                      ; preds = %._crit_edge
+; <label>:24:                                     ; preds = %._crit_edge
   call void @mac_policy_slock_sleep() #3
-  %mpc.14 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.14 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %25 = icmp eq %struct.mac_policy_conf* %mpc.14, null
   br i1 %25, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %35, %24
   %mpc.16 = phi %struct.mac_policy_conf* [ %mpc.1, %35 ], [ %mpc.14, %24 ]
   %error.35 = phi i32 [ %error.4, %35 ], [ %error.1.lcssa, %24 ]
-  %26 = getelementptr inbounds %struct.mac_policy_conf* %mpc.16, i64 0, i32 2
-  %27 = load %struct.mac_policy_ops** %26, align 8
-  %28 = getelementptr inbounds %struct.mac_policy_ops* %27, i64 0, i32 29
-  %29 = load i32 (%struct.label*, i8*, i8*, i32*)** %28, align 8
+  %26 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.16, i64 0, i32 2
+  %27 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %26, align 8
+  %28 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %27, i64 0, i32 29
+  %29 = load i32 (%struct.label*, i8*, i8*, i32*)*, i32 (%struct.label*, i8*, i8*, i32*)** %28, align 8
   %30 = icmp eq i32 (%struct.label*, i8*, i8*, i32*)* %29, null
   br i1 %30, label %35, label %31
 
-; <label>:31                                      ; preds = %.lr.ph8
-  %32 = load i8** %element_data, align 8
+; <label>:31:                                     ; preds = %.lr.ph8
+  %32 = load i8*, i8** %element_data, align 8
   %33 = call i32 %29(%struct.label* %label, i8* %5, i8* %32, i32* %claimed) #3
   %34 = call i32 @mac_error_select(i32 %33, i32 %error.35) #3
   br label %35
 
-; <label>:35                                      ; preds = %31, %.lr.ph8
+; <label>:35:                                     ; preds = %31, %.lr.ph8
   %error.4 = phi i32 [ %34, %31 ], [ %error.35, %.lr.ph8 ]
-  %36 = getelementptr inbounds %struct.mac_policy_conf* %mpc.16, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %36, align 8
+  %36 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.16, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %36, align 8
   %37 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %37, label %._crit_edge9, label %.lr.ph8
 
@@ -1918,17 +1919,17 @@ define i32 @mac_cred_internalize_label(%struct.label* %label, i8* %string) #0 {
   call void @mac_policy_sunlock_sleep() #3
   br label %38
 
-; <label>:38                                      ; preds = %._crit_edge9, %._crit_edge
+; <label>:38:                                     ; preds = %._crit_edge9, %._crit_edge
   %error.5 = phi i32 [ %error.1.lcssa, %._crit_edge ], [ %error.3.lcssa, %._crit_edge9 ]
   %39 = icmp eq i32 %error.5, 0
   br i1 %39, label %40, label %43
 
-; <label>:40                                      ; preds = %38
-  %41 = load i32* %claimed, align 4
+; <label>:40:                                     ; preds = %38
+  %41 = load i32, i32* %claimed, align 4
   %42 = icmp eq i32 %41, 1
   br i1 %42, label %1, label %43
 
-; <label>:43                                      ; preds = %40, %38, %4, %1
+; <label>:43:                                     ; preds = %40, %38, %4, %1
   %error.6 = phi i32 [ %error.5, %38 ], [ 0, %1 ], [ 22, %4 ], [ 22, %40 ]
   ret i32 %error.6
 }
@@ -1936,234 +1937,234 @@ define i32 @mac_cred_internalize_label(%struct.label* %label, i8* %string) #0 {
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_copy(%struct.ucred* nocapture %src, %struct.ucred* nocapture %dest) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.03 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.03 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.03, null
   br i1 %1, label %._crit_edge7, label %.lr.ph6
 
 .lr.ph6:                                          ; preds = %0
-  %2 = getelementptr inbounds %struct.ucred* %src, i64 0, i32 13
-  %3 = getelementptr inbounds %struct.ucred* %dest, i64 0, i32 13
+  %2 = getelementptr inbounds %struct.ucred, %struct.ucred* %src, i64 0, i32 13
+  %3 = getelementptr inbounds %struct.ucred, %struct.ucred* %dest, i64 0, i32 13
   br label %4
 
-; <label>:4                                       ; preds = %13, %.lr.ph6
+; <label>:4:                                      ; preds = %13, %.lr.ph6
   %mpc.04 = phi %struct.mac_policy_conf* [ %mpc.03, %.lr.ph6 ], [ %mpc.0, %13 ]
-  %5 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
-  %6 = load %struct.mac_policy_ops** %5, align 8
-  %7 = getelementptr inbounds %struct.mac_policy_ops* %6, i64 0, i32 23
-  %8 = load void (%struct.label*, %struct.label*)** %7, align 8
+  %5 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
+  %6 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %5, align 8
+  %7 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %6, i64 0, i32 23
+  %8 = load void (%struct.label*, %struct.label*)*, void (%struct.label*, %struct.label*)** %7, align 8
   %9 = icmp eq void (%struct.label*, %struct.label*)* %8, null
   br i1 %9, label %13, label %10
 
-; <label>:10                                      ; preds = %4
-  %11 = load %struct.label** %2, align 8
-  %12 = load %struct.label** %3, align 8
+; <label>:10:                                     ; preds = %4
+  %11 = load %struct.label*, %struct.label** %2, align 8
+  %12 = load %struct.label*, %struct.label** %3, align 8
   call void %8(%struct.label* %11, %struct.label* %12) #3
   br label %13
 
-; <label>:13                                      ; preds = %10, %4
-  %14 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %14, align 8
+; <label>:13:                                     ; preds = %10, %4
+  %14 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %14, align 8
   %15 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %15, label %._crit_edge7, label %4
 
 ._crit_edge7:                                     ; preds = %13, %0
-  %16 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %16 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %16, null
   br i1 %17, label %35, label %18
 
-; <label>:18                                      ; preds = %._crit_edge7
+; <label>:18:                                     ; preds = %._crit_edge7
   %19 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %19) #2
+  call void @llvm.lifetime.start(i64 56, i8* %19) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %20 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %20, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %18
-  %21 = getelementptr inbounds %struct.ucred* %src, i64 0, i32 13
-  %22 = getelementptr inbounds %struct.ucred* %dest, i64 0, i32 13
+  %21 = getelementptr inbounds %struct.ucred, %struct.ucred* %src, i64 0, i32 13
+  %22 = getelementptr inbounds %struct.ucred, %struct.ucred* %dest, i64 0, i32 13
   br label %23
 
-; <label>:23                                      ; preds = %32, %.lr.ph
+; <label>:23:                                     ; preds = %32, %.lr.ph
   %mpc.12 = phi %struct.mac_policy_conf* [ %mpc.11, %.lr.ph ], [ %mpc.1, %32 ]
-  %24 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
-  %25 = load %struct.mac_policy_ops** %24, align 8
-  %26 = getelementptr inbounds %struct.mac_policy_ops* %25, i64 0, i32 23
-  %27 = load void (%struct.label*, %struct.label*)** %26, align 8
+  %24 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
+  %25 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %24, align 8
+  %26 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %25, i64 0, i32 23
+  %27 = load void (%struct.label*, %struct.label*)*, void (%struct.label*, %struct.label*)** %26, align 8
   %28 = icmp eq void (%struct.label*, %struct.label*)* %27, null
   br i1 %28, label %32, label %29
 
-; <label>:29                                      ; preds = %23
-  %30 = load %struct.label** %21, align 8
-  %31 = load %struct.label** %22, align 8
+; <label>:29:                                     ; preds = %23
+  %30 = load %struct.label*, %struct.label** %21, align 8
+  %31 = load %struct.label*, %struct.label** %22, align 8
   call void %27(%struct.label* %30, %struct.label* %31) #3
   br label %32
 
-; <label>:32                                      ; preds = %29, %23
-  %33 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %33, align 8
+; <label>:32:                                     ; preds = %29, %23
+  %33 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %33, align 8
   %34 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %34, label %._crit_edge, label %23
 
 ._crit_edge:                                      ; preds = %32, %18
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %19) #2
+  call void @llvm.lifetime.end(i64 56, i8* %19) #5
   br label %35
 
-; <label>:35                                      ; preds = %._crit_edge, %._crit_edge7
+; <label>:35:                                     ; preds = %._crit_edge, %._crit_edge7
   ret void
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define void @mac_cred_relabel(%struct.ucred* %cred, %struct.label* %newlabel) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.03 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.03 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.03, null
   br i1 %1, label %._crit_edge7, label %.lr.ph6
 
 .lr.ph6:                                          ; preds = %8, %0
   %mpc.04 = phi %struct.mac_policy_conf* [ %mpc.0, %8 ], [ %mpc.03, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 30
-  %5 = load void (%struct.ucred*, %struct.label*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 30
+  %5 = load void (%struct.ucred*, %struct.label*)*, void (%struct.ucred*, %struct.label*)** %4, align 8
   %6 = icmp eq void (%struct.ucred*, %struct.label*)* %5, null
   br i1 %6, label %8, label %7
 
-; <label>:7                                       ; preds = %.lr.ph6
+; <label>:7:                                      ; preds = %.lr.ph6
   call void %5(%struct.ucred* %cred, %struct.label* %newlabel) #3
   br label %8
 
-; <label>:8                                       ; preds = %7, %.lr.ph6
-  %9 = getelementptr inbounds %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %9, align 8
+; <label>:8:                                      ; preds = %7, %.lr.ph6
+  %9 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.04, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %9, align 8
   %10 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %10, label %._crit_edge7, label %.lr.ph6
 
 ._crit_edge7:                                     ; preds = %8, %0
-  %11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %12 = icmp eq %struct.mac_policy_conf* %11, null
   br i1 %12, label %25, label %13
 
-; <label>:13                                      ; preds = %._crit_edge7
+; <label>:13:                                     ; preds = %._crit_edge7
   %14 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %14) #2
+  call void @llvm.lifetime.start(i64 56, i8* %14) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %15 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %15, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %22, %13
   %mpc.12 = phi %struct.mac_policy_conf* [ %mpc.1, %22 ], [ %mpc.11, %13 ]
-  %16 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
-  %17 = load %struct.mac_policy_ops** %16, align 8
-  %18 = getelementptr inbounds %struct.mac_policy_ops* %17, i64 0, i32 30
-  %19 = load void (%struct.ucred*, %struct.label*)** %18, align 8
+  %16 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 2
+  %17 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %16, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %17, i64 0, i32 30
+  %19 = load void (%struct.ucred*, %struct.label*)*, void (%struct.ucred*, %struct.label*)** %18, align 8
   %20 = icmp eq void (%struct.ucred*, %struct.label*)* %19, null
   br i1 %20, label %22, label %21
 
-; <label>:21                                      ; preds = %.lr.ph
+; <label>:21:                                     ; preds = %.lr.ph
   call void %19(%struct.ucred* %cred, %struct.label* %newlabel) #3
   br label %22
 
-; <label>:22                                      ; preds = %21, %.lr.ph
-  %23 = getelementptr inbounds %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %23, align 8
+; <label>:22:                                     ; preds = %21, %.lr.ph
+  %23 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.12, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %23, align 8
   %24 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %24, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %22, %13
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %14) #2
+  call void @llvm.lifetime.end(i64 56, i8* %14) #5
   br label %25
 
-; <label>:25                                      ; preds = %._crit_edge, %._crit_edge7
+; <label>:25:                                     ; preds = %._crit_edge, %._crit_edge7
   ret void
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_relabel(%struct.ucred* %cred, %struct.label* %newlabel) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 9
-  %5 = load i32 (%struct.ucred*, %struct.label*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 9
+  %5 = load i32 (%struct.ucred*, %struct.label*)*, i32 (%struct.ucred*, %struct.label*)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, %struct.label*)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, %struct.label* %newlabel) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 9
-  %21 = load i32 (%struct.ucred*, %struct.label*)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 9
+  %21 = load i32 (%struct.ucred*, %struct.label*)*, i32 (%struct.ucred*, %struct.label*)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, %struct.label*)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, %struct.label* %newlabel) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %40, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %48, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2171,20 +2172,20 @@ define i32 @mac_cred_check_relabel(%struct.ucred* %cred, %struct.label* %newlabe
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 0, i64 0) #3
   br label %48
 
-; <label>:40                                      ; preds = %29
-  %41 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:40:                                     ; preds = %29
+  %41 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_relabel_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %42 = icmp eq i64 %41, 0
   br i1 %42, label %48, label %43
 
-; <label>:43                                      ; preds = %40
-  %44 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:43:                                     ; preds = %40
+  %44 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %45 = trunc i64 %41 to i32
   %46 = ptrtoint %struct.ucred* %cred to i64
   %47 = ptrtoint %struct.label* %newlabel to i64
   call void %44(i32 %45, i64 0, i64 %46, i64 %47, i64 0, i64 0) #3
   br label %48
 
-; <label>:48                                      ; preds = %43, %40, %34, %31
+; <label>:48:                                     ; preds = %43, %40, %34, %31
   ret i32 %error.4
 }
 
@@ -2192,86 +2193,86 @@ define i32 @mac_cred_check_relabel(%struct.ucred* %cred, %struct.label* %newlabe
 define i32 @mac_cred_check_setuid(%struct.ucred* %cred, i32 %uid) #0 {
   ; CHECK: call void @__tesla_instr{{.*}}_check_setuid
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 13
-  %5 = load i32 (%struct.ucred*, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 13
+  %5 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %uid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 13
-  %21 = load i32 (%struct.ucred*, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 13
+  %21 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %uid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %40, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %48, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2279,106 +2280,106 @@ define i32 @mac_cred_check_setuid(%struct.ucred* %cred, i32 %uid) #0 {
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 0, i64 0) #3
   br label %48
 
-; <label>:40                                      ; preds = %29
-  %41 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:40:                                     ; preds = %29
+  %41 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %42 = icmp eq i64 %41, 0
   br i1 %42, label %48, label %43
 
-; <label>:43                                      ; preds = %40
-  %44 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:43:                                     ; preds = %40
+  %44 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %45 = trunc i64 %41 to i32
   %46 = ptrtoint %struct.ucred* %cred to i64
   %47 = zext i32 %uid to i64
   call void %44(i32 %45, i64 0, i64 %46, i64 %47, i64 0, i64 0) #3
   br label %48
 
-; <label>:48                                      ; preds = %43, %40, %34, %31
+; <label>:48:                                     ; preds = %43, %40, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_seteuid(%struct.ucred* %cred, i32 %euid) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 14
-  %5 = load i32 (%struct.ucred*, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 14
+  %5 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %euid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 14
-  %21 = load i32 (%struct.ucred*, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 14
+  %21 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %euid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %40, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %48, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2386,106 +2387,106 @@ define i32 @mac_cred_check_seteuid(%struct.ucred* %cred, i32 %euid) #0 {
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 0, i64 0) #3
   br label %48
 
-; <label>:40                                      ; preds = %29
-  %41 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:40:                                     ; preds = %29
+  %41 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_seteuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %42 = icmp eq i64 %41, 0
   br i1 %42, label %48, label %43
 
-; <label>:43                                      ; preds = %40
-  %44 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:43:                                     ; preds = %40
+  %44 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %45 = trunc i64 %41 to i32
   %46 = ptrtoint %struct.ucred* %cred to i64
   %47 = zext i32 %euid to i64
   call void %44(i32 %45, i64 0, i64 %46, i64 %47, i64 0, i64 0) #3
   br label %48
 
-; <label>:48                                      ; preds = %43, %40, %34, %31
+; <label>:48:                                     ; preds = %43, %40, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_setgid(%struct.ucred* %cred, i32 %gid) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 15
-  %5 = load i32 (%struct.ucred*, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 15
+  %5 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %gid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 15
-  %21 = load i32 (%struct.ucred*, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 15
+  %21 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %gid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %40, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %48, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2493,106 +2494,106 @@ define i32 @mac_cred_check_setgid(%struct.ucred* %cred, i32 %gid) #0 {
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 0, i64 0) #3
   br label %48
 
-; <label>:40                                      ; preds = %29
-  %41 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:40:                                     ; preds = %29
+  %41 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %42 = icmp eq i64 %41, 0
   br i1 %42, label %48, label %43
 
-; <label>:43                                      ; preds = %40
-  %44 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:43:                                     ; preds = %40
+  %44 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %45 = trunc i64 %41 to i32
   %46 = ptrtoint %struct.ucred* %cred to i64
   %47 = zext i32 %gid to i64
   call void %44(i32 %45, i64 0, i64 %46, i64 %47, i64 0, i64 0) #3
   br label %48
 
-; <label>:48                                      ; preds = %43, %40, %34, %31
+; <label>:48:                                     ; preds = %43, %40, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_setegid(%struct.ucred* %cred, i32 %egid) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 16
-  %5 = load i32 (%struct.ucred*, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 16
+  %5 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %egid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 16
-  %21 = load i32 (%struct.ucred*, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 16
+  %21 = load i32 (%struct.ucred*, i32)*, i32 (%struct.ucred*, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %egid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %40, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %48, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2600,106 +2601,106 @@ define i32 @mac_cred_check_setegid(%struct.ucred* %cred, i32 %egid) #0 {
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 0, i64 0) #3
   br label %48
 
-; <label>:40                                      ; preds = %29
-  %41 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:40:                                     ; preds = %29
+  %41 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setegid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %42 = icmp eq i64 %41, 0
   br i1 %42, label %48, label %43
 
-; <label>:43                                      ; preds = %40
-  %44 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:43:                                     ; preds = %40
+  %44 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %45 = trunc i64 %41 to i32
   %46 = ptrtoint %struct.ucred* %cred to i64
   %47 = zext i32 %egid to i64
   call void %44(i32 %45, i64 0, i64 %46, i64 %47, i64 0, i64 0) #3
   br label %48
 
-; <label>:48                                      ; preds = %43, %40, %34, %31
+; <label>:48:                                     ; preds = %43, %40, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_setgroups(%struct.ucred* %cred, i32 %ngroups, i32* %gidset) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 17
-  %5 = load i32 (%struct.ucred*, i32, i32*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 17
+  %5 = load i32 (%struct.ucred*, i32, i32*)*, i32 (%struct.ucred*, i32, i32*)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32, i32*)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %ngroups, i32* %gidset) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 17
-  %21 = load i32 (%struct.ucred*, i32, i32*)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 17
+  %21 = load i32 (%struct.ucred*, i32, i32*)*, i32 (%struct.ucred*, i32, i32*)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32, i32*)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %ngroups, i32* %gidset) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %41, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %50, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2708,13 +2709,13 @@ define i32 @mac_cred_check_setgroups(%struct.ucred* %cred, i32 %ngroups, i32* %g
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 %40, i64 0) #3
   br label %50
 
-; <label>:41                                      ; preds = %29
-  %42 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:41:                                     ; preds = %29
+  %42 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setgroups_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %43 = icmp eq i64 %42, 0
   br i1 %43, label %50, label %44
 
-; <label>:44                                      ; preds = %41
-  %45 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:44:                                     ; preds = %41
+  %45 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %46 = trunc i64 %42 to i32
   %47 = ptrtoint %struct.ucred* %cred to i64
   %48 = sext i32 %ngroups to i64
@@ -2722,93 +2723,93 @@ define i32 @mac_cred_check_setgroups(%struct.ucred* %cred, i32 %ngroups, i32* %g
   call void %45(i32 %46, i64 0, i64 %47, i64 %48, i64 %49, i64 0) #3
   br label %50
 
-; <label>:50                                      ; preds = %44, %41, %34, %31
+; <label>:50:                                     ; preds = %44, %41, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_setreuid(%struct.ucred* %cred, i32 %ruid, i32 %euid) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 18
-  %5 = load i32 (%struct.ucred*, i32, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 18
+  %5 = load i32 (%struct.ucred*, i32, i32)*, i32 (%struct.ucred*, i32, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %ruid, i32 %euid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 18
-  %21 = load i32 (%struct.ucred*, i32, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 18
+  %21 = load i32 (%struct.ucred*, i32, i32)*, i32 (%struct.ucred*, i32, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %ruid, i32 %euid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %41, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %50, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2817,13 +2818,13 @@ define i32 @mac_cred_check_setreuid(%struct.ucred* %cred, i32 %ruid, i32 %euid) 
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 %40, i64 0) #3
   br label %50
 
-; <label>:41                                      ; preds = %29
-  %42 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:41:                                     ; preds = %29
+  %42 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setreuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %43 = icmp eq i64 %42, 0
   br i1 %43, label %50, label %44
 
-; <label>:44                                      ; preds = %41
-  %45 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:44:                                     ; preds = %41
+  %45 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %46 = trunc i64 %42 to i32
   %47 = ptrtoint %struct.ucred* %cred to i64
   %48 = zext i32 %ruid to i64
@@ -2831,93 +2832,93 @@ define i32 @mac_cred_check_setreuid(%struct.ucred* %cred, i32 %ruid, i32 %euid) 
   call void %45(i32 %46, i64 0, i64 %47, i64 %48, i64 %49, i64 0) #3
   br label %50
 
-; <label>:50                                      ; preds = %44, %41, %34, %31
+; <label>:50:                                     ; preds = %44, %41, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_setregid(%struct.ucred* %cred, i32 %rgid, i32 %egid) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 19
-  %5 = load i32 (%struct.ucred*, i32, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 19
+  %5 = load i32 (%struct.ucred*, i32, i32)*, i32 (%struct.ucred*, i32, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %rgid, i32 %egid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 19
-  %21 = load i32 (%struct.ucred*, i32, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 19
+  %21 = load i32 (%struct.ucred*, i32, i32)*, i32 (%struct.ucred*, i32, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %rgid, i32 %egid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %41, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %50, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -2926,13 +2927,13 @@ define i32 @mac_cred_check_setregid(%struct.ucred* %cred, i32 %rgid, i32 %egid) 
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 %40, i64 0) #3
   br label %50
 
-; <label>:41                                      ; preds = %29
-  %42 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:41:                                     ; preds = %29
+  %42 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setregid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %43 = icmp eq i64 %42, 0
   br i1 %43, label %50, label %44
 
-; <label>:44                                      ; preds = %41
-  %45 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:44:                                     ; preds = %41
+  %45 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %46 = trunc i64 %42 to i32
   %47 = ptrtoint %struct.ucred* %cred to i64
   %48 = zext i32 %rgid to i64
@@ -2940,93 +2941,93 @@ define i32 @mac_cred_check_setregid(%struct.ucred* %cred, i32 %rgid, i32 %egid) 
   call void %45(i32 %46, i64 0, i64 %47, i64 %48, i64 %49, i64 0) #3
   br label %50
 
-; <label>:50                                      ; preds = %44, %41, %34, %31
+; <label>:50:                                     ; preds = %44, %41, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_setresuid(%struct.ucred* %cred, i32 %ruid, i32 %euid, i32 %suid) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 20
-  %5 = load i32 (%struct.ucred*, i32, i32, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 20
+  %5 = load i32 (%struct.ucred*, i32, i32, i32)*, i32 (%struct.ucred*, i32, i32, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32, i32, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %ruid, i32 %euid, i32 %suid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 20
-  %21 = load i32 (%struct.ucred*, i32, i32, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 20
+  %21 = load i32 (%struct.ucred*, i32, i32, i32)*, i32 (%struct.ucred*, i32, i32, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32, i32, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %ruid, i32 %euid, i32 %suid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %42, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %52, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -3036,13 +3037,13 @@ define i32 @mac_cred_check_setresuid(%struct.ucred* %cred, i32 %ruid, i32 %euid,
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 %40, i64 %41) #3
   br label %52
 
-; <label>:42                                      ; preds = %29
-  %43 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:42:                                     ; preds = %29
+  %43 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresuid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %44 = icmp eq i64 %43, 0
   br i1 %44, label %52, label %45
 
-; <label>:45                                      ; preds = %42
-  %46 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:45:                                     ; preds = %42
+  %46 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %47 = trunc i64 %43 to i32
   %48 = ptrtoint %struct.ucred* %cred to i64
   %49 = zext i32 %ruid to i64
@@ -3051,93 +3052,93 @@ define i32 @mac_cred_check_setresuid(%struct.ucred* %cred, i32 %ruid, i32 %euid,
   call void %46(i32 %47, i64 0, i64 %48, i64 %49, i64 %50, i64 %51) #3
   br label %52
 
-; <label>:52                                      ; preds = %45, %42, %34, %31
+; <label>:52:                                     ; preds = %45, %42, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_setresgid(%struct.ucred* %cred, i32 %rgid, i32 %egid, i32 %sgid) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 21
-  %5 = load i32 (%struct.ucred*, i32, i32, i32)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 21
+  %5 = load i32 (%struct.ucred*, i32, i32, i32)*, i32 (%struct.ucred*, i32, i32, i32)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, i32, i32, i32)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cred, i32 %rgid, i32 %egid, i32 %sgid) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 21
-  %21 = load i32 (%struct.ucred*, i32, i32, i32)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 21
+  %21 = load i32 (%struct.ucred*, i32, i32, i32)*, i32 (%struct.ucred*, i32, i32, i32)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, i32, i32, i32)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cred, i32 %rgid, i32 %egid, i32 %sgid) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %42, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %52, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cred to i64
@@ -3147,13 +3148,13 @@ define i32 @mac_cred_check_setresgid(%struct.ucred* %cred, i32 %rgid, i32 %egid,
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 %40, i64 %41) #3
   br label %52
 
-; <label>:42                                      ; preds = %29
-  %43 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:42:                                     ; preds = %29
+  %43 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_setresgid_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %44 = icmp eq i64 %43, 0
   br i1 %44, label %52, label %45
 
-; <label>:45                                      ; preds = %42
-  %46 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:45:                                     ; preds = %42
+  %46 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %47 = trunc i64 %43 to i32
   %48 = ptrtoint %struct.ucred* %cred to i64
   %49 = zext i32 %rgid to i64
@@ -3162,93 +3163,93 @@ define i32 @mac_cred_check_setresgid(%struct.ucred* %cred, i32 %rgid, i32 %egid,
   call void %46(i32 %47, i64 0, i64 %48, i64 %49, i64 %50, i64 %51) #3
   br label %52
 
-; <label>:52                                      ; preds = %45, %42, %34, %31
+; <label>:52:                                     ; preds = %45, %42, %34, %31
   ret i32 %error.4
 }
 
 ; Function Attrs: noimplicitfloat noredzone nounwind ssp
 define i32 @mac_cred_check_visible(%struct.ucred* %cr1, %struct.ucred* %cr2) #0 {
   %tracker = alloca %struct.rm_priotracker, align 8
-  %mpc.04 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
+  %mpc.04 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_static_policy_list, i64 0, i32 0), align 8
   %1 = icmp eq %struct.mac_policy_conf* %mpc.04, null
   br i1 %1, label %._crit_edge9, label %.lr.ph8
 
 .lr.ph8:                                          ; preds = %10, %0
   %mpc.06 = phi %struct.mac_policy_conf* [ %mpc.0, %10 ], [ %mpc.04, %0 ]
   %error.05 = phi i32 [ %error.1, %10 ], [ 0, %0 ]
-  %2 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
-  %3 = load %struct.mac_policy_ops** %2, align 8
-  %4 = getelementptr inbounds %struct.mac_policy_ops* %3, i64 0, i32 22
-  %5 = load i32 (%struct.ucred*, %struct.ucred*)** %4, align 8
+  %2 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 2
+  %3 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %2, align 8
+  %4 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %3, i64 0, i32 22
+  %5 = load i32 (%struct.ucred*, %struct.ucred*)*, i32 (%struct.ucred*, %struct.ucred*)** %4, align 8
   %6 = icmp eq i32 (%struct.ucred*, %struct.ucred*)* %5, null
   br i1 %6, label %10, label %7
 
-; <label>:7                                       ; preds = %.lr.ph8
+; <label>:7:                                      ; preds = %.lr.ph8
   %8 = call i32 %5(%struct.ucred* %cr1, %struct.ucred* %cr2) #3
   %9 = call i32 @mac_error_select(i32 %8, i32 %error.05) #3
   br label %10
 
-; <label>:10                                      ; preds = %7, %.lr.ph8
+; <label>:10:                                     ; preds = %7, %.lr.ph8
   %error.1 = phi i32 [ %9, %7 ], [ %error.05, %.lr.ph8 ]
-  %11 = getelementptr inbounds %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
-  %mpc.0 = load %struct.mac_policy_conf** %11, align 8
+  %11 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.06, i64 0, i32 10, i32 0
+  %mpc.0 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %11, align 8
   %12 = icmp eq %struct.mac_policy_conf* %mpc.0, null
   br i1 %12, label %._crit_edge9, label %.lr.ph8
 
 ._crit_edge9:                                     ; preds = %10, %0
   %error.0.lcssa = phi i32 [ 0, %0 ], [ %error.1, %10 ]
-  %13 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %13 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %14 = icmp eq %struct.mac_policy_conf* %13, null
   br i1 %14, label %29, label %15
 
-; <label>:15                                      ; preds = %._crit_edge9
+; <label>:15:                                     ; preds = %._crit_edge9
   %16 = bitcast %struct.rm_priotracker* %tracker to i8*
-  call void @llvm.lifetime.start(i64 56, i8* %16) #2
+  call void @llvm.lifetime.start(i64 56, i8* %16) #5
   call void @mac_policy_slock_nosleep(%struct.rm_priotracker* %tracker) #3
-  %mpc.11 = load %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
+  %mpc.11 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** getelementptr inbounds (%struct.mac_policy_list_head, %struct.mac_policy_list_head* @mac_policy_list, i64 0, i32 0), align 8
   %17 = icmp eq %struct.mac_policy_conf* %mpc.11, null
   br i1 %17, label %._crit_edge, label %.lr.ph
 
 .lr.ph:                                           ; preds = %26, %15
   %mpc.13 = phi %struct.mac_policy_conf* [ %mpc.1, %26 ], [ %mpc.11, %15 ]
   %error.22 = phi i32 [ %error.3, %26 ], [ %error.0.lcssa, %15 ]
-  %18 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
-  %19 = load %struct.mac_policy_ops** %18, align 8
-  %20 = getelementptr inbounds %struct.mac_policy_ops* %19, i64 0, i32 22
-  %21 = load i32 (%struct.ucred*, %struct.ucred*)** %20, align 8
+  %18 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 2
+  %19 = load %struct.mac_policy_ops*, %struct.mac_policy_ops** %18, align 8
+  %20 = getelementptr inbounds %struct.mac_policy_ops, %struct.mac_policy_ops* %19, i64 0, i32 22
+  %21 = load i32 (%struct.ucred*, %struct.ucred*)*, i32 (%struct.ucred*, %struct.ucred*)** %20, align 8
   %22 = icmp eq i32 (%struct.ucred*, %struct.ucred*)* %21, null
   br i1 %22, label %26, label %23
 
-; <label>:23                                      ; preds = %.lr.ph
+; <label>:23:                                     ; preds = %.lr.ph
   %24 = call i32 %21(%struct.ucred* %cr1, %struct.ucred* %cr2) #3
   %25 = call i32 @mac_error_select(i32 %24, i32 %error.22) #3
   br label %26
 
-; <label>:26                                      ; preds = %23, %.lr.ph
+; <label>:26:                                     ; preds = %23, %.lr.ph
   %error.3 = phi i32 [ %25, %23 ], [ %error.22, %.lr.ph ]
-  %27 = getelementptr inbounds %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
-  %mpc.1 = load %struct.mac_policy_conf** %27, align 8
+  %27 = getelementptr inbounds %struct.mac_policy_conf, %struct.mac_policy_conf* %mpc.13, i64 0, i32 10, i32 0
+  %mpc.1 = load %struct.mac_policy_conf*, %struct.mac_policy_conf** %27, align 8
   %28 = icmp eq %struct.mac_policy_conf* %mpc.1, null
   br i1 %28, label %._crit_edge, label %.lr.ph
 
 ._crit_edge:                                      ; preds = %26, %15
   %error.2.lcssa = phi i32 [ %error.0.lcssa, %15 ], [ %error.3, %26 ]
   call void @mac_policy_sunlock_nosleep(%struct.rm_priotracker* %tracker) #3
-  call void @llvm.lifetime.end(i64 56, i8* %16) #2
+  call void @llvm.lifetime.end(i64 56, i8* %16) #5
   br label %29
 
-; <label>:29                                      ; preds = %._crit_edge, %._crit_edge9
+; <label>:29:                                     ; preds = %._crit_edge, %._crit_edge9
   %error.4 = phi i32 [ %error.0.lcssa, %._crit_edge9 ], [ %error.2.lcssa, %._crit_edge ]
   %30 = icmp eq i32 %error.4, 0
   br i1 %30, label %40, label %31
 
-; <label>:31                                      ; preds = %29
-  %32 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err, i64 0, i32 0, i32 8), align 8
+; <label>:31:                                     ; preds = %29
+  %32 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_err, i64 0, i32 0, i32 8), align 8
   %33 = icmp eq i64 %32, 0
   br i1 %33, label %48, label %34
 
-; <label>:34                                      ; preds = %31
-  %35 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:34:                                     ; preds = %31
+  %35 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %36 = trunc i64 %32 to i32
   %37 = sext i32 %error.4 to i64
   %38 = ptrtoint %struct.ucred* %cr1 to i64
@@ -3256,20 +3257,20 @@ define i32 @mac_cred_check_visible(%struct.ucred* %cr1, %struct.ucred* %cr2) #0 
   call void %35(i32 %36, i64 %37, i64 %38, i64 %39, i64 0, i64 0) #3
   br label %48
 
-; <label>:40                                      ; preds = %29
-  %41 = load i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok, i64 0, i32 0, i32 8), align 8
+; <label>:40:                                     ; preds = %29
+  %41 = load i64, i64* getelementptr inbounds (<{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>, <{ { i32, i32, %struct.sdt_provider*, %struct.anon.72, %struct.argtype_list_head, i8*, i8*, i8*, i64, i32, [4 x i8] } }>* @sdt_mac_framework_kernel_cred_check_visible_mac_check_ok, i64 0, i32 0, i32 8), align 8
   %42 = icmp eq i64 %41, 0
   br i1 %42, label %48, label %43
 
-; <label>:43                                      ; preds = %40
-  %44 = load void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
+; <label>:43:                                     ; preds = %40
+  %44 = load void (i32, i64, i64, i64, i64, i64)*, void (i32, i64, i64, i64, i64, i64)** @sdt_probe_func, align 8
   %45 = trunc i64 %41 to i32
   %46 = ptrtoint %struct.ucred* %cr1 to i64
   %47 = ptrtoint %struct.ucred* %cr2 to i64
   call void %44(i32 %45, i64 0, i64 %46, i64 %47, i64 0, i64 0) #3
   br label %48
 
-; <label>:48                                      ; preds = %43, %40, %34, %31
+; <label>:48:                                     ; preds = %43, %40, %34, %31
   ret i32 %error.4
 }
 
@@ -3287,6 +3288,7 @@ declare void @sdt_probe_register(i8*) #1
 
 attributes #0 = { noimplicitfloat noredzone nounwind ssp "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { noimplicitfloat noredzone "less-precise-fpmad"="false" "no-frame-pointer-elim"="true" "no-frame-pointer-elim-non-leaf"="true" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #2 = { nounwind }
+attributes #2 = { argmemonly nounwind }
 attributes #3 = { nobuiltin noimplicitfloat noredzone nounwind }
 attributes #4 = { nobuiltin noimplicitfloat noredzone }
+attributes #5 = { nounwind }

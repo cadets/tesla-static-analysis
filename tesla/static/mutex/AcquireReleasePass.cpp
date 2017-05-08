@@ -3,12 +3,13 @@
 #include "Debug.h"
 
 #include <llvm/Analysis/CallGraph.h>
-#include <llvm/PassManager.h>
+#include <llvm/IR/LegacyPassManager.h>
 #include <llvm/Support/raw_ostream.h>
 
 #include <algorithm>
 #include <vector>
 
+using llvm::legacy::PassManager;
 using std::unique_ptr;
 using std::set;
 
@@ -67,7 +68,7 @@ bool AcquireReleasePass::ShouldDelete(const Automaton *A,
     return false;
   }
 
-  PassManager passes;
+  legacy::PassManager passes;
   passes.add(new CallGraphWrapperPass);
   auto check = new AcquireReleaseCheck(*A, args);
   passes.add(check);

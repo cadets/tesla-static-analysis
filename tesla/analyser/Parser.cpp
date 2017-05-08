@@ -634,7 +634,7 @@ bool Parser::ParseFunctionCall(Expression *E, const BinaryOperator *Bop,
 
   const auto CreateNewArg = std::bind(&FunctionEvent::add_argument, FnEvent);
   for (auto I = FnCallExpr->arg_begin(); I != FnCallExpr->arg_end(); ++I) {
-    if (!ParseArg(CreateNewArg, I->IgnoreImplicit(), F))
+    if (!ParseArg(CreateNewArg, (*I)->IgnoreImplicit(), F))
       return false;
   }
 
@@ -655,7 +655,7 @@ bool Parser::ParseObjCMessageSend(FunctionEvent *FnEvent,
 
   auto CreateNewArg = std::bind(&FunctionEvent::add_argument, FnEvent);
   for (auto I = OME->arg_begin(); I != OME->arg_end(); ++I) {
-    if (!ParseArg(CreateNewArg, I->IgnoreImplicit(), F))
+    if (!ParseArg(CreateNewArg, (*I)->IgnoreImplicit(), F))
       return false;
   }
 
@@ -1045,6 +1045,12 @@ bool Parser::ParseArg(ArgFactory NextArg, const Expr *E, Flags F,
     // Find an appropriate string representation for the value.
     SourceLocation Loc = P->getLocStart();
     if (Loc.isMacroID()) {
+      if(isa<BinaryOperator>(P)) {
+        // TODO: logic for parsing expanded macros in a binary operation doesn't
+        // exist at the moment - if we see one, give up and don't assign a name
+        // for now
+        return true;
+      }
       //
       // The constant's SourceLocation is within a macro; check if the macro
       // represents the value itself (e.g. #define FOO 1) or if a literal

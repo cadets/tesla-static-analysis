@@ -2,6 +2,8 @@
  * @file bitmask.c
  * Check parsing of flags combined in a bitmask.
  *
+ * TODO: parsing flag names from macro expansions is broken at the moment
+ *
  * RUN: tesla analyse -S %s -o %t -- %cflags
  * RUN: %filecheck -input-file=%t %s
  */
@@ -40,7 +42,6 @@ void context() {
 			 * CHECK:           argument {
 			 * CHECK-NEXT:        type: Constant
 			 * CHECK-NEXT:        value: 3
-			 * CHECK2-NEXT:        name: "BAR | FOO"
 			 * CHECK-NEXT:        constantMatch: Flags
 			 * CHECK:           }
 			 * CHECK:         }
@@ -59,7 +60,6 @@ void context() {
 			 * CHECK:           argument {
 			 * CHECK-NEXT:        type: Constant
 			 * CHECK-NEXT:        value: 5
-			 * CHECK2-NEXT:        name: "FOO | BAZ"
 			 * CHECK-NEXT:        constantMatch: Mask
 			 * CHECK:           }
 			 * CHECK:         }

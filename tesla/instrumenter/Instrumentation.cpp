@@ -538,15 +538,15 @@ Value* tesla::ConstructKey(IRBuilder<>& Builder, Module& M,
 
     Builder.CreateStore(
       Cast(Arg, Twine(i - 1).str(), IntPtrTy, Builder),
-      Builder.CreateStructGEP(Key, i));
+      Builder.CreateStructGEP(nullptr, Key, i));
 
     KeyMask |= (1 << i);
   }
 
-  Value *Mask = Builder.CreateStructGEP(Key, TESLA_KEY_SIZE);
+  Value *Mask = Builder.CreateStructGEP(nullptr, Key, TESLA_KEY_SIZE);
   Builder.CreateStore(ConstantInt::get(IntTy, KeyMask), Mask);
 
-  Value *FreeMaskPtr = Builder.CreateStructGEP(Key, TESLA_KEY_SIZE + 1);
+  Value *FreeMaskPtr = Builder.CreateStructGEP(nullptr, Key, TESLA_KEY_SIZE + 1);
   Builder.CreateStore(ConstantInt::get(IntTy, FreeMask), FreeMaskPtr);
 
   return Key;

@@ -16,7 +16,7 @@ vector<Value*> tesla::CollectArgs(
   // Find named values to be passed to instrumentation.
   std::map<string,Value*> ValuesInScope;
   for (auto G = Mod.global_begin(); G != Mod.global_end(); G++)
-    ValuesInScope[G->getName()] = G;
+    ValuesInScope[G->getName()] = &*G;
 
   auto *Fn = Before->getParent()->getParent();
   for (auto& Arg : Fn->getArgumentList())
@@ -113,7 +113,7 @@ Value* tesla::GetArgumentValue(Value* Param, const Argument& ArgDescrip,
       + "." + Field.name()
     ).str();
 
-    Param = Builder.CreateConstInBoundsGEP2_32(Base, 0, Field.index());
+    Param = Builder.CreateConstInBoundsGEP2_32(nullptr, Base, 0, Field.index());
     Param = Builder.CreateLoad(Param, Name);
 
     return Param;

@@ -153,9 +153,9 @@ class ObjCInstrumentation
     B.SetInsertPoint(Loop);
     PHINode *PHI = B.CreatePHI(Head->getType(), 2);
     PHI->addIncoming(Head, Entry);
-    CallInst *CI = B.CreateCall(B.CreateLoad(B.CreateStructGEP(PHI, 1)), Args);
+    CallInst *CI = B.CreateCall(B.CreateLoad(B.CreateStructGEP(nullptr, PHI, 1)), Args);
     CI->setAttributes(AS);
-    Head = B.CreateLoad(B.CreateStructGEP(Head, 0));
+    Head = B.CreateLoad(B.CreateStructGEP(nullptr, Head, 0));
     B.CreateCondBr(B.CreateIsNull(Head), Exit, Loop);
     PHI->addIncoming(Head, Loop);
   }
@@ -192,7 +192,7 @@ class ObjCInstrumentation
     Value *Sel = B.CreateCall(SelRegisterName,
         B.CreateBitCast(GV, PtrTy));
     // Register it
-    B.CreateCondBr(B.CreateIsNull(B.CreateCall2(ObjCRegisterHook, Sel, Fn)), End, Fail);
+    B.CreateCondBr(B.CreateIsNull(B.CreateCall(ObjCRegisterHook, {Sel, Fn})), End, Fail);
     // Return on success
     B.SetInsertPoint(End);
     B.CreateRetVoid();
@@ -238,7 +238,7 @@ class ObjCInstrumentation
     }
     auto AI = Fn->arg_begin();
     ++(++AI);
-    B.CreateStore(B.CreateBitCast(AI, IMPTy), MethodCache);
+    B.CreateStore(B.CreateBitCast(&*AI, IMPTy), MethodCache);
     B.CreateRet(B.CreateBitCast(Interpose, IMPTy));
 
     bool isVoidRet = Type::getVoidTy(Ctx) == MethodType->getReturnType();
@@ -284,7 +284,7 @@ class ObjCInstrumentation
     BasicBlock *Return = BasicBlock::Create(Ctx, "return", Interpose);
     SmallVector<Value*, 16> Args;
     for (auto I=Interpose->arg_begin(), E=Interpose->arg_end() ; I!=E ; ++I) {
-      Args.push_back(I);
+      Args.push_back(&*I);
     }
     AttributeSet RetAttrs = AS.getRetAttributes();
     AS = AS.removeAttributes(Ctx, AttributeSet::ReturnIndex, RetAttrs);
@@ -422,7 +422,7 @@ public:
       B.SetInsertPoint(Register);
       Value *Head = B.CreateLoad(List);
       B.CreateStore(ConstantInt::get(Type::getInt32Ty(Ctx), 1), Guard);
-      B.CreateStore(Head, B.CreateStructGEP(ListEntry, 0));
+      B.CreateStore(Head, B.CreateStructGEP(nullptr, ListEntry, 0));
       B.CreateStore(ListEntry, List);
       B.CreateBr(Ret);
       appendToGlobalCtors(Mod, ListRegisterFn, 0);

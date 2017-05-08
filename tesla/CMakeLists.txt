@@ -25,12 +25,15 @@ include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 
 # LLVM libraries that we need:
-llvm_map_components_to_libnames(LLVM_LIBS bitreader core irreader option codegen)
+llvm_map_components_to_libnames(LLVM_LIBS analysis support bitreader core
+  irreader option codegen transformutils scalaropts)
 set(LLVM_LINK_COMPONENTS ${LLVM_TARGETS_TO_BUILD})
 
 # Work out of the LLVM source/build trees if LLVM is not installed.
 include_directories("${LLVM_SRC}/include" "${LLVM_OBJ}/include")
 link_directories("${LLVM_OBJ}/lib/")
+
+link_directories("/usr/local/lib")
 
 # Use LLVM's CFLAGS and CXXFLAGS, but filter out optimisations and -DNDEBUG.
 exec_program(${CMAKE_LLVM_CONFIG} ARGS --cflags   OUTPUT_VARIABLE LLVM_C)

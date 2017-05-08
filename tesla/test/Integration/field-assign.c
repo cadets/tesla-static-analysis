@@ -109,8 +109,7 @@ int main(int argc, char *argv[]) {
  * CHECK: match:
  * CHECK:   icmp {{.*}} 31415926
  *
- * TODO: this should actually read DIGITS_OF_PI:
- * CHECK: "sp.field0 = 31415926":
+ * CHECK: "sp.field0 = DIGITS_OF_PI":
  * CHECK:   [[UPDATE_STATE:call void @tesla_update_state]]
  *
  * CHECK: "[[FILENAME]]:{{[0-9]+}}#{{[0-9]+}}:end":
