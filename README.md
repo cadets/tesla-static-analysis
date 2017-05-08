@@ -26,11 +26,9 @@ portability of TESLA so that it can be built and installed more easily by users.
 
 ## Dependencies
 
-* **LLVM 3.4**: can be installed using `pkg` on FreeBSD. Other platforms are not
-  currently supported, but it's likely that a source installation of LLVM 3.4
-  will work, provided that the correct paths are given to cmake.
-* **Z3**: currently required to be installed globally (tested as a from-source
-  installation).
+* **LLVM 4.0**: this is the latest stable version of LLVM - it can be installed
+  from source or from a package manager (Homebrew, pkg, etc.)
+* **Z3**
 * **Protobuf**
 
 ## Build TESLA
@@ -64,7 +62,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/some/sensible/path .
 make install
 ```
 
-## Building Documentation
+## Building Documentation
 
 Building TESLA documentation is disabled by default, but it can be enabled
 using:
