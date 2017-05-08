@@ -74,7 +74,7 @@ void AcquireReleaseCheck::print(raw_ostream &OS, const Module *m) const {
   OS << "[AcqRel] correct usage: " << correctUsage << '\n';
 }
 
-const char *AcquireReleaseCheck::getPassName() const {
+llvm::StringRef AcquireReleaseCheck::getPassName() const {
   return "AcquireReleaseCheck";
 }
 

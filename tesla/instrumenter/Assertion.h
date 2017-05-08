@@ -59,7 +59,7 @@ public:
     : Instrumenter(M, SuppressDI), ModulePass(ID) {}
   virtual ~AssertionSiteInstrumenter();
 
-  const char* getPassName() const {
+  llvm::StringRef getPassName() const {
     return "TESLA assertion site instrumenter";
   }
 

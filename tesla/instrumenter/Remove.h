@@ -17,7 +17,7 @@ public:
     : Instrumenter(M, SuppressDI), ModulePass(ID) {}
   virtual ~RemoveInstrumenter();
 
-  const char* getPassName() const {
+  llvm::StringRef getPassName() const {
     return "TESLA assertion site instrumenter";
   }
 
