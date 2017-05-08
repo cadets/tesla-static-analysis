@@ -41,7 +41,8 @@
 #include "TranslationFn.h"
 
 #include <llvm/ADT/SmallPtrSet.h>
-#include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/Bitcode/BitcodeReader.h>
+#include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/IR/Function.h>
 #include <llvm/IR/InstIterator.h>
 #include <llvm/IR/InstVisitor.h>

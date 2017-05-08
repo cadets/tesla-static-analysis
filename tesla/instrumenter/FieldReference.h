@@ -55,7 +55,7 @@ public:
   static char ID;
   FieldReferenceInstrumenter(const Manifest& M, bool SuppressDI)
     : Instrumenter(M, SuppressDI), ModulePass(ID) {}
-  const char* getPassName() const { return "field reference instrumenter"; }
+  llvm::StringRef getPassName() const { return "field reference instrumenter"; }
 
   ~FieldReferenceInstrumenter();
 

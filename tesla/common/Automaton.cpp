@@ -80,7 +80,7 @@ namespace tesla {
 
 namespace internal {
 
-static const char *XorOnlyName = "tesla-xor-only";
+static llvm::StringRef XorOnlyName = "tesla-xor-only";
 cl::opt<bool> SuppressInclusiveOr(XorOnlyName, cl::init(false), cl::Hidden,
                                   cl::desc("Treat inclusive OR as XOR"));
 

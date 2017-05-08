@@ -25,7 +25,8 @@
 #include <llvm/Analysis/CallGraph.h>
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/Bitcode/BitcodeWriterPass.h>
-#include <llvm/Bitcode/ReaderWriter.h>
+#include <llvm/Bitcode/BitcodeReader.h>
+#include <llvm/Bitcode/BitcodeWriter.h>
 #include <llvm/CodeGen/CommandFlags.h>
 #include <llvm/IR/DataLayout.h>
 #include <llvm/IR/IRPrintingPasses.h>
