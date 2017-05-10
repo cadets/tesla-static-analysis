@@ -14,13 +14,21 @@ static bool is_assert(const CallInst* ci)
 static bool is_entry(const CallInst* ci)
 {
   using namespace std::string_literals;
-  return has_prefix(calledOrCastFunction(ci)->getName().str(), "__entry_stub_"s);
+  auto called_or_cast = calledOrCastFunction(ci);
+  if(!called_or_cast) {
+    return false;
+  }
+  return has_prefix(called_or_cast->getName().str(), "__entry_stub_"s);
 };
 
 static bool is_return(const CallInst* ci)
 {
   using namespace std::string_literals;
-  return has_prefix(calledOrCastFunction(ci)->getName().str(), "__return_stub_"s);
+  auto called_or_cast = calledOrCastFunction(ci);
+  if(!called_or_cast) {
+    return false;
+  }
+  return has_prefix(called_or_cast->getName().str(), "__return_stub_"s);
 };
 
 CheckResult::CheckResult(Status r, const Z3TraceChecker c, 
@@ -127,7 +135,8 @@ std::vector<std::string> CheckResult::call_stack() const
       }
 
       if(auto ci = dyn_cast<CallInst>(&I)) {
-        auto name = calledOrCastFunction(ci)->getName().str();
+        auto called_or_cast = calledOrCastFunction(ci);
+        auto name = called_or_cast ? called_or_cast->getName().str() : "[function pointer]";
 
         if(is_entry(ci)) {
           call_stack.push_back("call: " + Z3TraceChecker::remove_stub(name));

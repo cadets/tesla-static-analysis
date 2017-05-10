@@ -90,11 +90,27 @@ bool Z3TraceChecker::check_event(const CallInst& CI, const tesla::Expression& ex
   }
 }
 
+bool Z3TraceChecker::match_arg(const Value* x, const Value* y) const
+{
+  if(isa<LoadInst>(x) && isa<LoadInst>(y)) {
+    auto lx = cast<LoadInst>(x);
+    auto ly = cast<LoadInst>(y);
+
+    return lx->getPointerOperand() == ly->getPointerOperand();
+  }
+  return x == y;
+}
+
 bool Z3TraceChecker::check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const
 {
   using namespace std::string_literals;
 
-  auto stubbed_name = calledOrCastFunction(&CI)->getName().str();
+  auto called_or_cast = calledOrCastFunction(&CI);
+  if(!called_or_cast) {
+    return false;
+  }
+
+  auto stubbed_name = called_or_cast->getName().str();
   auto called_name = remove_stub(stubbed_name);
   
   if(called_name != expr.function().name()) {
@@ -172,7 +188,7 @@ bool Z3TraceChecker::check_function(const CallInst& CI, const tesla::FunctionEve
           break;
         default:
           assert(arg_map.find(&ex_arg) != arg_map.end() && "Argument list broken");
-          all_match = all_match && (arg_map.find(&ex_arg)->second == call_args[i]);
+          all_match = all_match && match_arg(arg_map.find(&ex_arg)->second, call_args[i]);
           break;
       }
     }
@@ -232,7 +248,12 @@ std::string Z3TraceChecker::remove_stub(const std::string name)
 
 bool Z3TraceChecker::possibly_checked(const CallInst& CI) const
 {
-  const auto& name = calledOrCastFunction(&CI)->getName().str();
+  auto called_or_cast = calledOrCastFunction(&CI);
+  if(!called_or_cast) {
+    return false;
+  }
+
+  const auto& name = called_or_cast->getName().str();
   const auto found = checked_functions_.find(name);
   return found != std::end(checked_functions_);
 }

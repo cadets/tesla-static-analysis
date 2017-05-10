@@ -15,7 +15,7 @@ namespace tesla {
 unique_ptr<Manifest> Z3Pass::run(Manifest& man, Module& mod)
 {
   PassManager Passes;
-  Passes.add(createPromoteMemoryToRegisterPass());
+  //Passes.add(createPromoteMemoryToRegisterPass());
   Passes.add(new StubFunctionsPass);
   Passes.run(mod);
 

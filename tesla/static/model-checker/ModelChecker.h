@@ -121,6 +121,8 @@ public:
 
   bool is_safe() const;
 protected: 
+  bool match_arg(const Value* x, const Value* y) const;
+
   bool check_event(const CallInst& CI, const tesla::Expression& expr) const;
   bool check_function(const CallInst& CI, const tesla::FunctionEvent& expr) const;
   bool check_assert(const CallInst& CI, const tesla::AssertionSite& expr) const;
