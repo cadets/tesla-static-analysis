@@ -34,6 +34,8 @@ Z3TraceChecker::Z3TraceChecker(Function& tf, Module& mod,
   bound_(tf), module_(mod), trace_(TraceFinder::linear_trace(tf)), 
   constraints_(cons), fsm_(fsm)
 {
+  checked_functions_.insert(tesla::INLINE_ASSERTION);
+
   const auto& labels = fsm_.AllLabels();
   for(const auto& expr : labels) {
     if(expr->type() == Expression_Type_FUNCTION) {
