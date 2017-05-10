@@ -135,7 +135,7 @@ FiniteStateMachine<Expression *> FSMBuilder::SequenceFSM(const Sequence &ex) {
 
     fsm.AddEdge(accept_added, initial_added);
   } else {
-    for(auto i = 0; i < ex.maxreps(); i++) {
+    for(auto i = 1; i <= ex.maxreps(); i++) {
       auto rep = SequenceOnceFSM(ex);
       auto& rep_added = fsm.AddSubMachine(rep);
 
@@ -143,7 +143,7 @@ FiniteStateMachine<Expression *> FSMBuilder::SequenceFSM(const Sequence &ex) {
         accept->accepting = false;
         fsm.AddEdge(accept, rep_added.InitialState());
 
-        if(i > ex.minreps()) {
+        if(i >= ex.minreps()) {
           for(const auto& rep_accept : rep_added.AcceptingStates()) {
             fsm.AddEdge(rep_accept, accept_added);
           }
