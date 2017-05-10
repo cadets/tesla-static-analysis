@@ -26,7 +26,7 @@ vector<Value*> tesla::CollectArgs(
   for (auto& I : EntryBlock) {
     auto *Inst = dyn_cast<AllocaInst>(&I);
     if (!Inst)
-      break;
+      continue;
 
     ValuesInScope[Inst->getName()] = Builder.CreateLoad(Inst);
   }
