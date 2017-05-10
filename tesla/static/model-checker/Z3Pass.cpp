@@ -1,4 +1,5 @@
 #include <llvm/IR/LegacyPassManager.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Transforms/Scalar.h>
 
@@ -10,12 +11,20 @@
 using llvm::legacy::FunctionPassManager;
 using llvm::legacy::PassManager;
 
+static cl::opt<bool>
+RunMem2Reg("mem2reg", cl::desc("Run mem2reg pass to speed up checking"),
+           cl::init(false));
+
 namespace tesla {
 
 unique_ptr<Manifest> Z3Pass::run(Manifest& man, Module& mod)
 {
   PassManager Passes;
-  //Passes.add(createPromoteMemoryToRegisterPass());
+  
+  if(RunMem2Reg) {
+    Passes.add(createPromoteMemoryToRegisterPass());
+  }
+
   Passes.add(new StubFunctionsPass);
   Passes.run(mod);
 
