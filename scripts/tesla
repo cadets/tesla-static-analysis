@@ -10,6 +10,7 @@ usage() {
 	echo "    - highlight     (show transitions taken in a .dot graph)"
 	echo "    - instrument    (add TESLA instrumention to LLVM IR)"
 	echo "    - print         (print information about TESLA automata)"
+        echo "    - static        (statically analyse TESLA assertions)"
 	echo
 }
 
