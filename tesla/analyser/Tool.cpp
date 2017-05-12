@@ -53,8 +53,7 @@ cl::opt<string> OutputFile(
 
 cl::list<string> SourcePaths(
   cl::Positional,
-  cl::desc("<source0> [... <sourceN>]"),
-  cl::OneOrMore);
+  cl::desc("<source>"));
 
 
 int main(int argc, const char **argv) {
