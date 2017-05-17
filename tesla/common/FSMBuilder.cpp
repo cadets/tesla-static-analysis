@@ -1,6 +1,9 @@
 #include "Debug.h"
 #include "FSMBuilder.h"
 
+#include <llvm/Support/raw_ostream.h>
+using llvm::errs;
+
 std::string FSMBuilder::NextLabel() {
   return "_s" + std::to_string(label++);
 }
@@ -37,35 +40,52 @@ FiniteStateMachine<Expression *> FSMBuilder::ExpressionFSM(const Expression &ex)
 }
 
 FiniteStateMachine<Expression *> FSMBuilder::BooleanFSM(const BooleanExpr &ex) {
-  auto fsm = FiniteStateMachine<Expression *>{};
+  if(ex.operation() == BooleanExpr::BE_And) {
+    tesla::panic("Can't use AND in an assertion");
 
-  auto initial_state = ::State{NextLabel()};
-  initial_state.initial = true;
-
-  auto accept_state = ::State{NextLabel()};
-  accept_state.accepting = true;
-
-  auto initial_added = fsm.AddState(initial_state);
-  auto accept_added = fsm.AddState(accept_state);
-
-  for(auto i = 0; i < ex.expression_size(); i++) {
-    auto sub_fsm = ExpressionFSM(ex.expression(i));
-
-    fsm.AddSubMachine(sub_fsm);
-    fsm.AddEdge(initial_added, sub_fsm.InitialState());
-    sub_fsm.InitialState()->initial = false;
-
-    for(const auto& sub_accept : sub_fsm.AcceptingStates()) {
-      fsm.AddEdge(sub_accept, accept_added);
-      sub_accept->accepting = false;
+  } else if(ex.operation() == BooleanExpr::BE_Or) {
+    if(ex.expression_size() == 0) {
+      tesla::panic("Empty OR - impossible?");
     }
+
+    auto fsm = ExpressionFSM(ex.expression(0)); 
+
+    for(auto i = 1; i < ex.expression_size(); i++) {
+      fsm = fsm.CrossProduct(ExpressionFSM(ex.expression(i)));
+    }
+
+    return fsm;
+
+  } else if(ex.operation() == BooleanExpr::BE_Xor) {
+    FiniteStateMachine<Expression *> fsm;
+
+    auto initial_added = fsm.AddState(NextLabel());
+    initial_added->initial = true;
+
+    auto accept_added = fsm.AddState(NextLabel());
+    accept_added->accepting = true;
+
+    for(auto i = 0; i < ex.expression_size(); i++) {
+      auto sub_fsm = ExpressionFSM(ex.expression(i));
+
+      fsm.AddSubMachine(sub_fsm);
+      fsm.AddEdge(initial_added, sub_fsm.InitialState());
+      sub_fsm.InitialState()->initial = false;
+
+      for(const auto& sub_accept : sub_fsm.AcceptingStates()) {
+        fsm.AddEdge(sub_accept, accept_added);
+        sub_accept->accepting = false;
+      }
+    }
+
+    if(ex.expression_size() == 0) {
+      fsm.AddEdge(initial_added, accept_added);
+    }
+
+    return fsm;
   }
 
-  if(ex.expression_size() == 0) {
-    fsm.AddEdge(initial_added, accept_added);
-  }
-
-  return fsm;
+  tesla::panic("Unknown type of boolean expression");
 }
 
 FiniteStateMachine<Expression *> FSMBuilder::SequenceOnceFSM(const Sequence &ex) {
