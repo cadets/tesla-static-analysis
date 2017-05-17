@@ -51,11 +51,11 @@ FiniteStateMachine<Expression *> FSMBuilder::BooleanFSM(const BooleanExpr &ex) {
   for(auto i = 0; i < ex.expression_size(); i++) {
     auto sub_fsm = ExpressionFSM(ex.expression(i));
 
-    auto& sub_added = fsm.AddSubMachine(sub_fsm);
-    fsm.AddEdge(initial_added, sub_added.InitialState());
-    sub_added.InitialState()->initial = false;
+    fsm.AddSubMachine(sub_fsm);
+    fsm.AddEdge(initial_added, sub_fsm.InitialState());
+    sub_fsm.InitialState()->initial = false;
 
-    for(const auto& sub_accept : sub_added.AcceptingStates()) {
+    for(const auto& sub_accept : sub_fsm.AcceptingStates()) {
       fsm.AddEdge(sub_accept, accept_added);
       sub_accept->accepting = false;
     }
@@ -84,16 +84,16 @@ FiniteStateMachine<Expression *> FSMBuilder::SequenceOnceFSM(const Sequence &ex)
 
   for(auto i = 0; i < ex.expression_size(); i++) {
     auto sub_fsm = ExpressionFSM(ex.expression(i));
-    auto& sub_added = fsm.AddSubMachine(sub_fsm);
+    fsm.AddSubMachine(sub_fsm);
 
     for(const auto& accept : tails) {
       accept->accepting = false;
-      fsm.AddEdge(accept, sub_added.InitialState());
+      fsm.AddEdge(accept, sub_fsm.InitialState());
     }
 
-    sub_added.InitialState()->initial = false;
+    sub_fsm.InitialState()->initial = false;
 
-    tails = sub_added.AcceptingStates();
+    tails = sub_fsm.AcceptingStates();
   }
 
   for(const auto& accept : tails) {
@@ -122,37 +122,37 @@ FiniteStateMachine<Expression *> FSMBuilder::SequenceFSM(const Sequence &ex) {
   if(ex.maxreps() == std::numeric_limits<int>::max()) {
     for(auto i = 0; i < ex.minreps(); i++) {
       auto rep = SequenceOnceFSM(ex);
-      auto& rep_added = fsm.AddSubMachine(rep);
+      fsm.AddSubMachine(rep);
 
       for(const auto& accept : tails) {
         accept->accepting = false;
-        fsm.AddEdge(accept, rep_added.InitialState());
+        fsm.AddEdge(accept, rep.InitialState());
       }
 
-      rep_added.InitialState()->initial = false;
-      tails = rep_added.AcceptingStates();
+      rep.InitialState()->initial = false;
+      tails = rep.AcceptingStates();
     }
 
     fsm.AddEdge(accept_added, initial_added);
   } else {
     for(auto i = 1; i <= ex.maxreps(); i++) {
       auto rep = SequenceOnceFSM(ex);
-      auto& rep_added = fsm.AddSubMachine(rep);
+      fsm.AddSubMachine(rep);
 
       for(const auto& accept : tails) {
         accept->accepting = false;
-        fsm.AddEdge(accept, rep_added.InitialState());
+        fsm.AddEdge(accept, rep.InitialState());
 
         if(i >= ex.minreps()) {
-          for(const auto& rep_accept : rep_added.AcceptingStates()) {
+          for(const auto& rep_accept : rep.AcceptingStates()) {
             fsm.AddEdge(rep_accept, accept_added);
           }
         }
       }
 
-      rep_added.InitialState()->initial = false;
+      rep.InitialState()->initial = false;
 
-      tails = rep_added.AcceptingStates();
+      tails = rep.AcceptingStates();
     }
   }
 
