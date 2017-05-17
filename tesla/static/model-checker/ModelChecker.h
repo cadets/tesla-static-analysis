@@ -5,7 +5,7 @@
 #include "tesla.pb.h"
 #include "TraceFinder.h"
 
-#include <fsm/finite_state_machine.h>
+#include <fsm/fsm.h>
 
 #include <llvm/IR/Function.h>
 #include <llvm/IR/Instructions.h>

@@ -2,9 +2,10 @@
 #define MODEL_GENERATOR_H
 
 #include "Automaton.h"
-#include "fsm/finite_state_machine.h"
 #include "Manifest.h"
 #include "tesla.pb.h"
+
+#include <fsm/fsm.h>
 
 #include <vector>
 #include <set>
