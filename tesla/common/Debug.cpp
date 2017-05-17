@@ -108,6 +108,36 @@ std::string tesla::ProtoDump(google::protobuf::Message *m) {
   return ProtobufText;
 }
 
+std::string tesla::ArgString(const tesla::Argument& arg)
+{
+  std::stringstream stream;
+
+  switch(arg.type()) {
+    case Argument_Type_Constant:
+      stream << arg.value();
+      break;
+
+    case Argument_Type_Variable:
+      stream << arg.name();
+      break;
+
+    case Argument_Type_Any:
+      stream << "ANY";
+      break;
+
+    case Argument_Type_Field:
+      stream << ArgString(arg.field().base()) << arg.field().name();
+      break;
+
+    case Argument_Type_Indirect:
+      // todo: is this correct?
+      stream << "&" << ArgString(arg.indirection());
+      break;
+  }
+
+  return stream.str();
+}
+
 std::string tesla::LabelString(const tesla::Expression* ex) {
   std::stringstream stream;
 
@@ -130,7 +160,14 @@ std::string tesla::LabelString(const tesla::Expression* ex) {
         stream << "exit:";
       }
 
-      stream << ex->function().function().name() << "()";
+      stream << ex->function().function().name() << '(';
+      for(auto i = 0; i < ex->function().argument_size(); i++) {
+        stream << tesla::ArgString(ex->function().argument(i));
+        if(i != ex->function().argument_size() - 1) {
+          stream << ", ";
+        }
+      }
+      stream << ')';
 
       if(ex->function().has_expectedreturnvalue()) {
         stream << " = " << ex->function().expectedreturnvalue().value();

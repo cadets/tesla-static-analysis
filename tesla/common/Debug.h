@@ -53,6 +53,7 @@ namespace llvm {
 namespace tesla {
 
 std::string LabelString(const Expression* ex);
+std::string ArgString(const Argument& arg);
 
 llvm::raw_ostream& debugs(llvm::StringRef DebugModuleName = "tesla");
 
