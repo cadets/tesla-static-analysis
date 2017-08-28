@@ -11,6 +11,6 @@ add_dependencies(run-demos
 	tesla-analyse
 	tesla-cat
 	tesla-get-triple
-	tesla-instrument
+        #tesla-instrument
 	tesla-print
 )

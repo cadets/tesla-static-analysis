@@ -1,4 +1,7 @@
-cmake_minimum_required(VERSION 2.9)
+cmake_minimum_required(VERSION 3.3)
+
+set(CMAKE_MACOSX_RPATH 1)
+cmake_policy(SET CMP0057 NEW)
 
 project(TESLA)
 
@@ -16,12 +19,12 @@ include(cmake/CopyFiles.cmake)
 
 # Include LLVM configuration:
 find_package(LLVM 4.0
-  REQUIRED
+  CONFIG REQUIRED
 )
 set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/tesla)
 set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/${CMAKE_CFG_INTDIR}/tesla)
-set(LLVM_PLUGIN_EXT “so”)
 set(LLVM_ENABLE_PLUGINS ON)
+include(HandleLLVMOptions)
 include(AddLLVM)
 
 if(NOT CMAKE_LLVM_CONFIG)
