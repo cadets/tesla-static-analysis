@@ -16,6 +16,11 @@ add_llvm_executable(tesla-analyse
 	Tool.cpp
 	Visitor.cpp
 )
+
+# TeslaCommon no longer gets linked against the full set of LLVM libraries, so
+# the analyser needs to be linked against them before it is linked against the
+# TESLA library.
+target_link_libraries(tesla-analyse ${LLVM_LIBS})
 target_link_libraries(tesla-analyse TeslaCommon)
 install(TARGETS tesla-analyse DESTINATION bin)
 
@@ -36,6 +41,4 @@ endforeach(i)
 # link the executable against some important libraries like LLVMSupport.
 #
 # Instead, we need to pass in ${LLVM_LIBS} explicitly.
-llvm_map_components_to_libnames(LLVM_LIBS bitreader mcparser)
-target_link_libraries(tesla-analyse ${LLVM_LIBS})
 
