@@ -49,9 +49,6 @@ using namespace tesla;
 
 using std::string;
 
-cl::opt<string> ManifestName(cl::desc("<input file>"),
-                             cl::Positional, cl::Required);
-
 cl::opt<string> OutputFile("o", cl::desc("<output file>"), cl::init("-"));
 
 enum OutputFormat { dot, instr, names, source, summary, text };
@@ -101,7 +98,7 @@ main(int argc, char *argv[]) {
   auto& err = llvm::errs();
 
   std::unique_ptr<Manifest> Manifest(
-    Manifest::load(llvm::errs(), Determinism, ManifestName));
+    Manifest::load(llvm::errs(), Determinism));
 
   if (!Manifest) {
     err << "Unable to read manifest '" << ManifestName << "'\n";

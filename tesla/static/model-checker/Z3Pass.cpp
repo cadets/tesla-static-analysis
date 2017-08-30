@@ -12,7 +12,7 @@ using llvm::legacy::FunctionPassManager;
 using llvm::legacy::PassManager;
 
 static cl::opt<bool>
-RunMem2Reg("mem2reg", cl::desc("Run mem2reg pass to speed up checking"),
+RunMem2Reg("tesla-run-mem2reg", cl::desc("Run mem2reg pass to speed up checking"),
            cl::init(false));
 
 namespace tesla {

@@ -37,6 +37,7 @@
 
 #include <llvm/ADT/ArrayRef.h>
 #include <llvm/ADT/StringRef.h>
+#include <llvm/Support/CommandLine.h>
 
 #include <map>
 #include <vector>
@@ -46,6 +47,8 @@ namespace llvm {
 }
 
 namespace tesla {
+
+extern llvm::cl::opt<std::string> ManifestName;
 
 class AutomatonDescription;
 class FunctionEvent;
