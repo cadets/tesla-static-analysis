@@ -6,19 +6,17 @@ using namespace llvm;
 
 namespace {
 
-struct Test : public ModulePass {
+struct InstrumentPass : public ModulePass {
   static char ID;
-  Test() : ModulePass(ID) {}
+  InstrumentPass() : ModulePass(ID) {}
 
   bool runOnModule(Module& M) override {
-    errs() << "Module!\n";
     return false;
   }
 };
 
-char Test::ID = 0;
+char InstrumentPass::ID = 0;
 
-static RegisterPass<Test> X("test", "test pass",
-                            false, false);
+static RegisterPass<InstrumentPass> X("tesla-instrument", "Instrument IR with TESLA");
 
 }

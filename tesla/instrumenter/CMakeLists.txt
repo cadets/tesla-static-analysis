@@ -1,12 +1,6 @@
 # Dependency tracking: protobuf_generate_cpp() only sort-of works across dirs.
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS tesla.proto)
 
-#set(LLVM_LINK_COMPONENTS ${LLVM_TARGETS_TO_BUILD}
-#	asmparser
-#	bitreader
-#	bitwriter
-#)
-
 unset(LLVM_LINK_COMPONENTS)
 add_llvm_loadable_module(LLVMTeslaInstrument
   InstrumentPass.cpp
@@ -25,14 +19,10 @@ add_llvm_loadable_module(LLVMTeslaInstrument
   opt
 )
 
-# add_llvm_executable(tesla-instrument
-# 	instrument.cpp
-# )
-# 
 target_link_libraries(LLVMTeslaInstrument
   TeslaCommon
 )
-# 
-# include_directories("${CMAKE_SOURCE_DIR}/../include")
-# 
+
+include_directories("${CMAKE_SOURCE_DIR}/../include")
+ 
 install(TARGETS LLVMTeslaInstrument DESTINATION lib)
