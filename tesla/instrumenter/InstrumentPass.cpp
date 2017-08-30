@@ -1,3 +1,6 @@
+#include "Debug.h"
+#include "Manifest.h"
+
 #include <llvm/Pass.h>
 #include <llvm/IR/Function.h>
 #include <llvm/Support/raw_ostream.h>
@@ -11,6 +14,11 @@ struct InstrumentPass : public ModulePass {
   InstrumentPass() : ModulePass(ID) {}
 
   bool runOnModule(Module& M) override {
+    std::unique_ptr<tesla::Manifest> Manifest(tesla::Manifest::load(llvm::errs()));
+    if (!Manifest) {
+      tesla::panic("unable to load TESLA manifest");
+    }
+
     return false;
   }
 };
