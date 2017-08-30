@@ -26,19 +26,21 @@ set(model_checker_sources
   model-checker/Z3Pass.cpp
 )
 
-add_llvm_executable(tesla-static
-  static.cpp
+unset(LLVM_LINK_COMPONENTS)
+add_llvm_loadable_module(LLVMTeslaStatic
+  StaticPass.cpp
   ManifestPass.cpp
   ManifestPassManager.cpp
   ${model_checker_sources}
   ${mutex_sources}
+
+  PLUGIN_TOOL
+  opt
 )
 
-target_link_libraries(tesla-static
+target_link_libraries(LLVMTeslaStatic
   TeslaCommon
   z3
 )
 
-include_directories("${CMAKE_SOURCE_DIR}/tesla/trace/include")
-
-install(TARGETS tesla-static DESTINATION bin)
+install(TARGETS LLVMTeslaStatic DESTINATION lib)
