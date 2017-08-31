@@ -22,17 +22,39 @@ fi
 TOOL_NAME="tesla-$1"
 shift
 
+if [ "$TOOL_NAME" = "tesla-instrument" ] || [ "$TOOL_NAME" = "tesla-static" ]; then
+  LIB_EXT="so"
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    LIB_EXT="dylib"
+  fi
+
+  LIB_NAME="LLVMTesla.$LIB_EXT"
+
+  if [[ "$TESLA_BUILD_DIR" ]]; then
+    LIB=`find $TESLA_BUILD_DIR/tesla -name $LIB_NAME`
+  else
+    LIB="$LIB_NAME"
+  fi
+
+  opt -load "$LIB" "-$TOOL_NAME" "$@"
+  exit $?
+fi
+
 #
 # TESLA_BUILD_DIR takes precedence, otherwise try to find beside wrapper
 #
 if [ $TESLA_BUILD_DIR ]; then
 	TOOL=`find $TESLA_BUILD_DIR/tesla -name $TOOL_NAME`
 	if [ ! "$TOOL" ]; then
-                TOOL="$(dirname $(which $0))/${TOOL_NAME}"
-                # echo $TOOL
-                if [ ! -e "${TOOL}" ]; then
-                        TOOL=
-                fi
+		echo "No '$TOOL_NAME' in TESLA_BUILD_DIR ('$TESLA_BUILD_DIR')."
+		exit 1
+	fi
+else
+	TOOL="$(dirname $(which $0))/${TOOL_NAME}"
+	# echo $TOOL
+	if [ ! -e "${TOOL}" ]; then
+		TOOL=
 	fi
 fi
 
@@ -53,4 +75,3 @@ if [ $ret -ne 0 ] ; then
 	echo Invocation was $TOOL "$@"
 	exit $ret
 fi
-
