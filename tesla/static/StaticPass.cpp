@@ -3,7 +3,6 @@
 #include "tesla.pb.h"
 
 #include "model-checker/Z3Pass.h"
-#include "mutex/AcquireReleasePass.h"
 
 #include <google/protobuf/text_format.h>
 #include <llvm/Pass.h>
