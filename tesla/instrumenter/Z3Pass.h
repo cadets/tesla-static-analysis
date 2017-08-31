@@ -6,7 +6,7 @@
 #include <llvm/Support/raw_ostream.h>
 
 #include "Debug.h"
-#include "../ManifestPass.h"
+#include "ManifestPass.h"
 #include "ModelChecker.h"
 
 using std::unique_ptr;

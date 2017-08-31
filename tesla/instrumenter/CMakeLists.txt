@@ -2,7 +2,7 @@
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS tesla.proto)
 
 unset(LLVM_LINK_COMPONENTS)
-add_llvm_loadable_module(LLVMTeslaInstrument
+add_llvm_loadable_module(LLVMTesla
   InstrumentPass.cpp
   Annotations.cpp
   Assertion.cpp
@@ -15,14 +15,25 @@ add_llvm_loadable_module(LLVMTeslaInstrument
   Remove.cpp
   TranslationFn.cpp
 
+  StaticPass.cpp
+  ManifestPass.cpp
+  CheckResult.cpp
+  InlineAllPass.cpp
+  StubFunctionsPass.cpp
+  TraceFinder.cpp
+  ModelChecker.cpp
+  Z3Solver.cpp
+  Z3Pass.cpp
+
   PLUGIN_TOOL
   opt
 )
 
-target_link_libraries(LLVMTeslaInstrument
+target_link_libraries(LLVMTesla
   TeslaCommon
+  z3
 )
 
 include_directories("${CMAKE_SOURCE_DIR}/../include")
  
-install(TARGETS LLVMTeslaInstrument DESTINATION lib)
+install(TARGETS LLVMTesla DESTINATION lib)
