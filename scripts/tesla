@@ -22,6 +22,27 @@ fi
 TOOL_NAME="tesla-$1"
 shift
 
+# The instrumenter and static analysis tool are now implemented as opt passes,
+# so instead of calling them as a tool, we pass some arguments through to opt
+if [ "$TOOL_NAME" = "tesla-instrument" ] || [ "$TOOL_NAME" = "tesla-static" ]; then
+  LIB_EXT="so"
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    LIB_EXT="dylib"
+  fi
+
+  LIB_NAME="LLVMTesla.$LIB_EXT"
+
+  if [[ "$TESLA_BUILD_DIR" ]]; then
+    LIB=`find $TESLA_BUILD_DIR/tesla -name $LIB_NAME`
+  else
+    LIB="$LIB_NAME"
+  fi
+
+  opt -load "$LIB" "-$TOOL_NAME" "$@"
+  exit $?
+fi
+
 #
 # TESLA_BUILD_DIR takes precedence, otherwise try to find beside wrapper
 #
@@ -33,7 +54,7 @@ if [ $TESLA_BUILD_DIR ]; then
 	fi
 else
 	TOOL="$(dirname $(which $0))/${TOOL_NAME}"
-	# echo $TOOL
+	# echo $TOOL
 	if [ ! -e "${TOOL}" ]; then
 		TOOL=
 	fi
@@ -56,4 +77,3 @@ if [ $ret -ne 0 ] ; then
 	echo Invocation was $TOOL "$@"
 	exit $ret
 fi
-
