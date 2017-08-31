@@ -22,6 +22,8 @@ fi
 TOOL_NAME="tesla-$1"
 shift
 
+# The instrumenter and static analysis tool are now implemented as opt passes,
+# so instead of calling them as a tool, we pass some arguments through to opt
 if [ "$TOOL_NAME" = "tesla-instrument" ] || [ "$TOOL_NAME" = "tesla-static" ]; then
   LIB_EXT="so"
 
