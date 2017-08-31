@@ -4,4 +4,4 @@ configure_file(highlight-transitions
 	${CMAKE_BINARY_DIR}/tesla/tesla-highlight COPYONLY)
 
 install(PROGRAMS ${CMAKE_BINARY_DIR}/tesla/tesla-highlight DESTINATION bin)
-install(PROGRAMS tesla DESTINATION bin)
+install(PROGRAMS tesla tesla-static tesla-instrument DESTINATION bin)

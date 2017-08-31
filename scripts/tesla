@@ -28,14 +28,11 @@ shift
 if [ $TESLA_BUILD_DIR ]; then
 	TOOL=`find $TESLA_BUILD_DIR/tesla -name $TOOL_NAME`
 	if [ ! "$TOOL" ]; then
-		echo "No '$TOOL_NAME' in TESLA_BUILD_DIR ('$TESLA_BUILD_DIR')."
-		exit 1
-	fi
-else
-	TOOL="$(dirname $(which $0))/${TOOL_NAME}"
-	# echo $TOOL
-	if [ ! -e "${TOOL}" ]; then
-		TOOL=
+                TOOL="$(dirname $(which $0))/${TOOL_NAME}"
+                # echo $TOOL
+                if [ ! -e "${TOOL}" ]; then
+                        TOOL=
+                fi
 	fi
 fi
 
