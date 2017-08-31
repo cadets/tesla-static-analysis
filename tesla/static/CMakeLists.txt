@@ -2,13 +2,13 @@ unset(LLVM_LINK_COMPONENTS)
 add_llvm_loadable_module(LLVMTeslaStatic
   StaticPass.cpp
   ManifestPass.cpp
-  model-checker/CheckResult.cpp
-  model-checker/InlineAllPass.cpp
-  model-checker/StubFunctionsPass.cpp
-  model-checker/TraceFinder.cpp
-  model-checker/ModelChecker.cpp
-  model-checker/Z3Solver.cpp
-  model-checker/Z3Pass.cpp
+  CheckResult.cpp
+  InlineAllPass.cpp
+  StubFunctionsPass.cpp
+  TraceFinder.cpp
+  ModelChecker.cpp
+  Z3Solver.cpp
+  Z3Pass.cpp
 
   PLUGIN_TOOL
   opt

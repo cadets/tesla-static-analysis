@@ -50,41 +50,6 @@ private:
   const std::string PrefixMessage(std::string prefix, std::string message) const;
 };
 
-/*!
- * Runs \ref tesla::ManifestPass es on a manifest.
- */
-class ManifestPassManager {
-public:
-  /// Construct a manager for a manifest / module pair.
-  ManifestPassManager(std::unique_ptr<Manifest> Ma, std::unique_ptr<llvm::Module> Mo);
-
-  /*!
-   * Add a pass to the current list to be run.
-   *
-   * The newly added pass will be run after all previously added passes.
-   */
-  void addPass(ManifestPass *pass);
-  
-  /*! 
-   * Run all passes in the order they were added
-   */
-  void runPasses();
-
-  /*!
-   * Retrieve the resulting manifest after running passes.
-   *
-   * Must only be called if passes were run successfully.
-   */
-  const tesla::Manifest& getResult() const;
-
-  /// Whether or not the passes were run successfully.
-  bool successful() const;
-private:
-  std::unique_ptr<tesla::Manifest> Manifest;
-  std::unique_ptr<llvm::Module> Mod;
-  std::vector<ManifestPass *> passes;
-};
-
 }
 
 #endif
