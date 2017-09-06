@@ -14,6 +14,16 @@ usage() {
 	echo
 }
 
+best_opt() {
+  brew=$(command -v brew)
+  ret=$?
+  if [[ $ret -eq 0 ]]; then
+    $($brew --prefix llvm)/bin/opt "$@"
+  else
+    opt "$@"
+  fi
+}
+
 if [ ! $1 ]; then
 	usage
 	exit 1
@@ -21,10 +31,6 @@ fi
 
 TOOL_NAME="tesla-$1"
 shift
-
-# Use the default opt by default, but allow it to be overridden if necessary
-# (to use the same version of LLVM as the TESLA passes were compiled against)
-OPT=${OPT:-opt}
 
 # The instrumenter and static analysis tool are now implemented as opt passes,
 # so instead of calling them as a tool, we pass some arguments through to opt
@@ -43,7 +49,7 @@ if [ "$TOOL_NAME" = "tesla-instrument" ] || [ "$TOOL_NAME" = "tesla-static" ]; t
     LIB="$LIB_NAME"
   fi
 
-  $OPT -load "$LIB" "-$TOOL_NAME" "$@"
+  best_opt -load "$LIB" "-$TOOL_NAME" "$@"
   exit $?
 fi
 
