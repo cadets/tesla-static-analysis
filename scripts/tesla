@@ -34,6 +34,8 @@ shift
 
 # The instrumenter and static analysis tool are now implemented as opt passes,
 # so instead of calling them as a tool, we pass some arguments through to opt
+# tesla-static doesn't modify the IR file that it's given, but it still wants to
+# produce some output, so we silence it by redirecting to /dev/null.
 if [ "$TOOL_NAME" = "tesla-instrument" ] || [ "$TOOL_NAME" = "tesla-static" ]; then
   LIB_EXT="so"
 
@@ -49,7 +51,12 @@ if [ "$TOOL_NAME" = "tesla-instrument" ] || [ "$TOOL_NAME" = "tesla-static" ]; t
     LIB="$LIB_NAME"
   fi
 
-  best_opt -load "$LIB" "-$TOOL_NAME" "$@"
+  if [ "$TOOL_NAME" = "tesla-static" ]; then
+    best_opt -load "$LIB" "-$TOOL_NAME" "$@" > /dev/null
+  else
+    best_opt -load "$LIB" "-$TOOL_NAME" "$@"
+  fi
+
   exit $?
 fi
 
