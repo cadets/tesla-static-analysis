@@ -52,6 +52,6 @@ bool StaticPass::runOnModule(Module& M)
 }
 
 char StaticPass::ID = 0;
-static RegisterPass<StaticPass> X("tesla-static", "Optimise TESLA instrumentation statically");
+static RegisterPass<StaticPass> X("tesla-static", "Optimise TESLA instrumentation statically", true, true);
 
 }
