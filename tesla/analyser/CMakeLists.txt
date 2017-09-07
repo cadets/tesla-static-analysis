@@ -20,8 +20,6 @@ add_llvm_executable(tesla-analyse
 # TeslaCommon no longer gets linked against the full set of LLVM libraries, so
 # the analyser needs to be linked against them before it is linked against the
 # TESLA library.
-target_link_libraries(tesla-analyse ${LLVM_LIBS})
-target_link_libraries(tesla-analyse TeslaCommon)
 install(TARGETS tesla-analyse DESTINATION bin)
 
 
@@ -34,8 +32,11 @@ foreach(i
     Tooling Frontend Driver Serialization Parse Sema Analysis 
     Sema Serialization Tooling ASTMatchers AST Edit Lex Basic 
 )
-	target_link_libraries(tesla-analyse clang${i})
+  target_link_libraries(tesla-analyse clang${i})
 endforeach(i)
+
+target_link_libraries(tesla-analyse ${LLVM_LIBS})
+target_link_libraries(tesla-analyse TeslaCommon)
 
 # Simply using add_llvm_executable() by itself isn't enough: that doesn't
 # link the executable against some important libraries like LLVMSupport.
